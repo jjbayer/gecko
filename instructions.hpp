@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
-#include <iostream>
 #include <vector>
+
 
 union Object {
     int64_t as_int;  // TODO: what  if 32 bit arch?
@@ -14,44 +14,14 @@ using InstructionPointer = int;
 using Instruction = std::function<void(std::vector<Object> & data, InstructionPointer & ip)>;
 
 
-Instruction setInt(ObjectId target, int64_t value)
-{
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_int = value;
-    };
-}
+Instruction setInt(ObjectId target, int64_t value);
 
-Instruction addInt(ObjectId left, ObjectId right, ObjectId target)
-{
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_int = data[left].as_int + data[right].as_int;
-    };
-}
+Instruction addInt(ObjectId left, ObjectId right, ObjectId target);
 
-Instruction printInt(ObjectId id)
-{
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        std::cout << "[int " << data[id].as_int << "]\n";
-    };
-}
+Instruction printInt(ObjectId id);
 
-Instruction intGte(ObjectId left, ObjectId right, ObjectId target)
-{
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_int = data[left].as_int >= data[right].as_int;
-    };
-}
+Instruction intGte(ObjectId left, ObjectId right, ObjectId target);
 
-Instruction jumpIf(ObjectId condition, InstructionPointer ipNew)
-{
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        if( data[condition].as_int ) ip = ipNew - 1;
-    };
-}
+Instruction jumpIf(ObjectId condition, InstructionPointer ipNew);
 
-Instruction jump(InstructionPointer ipNew)
-{
-    return [=](std::vector<Object> &, InstructionPointer & ip) {
-        ip = ipNew - 1;
-    };
-}
+Instruction jump(InstructionPointer ipNew);
