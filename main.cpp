@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <functional>
 
 
 // template<typename T>
@@ -35,127 +36,87 @@
 // }
 
 
-struct Object
+union Object {
+    int64_t as_int;  // TODO: what  if 32 bit arch?
+    double as_float;
+    // RefCounted<std::string> as_string; // TODO: own string type
+};
+
+using ObjectId = int;
+using InstructionPointer = int;
+using Instruction = std::function<void(std::vector<Object> & data, InstructionPointer & ip)>;
+
+
+Instruction setInt(ObjectId target, int64_t value)
 {
-    enum Type
-    {
-        INT,
-        FLOAT,
-        STRING
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_int = value;
     };
-
-    Type type;
-    union {
-        int64_t as_int;  // TODO: what  if 32 bit arch?
-        double as_float;
-        // RefCounted<std::string> as_string; // TODO: own string type
-    };
-};
-
-
-
-enum InstructionType
-{
-    SET_INT,
-    ADD_INT,
-    INT_GTE,
-    JUMP,
-    JUMP_IF,
-    PRINT_INT,
-};
-
-struct Instruction
-{
-    InstructionType type;
-    int arg0 = 0;
-    int arg1 = 0;
-    int arg2 = 0; // TODO: args as union. same union as object?
-};
-
-void execute(const std::vector<Instruction> & instructions, std::vector<Object> & data)
-{
-    const auto maxCount = 200;
-    int count = 0;
-
-    for(auto i = 0; i < instructions.size(); i++) {
-        // std::cout << "Count = " << count++ <<  ", IP = " << i << std::endl;
-        const auto & instruction = instructions[i];
-        switch(instruction.type) {
-            case SET_INT:
-                data[instruction.arg0].type = Object::INT;
-                data[instruction.arg0].as_int = instruction.arg1;
-                break;
-            case ADD_INT:
-                data[instruction.arg2].as_int = data[instruction.arg0].as_int + data[instruction.arg1].as_int;
-                break;
-            case INT_GTE:
-                data[instruction.arg2].as_int = data[instruction.arg0].as_int >= data[instruction.arg1].as_int;
-                break;
-            case JUMP:
-                i = instruction.arg0 - 1; // Because of i++, slightly stupid
-                // std::cout << "IP after jump should be " << i << std::endl;
-                break;
-            case JUMP_IF:
-                if( data[instruction.arg0].as_int ) {
-                    i = instruction.arg1 - 1; // Because of i++, slightly stupid
-                }
-                break;
-            case PRINT_INT:
-                std::cout << data[instruction.arg0].as_int << std::endl;
-                break;
-            default:
-                std::cerr << "Not implemented: " << instruction.type;
-                break;
-        }
-
-        if( count > maxCount ) {
-            return;
-        }
-    }
 }
 
+Instruction addInt(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_int = data[left].as_int + data[right].as_int;
+    };
+}
 
+Instruction printInt(ObjectId id)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        std::cout << "[int " << data[id].as_int << "]\n";
+    };
+}
 
+Instruction intGte(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_int = data[left].as_int >= data[right].as_int;
+    };
+}
 
+Instruction jumpIf(ObjectId condition, InstructionPointer ipNew)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        if( data[condition].as_int ) ip = ipNew - 1;
+    };
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+Instruction jump(InstructionPointer ipNew)
+{
+    return [=](std::vector<Object> &, InstructionPointer & ip) {
+        ip = ipNew - 1;
+    };
+}
 
 
 
 int main()
 {
+
+
+
     std::vector<Instruction> instructions {
-        { SET_INT, 0, 666 },
-        { SET_INT, 1, 123 },
-        { ADD_INT, 0, 1, 2 },
-        { PRINT_INT, 2 },
-        { SET_INT, 3, 0 },
-        { SET_INT, 4, 10 },
-        { INT_GTE, 3, 4, 5 },
-        { JUMP_IF, 5, 12 },
-            { PRINT_INT, 3 },
-            { SET_INT, 6, 1 },
-            { ADD_INT, 3, 6, 3 },
-        { JUMP, 6 },
-        { SET_INT, 12, 1337},
-        { PRINT_INT, 12 },
+        setInt(0, 666),
+        setInt(1, 123),
+        addInt(0, 1, 2),
+        printInt(2),
+        setInt(3, 0),
+        setInt(4, 10),
+        intGte(3, 4, 5),
+        jumpIf(5, 12),
+            printInt(3),
+            setInt(6, 1),
+            addInt(3, 6, 3),
+        jump(6),
+        setInt(12, 1337),
+        printInt(12),
     };
 
     std::vector<Object> data(100);
-
-    execute(instructions, data);
-
+    for(auto i = 0; i < instructions.size(); i++) {
+        instructions[i](data, i);
+    }
 
     return 0;
 }
