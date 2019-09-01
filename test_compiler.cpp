@@ -27,6 +27,50 @@ int main()
                         ));
     program.addStatement(std::move(funCall));
 
+    program.addStatement(
+        std::make_unique<Assignment>(
+            std::make_unique<Name>("x"),
+            std::make_unique<IntLiteral>(0)
+        )
+    );
+
+    auto loopBody = std::make_unique<Scope>();
+    {
+        auto funCall = std::make_unique<FunctionCall>(
+            std::make_unique<Name>("print")
+        );
+        funCall->addArgument(std::make_unique<Name>("x"));
+        loopBody->addStatement(std::move(funCall));
+    }
+    loopBody->addStatement(
+        std::make_unique<Assignment>(
+            std::make_unique<Name>("x"),
+            std::make_unique<Addition>(
+                std::make_unique<Name>("x"),
+                std::make_unique<IntLiteral>(1)
+            )
+        )
+    );
+
+    auto loop = std::make_unique<While>(
+        std::make_unique<LessThan>(
+            std::make_unique<Name>("x"),
+            std::make_unique<IntLiteral>(10)
+        ),
+        std::move(loopBody)
+    );
+    program.addStatement(std::move(loop));
+
+    {
+        auto funCall = std::make_unique<FunctionCall>(
+            std::make_unique<Name>("print")
+        );
+        funCall->addArgument(std::make_unique<Name>("x"));
+        program.addStatement(std::move(funCall));
+    }
+
+
+
     std::cout <<  "AST serialized as code: \n";
     PrintVisitor visitor;
     program.acceptVisitor(visitor);

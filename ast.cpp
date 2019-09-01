@@ -64,10 +64,41 @@ void FunctionCall::acceptVisitor(Visitor &visitor)
     visitor.visitFunctionCall(*this);
 }
 
+Addition::Addition(std::unique_ptr<Singular> &&left, std::unique_ptr<Expression> &&right)
+    : mLeft(std::move(left))
+    , mRight(std::move(right))
+{
+
+}
+
 void Addition::acceptVisitor(Visitor &visitor)
 {
 
     visitor.visitAddition(*this);
+}
+
+While::While(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&body)
+    : mCondition(std::move(condition))
+    , mBody(std::move(body))
+{
+
+}
+
+void While::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitWhile(*this);
+}
+
+LessThan::LessThan(std::unique_ptr<Singular> &&left, std::unique_ptr<Expression> &&right)
+    : mLeft(std::move(left))
+    , mRight(std::move(right))
+{
+
+}
+
+void LessThan::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitLessThan(*this);
 }
 
 } // namespace ast

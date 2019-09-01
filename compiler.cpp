@@ -65,7 +65,8 @@ void Compiler::visitIntLiteral(const ast::IntLiteral &intLiteral)
 
 void Compiler::visitName(const ast::Name &name)
 {
-
+    // FIXME: this creates a variable even outside assignment
+    lookup(name.mName); // sets latest object id
 }
 
 void Compiler::visitScope(const ast::Scope &scope)
@@ -76,9 +77,53 @@ void Compiler::visitScope(const ast::Scope &scope)
     }
 }
 
+void Compiler::visitWhile(const ast::While &loop)
+{
+    loop.mCondition->acceptVisitor(*this);
+    const auto condition = latestObjectId;
+    if( mTypes[condition] != ObjectType::INT ) {
+        throw TypeMismatch();
+    }
+    const auto ipCondition = latestInstructionPointer();
+
+    const auto jumpCondition = freshObjectId();
+    // TODO: negate condition at compile time, not runtime
+    mInstructions.push_back(negateInt(condition, jumpCondition));
+
+    mInstructions.push_back(noop()); // placeholder for jump_if
+    const auto ipJumpIf = latestInstructionPointer();
+
+    loop.mBody->acceptVisitor(*this);
+    mInstructions.push_back(jump(ipCondition));
+
+    mInstructions.push_back(noop()); // Make sure there is something to jump to
+    const auto afterLoop = latestInstructionPointer();
+    mInstructions[ipJumpIf] = jumpIf(jumpCondition, afterLoop);
+}
+
+void Compiler::visitLessThan(const ast::LessThan &lessThan)
+{
+    lessThan.mLeft->acceptVisitor(*this);
+    const auto lhs = latestObjectId;
+    lessThan.mRight->acceptVisitor(*this);
+    const auto rhs = latestObjectId;
+
+    // TODO: other forms off addition
+    if( mTypes[lhs] != mTypes[rhs] ) {
+        throw TypeMismatch();
+    }
+
+    latestObjectId = freshObjectId();
+    mTypes[latestObjectId] = mTypes[lhs];
+
+    mInstructions.push_back(intLessThan(lhs, rhs, latestObjectId));
+}
+
 ObjectId Compiler::freshObjectId()
 {
-    return nextObjectId++;
+    latestObjectId = ++nextObjectId;
+
+    return latestObjectId;
 }
 
 bool Compiler::lookup(const std::string &name)
@@ -93,4 +138,9 @@ bool Compiler::lookup(const std::string &name)
     latestObjectId = it->second;
 
     return false;
+}
+
+InstructionPointer Compiler::latestInstructionPointer() const
+{
+    return mInstructions.size() - 1;
 }

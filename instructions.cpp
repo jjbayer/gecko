@@ -12,6 +12,7 @@ Instruction setInt(ObjectId target, int64_t value)
 Instruction addInt(ObjectId left, ObjectId right, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
+//        std::cout << data[left].as_int << " + " << data[right].as_int << "\n";
         data[target].as_int = data[left].as_int + data[right].as_int;
     };
 }
@@ -33,6 +34,7 @@ Instruction intGte(ObjectId left, ObjectId right, ObjectId target)
 Instruction jumpIf(ObjectId condition, InstructionPointer ipNew)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
+//        std::cout << "Do we jump? " << data[condition].as_int << std::endl;
         if( data[condition].as_int ) ip = ipNew - 1;
     };
 }
@@ -49,4 +51,25 @@ Instruction copy(ObjectId source, ObjectId target)
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
         data[target] = data[source];
     };
+}
+
+Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+//        std::cout << data[left].as_int << " < " << data[right].as_int << std::endl;
+        data[target].as_int = data[left].as_int < data[right].as_int;
+    };
+}
+
+Instruction negateInt(ObjectId source, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        const auto value = data[source].as_int;
+        data[target].as_int = value ? 0 : 1;
+    };
+}
+
+Instruction noop()
+{
+    return [](std::vector<Object> & data, InstructionPointer & ip) {};
 }

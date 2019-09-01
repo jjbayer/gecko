@@ -27,3 +27,9 @@ Instruction jumpIf(ObjectId condition, InstructionPointer ipNew);
 Instruction jump(InstructionPointer ipNew);
 
 Instruction copy(ObjectId source, ObjectId target);
+
+Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction negateInt(ObjectId source, ObjectId target);
+
+Instruction noop();

@@ -73,12 +73,7 @@ public:
 class Addition: public Expression
 {
 public:
-    Addition(std::unique_ptr<Singular> && left, std::unique_ptr<Expression> && right)
-        : mLeft(std::move(left))
-        , mRight(std::move(right))
-    {
-
-    }
+    Addition(std::unique_ptr<Singular> && left, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -107,6 +102,30 @@ public:
     void acceptVisitor(Visitor & visitor) override;
 
     std::vector<std::unique_ptr<Statement> > mStatements;
+};
+
+
+class While: public Statement
+{
+public:
+    While(std::unique_ptr<Expression> && condition, std::unique_ptr<Scope> && body);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Expression> mCondition;
+    std::unique_ptr<Scope> mBody;
+};
+
+
+class LessThan: public Expression
+{
+public:
+    LessThan(std::unique_ptr<Singular> && left, std::unique_ptr<Expression> && right);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Singular> mLeft;
+    std::unique_ptr<Expression> mRight;
 };
 
 

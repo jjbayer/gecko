@@ -46,9 +46,28 @@ void PrintVisitor::visitName(const Name &name)
 void PrintVisitor::visitScope(const Scope &scope)
 {
     for(const auto & statement : scope.mStatements) {
+        for(int i = 0; i < mIndent; i++) std::cout << "    ";
         statement->acceptVisitor(*this);
         std::cout << "\n";
     }
+}
+
+void PrintVisitor::visitWhile(const While &loop)
+{
+    std::cout << "while ";
+    loop.mCondition->acceptVisitor(*this);
+    std::cout << "\n";
+    mIndent++;
+    loop.mBody->acceptVisitor(*this);
+    mIndent--;
+    // TODO: suppress additional newline
+}
+
+void PrintVisitor::visitLessThan(const LessThan & lessThan)
+{
+    lessThan.mLeft->acceptVisitor(*this);
+    std::cout << " < ";
+    lessThan.mRight->acceptVisitor(*this);
 }
 
 } // namespace ast
