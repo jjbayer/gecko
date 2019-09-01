@@ -25,3 +25,5 @@ Instruction intGte(ObjectId left, ObjectId right, ObjectId target);
 Instruction jumpIf(ObjectId condition, InstructionPointer ipNew);
 
 Instruction jump(InstructionPointer ipNew);
+
+Instruction copy(ObjectId source, ObjectId target);

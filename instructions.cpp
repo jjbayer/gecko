@@ -43,3 +43,10 @@ Instruction jump(InstructionPointer ipNew)
         ip = ipNew - 1;
     };
 }
+
+Instruction copy(ObjectId source, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target] = data[source];
+    };
+}

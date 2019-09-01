@@ -2,8 +2,11 @@ project(compiled_language)
 
 add_library(compiled_language
     ast.cpp
-    printvisitor.cpp
+    compiler.cpp
+    exceptions.cpp
+    executor.cpp
     instructions.cpp
+    printvisitor.cpp
 )
 
 add_executable(test_instructions test_instructions.cpp)
