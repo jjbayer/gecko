@@ -31,7 +31,8 @@ public:
 private:
 
     ObjectId freshObjectId();
-    bool lookup(const std::string & name);
+    void lookup(const std::string & name);
+    bool lookupOrCreate(const std::string & name);
     InstructionPointer latestInstructionPointer() const;
 
     ObjectId nextObjectId { 0 };

@@ -6,3 +6,9 @@ class TypeMismatch
 {
 
 };
+
+
+class UndefinedVariable
+{
+
+};

@@ -31,7 +31,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     assignment.mValue->acceptVisitor(*this);
     const auto sourceId = latestObjectId;
 
-    const auto created = lookup(assignment.mName->mName);
+    const auto created = lookupOrCreate(assignment.mName->mName);
     const auto sourceType = mTypes[sourceId];
     if( ! created && mTypes[latestObjectId] != sourceType ) {
         throw TypeMismatch(); // TODO: info
@@ -65,7 +65,6 @@ void Compiler::visitIntLiteral(const ast::IntLiteral &intLiteral)
 
 void Compiler::visitName(const ast::Name &name)
 {
-    // FIXME: this creates a variable even outside assignment
     lookup(name.mName); // sets latest object id
 }
 
@@ -126,7 +125,18 @@ ObjectId Compiler::freshObjectId()
     return latestObjectId;
 }
 
-bool Compiler::lookup(const std::string &name)
+void Compiler::lookup(const std::string &name)
+{
+    try {
+        latestObjectId = mLookup.at(name);
+
+    } catch (const std::out_of_range &) {
+
+        throw UndefinedVariable(); // TODO: text
+    }
+}
+
+bool Compiler::lookupOrCreate(const std::string &name)
 {
     const auto it = mLookup.find(name);
     if( it == mLookup.end() ) {

@@ -1,6 +1,7 @@
 #include "ast.hpp"
 #include  "compiler.hpp"
 #include "executor.hpp"
+#include "exceptions.hpp"
 #include "printvisitor.hpp"
 
 #include <iostream>
@@ -82,4 +83,11 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     run(compiler.instructions());
     std::cout << "END\n";
 
+}
+
+BOOST_AUTO_TEST_CASE(test_undefined_variable)
+{
+    ast::Name x("x");
+    Compiler compiler;
+    BOOST_CHECK_THROW(x.acceptVisitor(compiler), UndefinedVariable);
 }
