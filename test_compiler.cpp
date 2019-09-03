@@ -5,7 +5,14 @@
 
 #include <iostream>
 
-int main()
+#define BOOST_TEST_MAIN
+#if !defined( WIN32 )
+    #define BOOST_TEST_DYN_LINK
+#endif
+#include <boost/test/unit_test.hpp>
+
+
+BOOST_AUTO_TEST_CASE(test_compiler)
 {
     using namespace ast;
 
@@ -69,17 +76,10 @@ int main()
         program.addStatement(std::move(funCall));
     }
 
-
-
-    std::cout <<  "AST serialized as code: \n";
-    PrintVisitor visitor;
-    program.acceptVisitor(visitor);
-
     std::cout << "BEGIN Output of executed program: \n";
     Compiler compiler;
     program.acceptVisitor(compiler);
     run(compiler.instructions());
     std::cout << "END\n";
 
-    return 0;
 }

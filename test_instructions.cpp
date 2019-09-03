@@ -1,6 +1,12 @@
 #include "instructions.hpp"
 
-int main()
+#define BOOST_TEST_MAIN
+#if !defined( WIN32 )
+    #define BOOST_TEST_DYN_LINK
+#endif
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_CASE(test_instructions)
 {
 
 
@@ -26,6 +32,4 @@ int main()
     for(auto i = 0; i < instructions.size(); i++) {
         instructions[i](data, i);
     }
-
-    return 0;
 }
