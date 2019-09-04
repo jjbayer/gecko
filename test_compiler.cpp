@@ -91,3 +91,22 @@ BOOST_AUTO_TEST_CASE(test_undefined_variable)
     Compiler compiler;
     BOOST_CHECK_THROW(x.acceptVisitor(compiler), UndefinedVariable);
 }
+
+BOOST_AUTO_TEST_CASE(test_out_of_scope)
+{
+    using namespace ast;
+
+    auto loopBody = std::make_unique<Scope>();
+    loopBody->addStatement(std::make_unique<Assignment>(
+                               std::make_unique<Name>("x"),
+                               std::make_unique<IntLiteral>(1))
+                          );
+    auto program = std::make_unique<Scope>();
+    program->addStatement(std::make_unique<While>(
+                           std::make_unique<IntLiteral>(1),
+                           std::move(loopBody)));
+    program->addStatement(std::make_unique<Name>("x"));
+
+    Compiler compiler;
+    BOOST_CHECK_THROW(program->acceptVisitor(compiler), UndefinedVariable);
+}

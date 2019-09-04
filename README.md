@@ -11,7 +11,9 @@ I'm writing a programming language from scratch. It's a work in progress.
 * static read/write checker (s.t. threads cannot read and write to the same variable at the same time),
 * safe by default, fast if needed (e.g. bounds checks, arithmetic overflow).
 
-## Example
+## Examples
+
+### Simple
 
 ```
 
@@ -23,3 +25,15 @@ while x < 10
 print(x)
 
 ```
+
+### Parallelization
+
+```
+results = parfor i in 0..10
+    yield i*i*i
+
+# results now contains [0, 1, 8, 27, 64, ...]
+
+```
+
+Trying to write in a parfor block to an outside variable will raise a special exception.
