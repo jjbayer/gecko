@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lookup.hpp"
 #include "instructions.hpp"
 #include "visitor.hpp"
 
@@ -30,15 +31,14 @@ public:
 
 private:
 
-    ObjectId freshObjectId();
+
     void lookup(const std::string & name);
     bool lookupOrCreate(const std::string & name);
     InstructionPointer latestInstructionPointer() const;
 
-    ObjectId nextObjectId { 0 };
     std::vector<Instruction> mInstructions;
     ObjectId latestObjectId = -1;
     std::unordered_map<ObjectId, ObjectType> mTypes;
-    std::unordered_map<std::string, ObjectId> mLookup;
+    Lookup mLookup;
 
 };

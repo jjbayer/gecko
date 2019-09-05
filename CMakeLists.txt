@@ -4,6 +4,7 @@ project(compiled_language)
 add_library(compiled_language
     ast.cpp
     compiler.cpp
+    lookup.cpp
     exceptions.cpp
     executor.cpp
     instructions.cpp

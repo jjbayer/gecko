@@ -20,7 +20,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
         throw TypeMismatch();
     }
 
-    latestObjectId = freshObjectId();
+    latestObjectId = mLookup.freshObjectId();
     mTypes[latestObjectId] = mTypes[lhs];
 
     mInstructions.push_back(addInt(lhs, rhs, latestObjectId));
@@ -58,7 +58,7 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &intLiteral)
 {
-    latestObjectId = freshObjectId();
+    latestObjectId = mLookup.freshObjectId();
     mTypes[latestObjectId] = ObjectType::INT;
     mInstructions.push_back(setInt(latestObjectId, intLiteral.mValue));
 }
@@ -70,10 +70,11 @@ void Compiler::visitName(const ast::Name &name)
 
 void Compiler::visitScope(const ast::Scope &scope)
 {
-    // TODO: actually support nested scopes
+    mLookup.push();
     for(auto & statement : scope.mStatements) {
         statement->acceptVisitor(*this);
     }
+    mLookup.pop();
 }
 
 void Compiler::visitWhile(const ast::While &loop)
@@ -85,7 +86,7 @@ void Compiler::visitWhile(const ast::While &loop)
     }
     const auto ipCondition = latestInstructionPointer();
 
-    const auto jumpCondition = freshObjectId();
+    const auto jumpCondition = mLookup.freshObjectId();
     // TODO: negate condition at compile time, not runtime
     mInstructions.push_back(negateInt(condition, jumpCondition));
 
@@ -112,42 +113,23 @@ void Compiler::visitLessThan(const ast::LessThan &lessThan)
         throw TypeMismatch();
     }
 
-    latestObjectId = freshObjectId();
+    latestObjectId = mLookup.freshObjectId();
     mTypes[latestObjectId] = mTypes[lhs];
 
     mInstructions.push_back(intLessThan(lhs, rhs, latestObjectId));
 }
 
-ObjectId Compiler::freshObjectId()
-{
-    latestObjectId = ++nextObjectId;
-
-    return latestObjectId;
-}
-
 void Compiler::lookup(const std::string &name)
 {
-    try {
-        latestObjectId = mLookup.at(name);
-
-    } catch (const std::out_of_range &) {
-
-        throw UndefinedVariable(); // TODO: text
-    }
+    latestObjectId = mLookup.lookup(name);
 }
 
 bool Compiler::lookupOrCreate(const std::string &name)
 {
-    const auto it = mLookup.find(name);
-    if( it == mLookup.end() ) {
-        latestObjectId = mLookup[name] = freshObjectId();
+    bool created;
+    std::tie(latestObjectId, created) = mLookup.lookupOrCreate(name);
 
-        return true;
-    }
-
-    latestObjectId = it->second;
-
-    return false;
+    return created;
 }
 
 InstructionPointer Compiler::latestInstructionPointer() const
