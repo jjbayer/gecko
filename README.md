@@ -26,6 +26,26 @@ print(x)
 
 ```
 
+## Future Work
+
+### Enum
+
+The enum concept was borrowed shamelessly from Rust.
+
+```
+enum Result
+    Some: String
+    None
+
+result = do_something()
+
+switch result
+    Some(text)
+        print("Received text: %s", text)
+    None
+        print("Received nothing :(")
+```
+
 ### Parallelization
 
 ```
