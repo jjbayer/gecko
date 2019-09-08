@@ -70,4 +70,16 @@ void PrintVisitor::visitLessThan(const LessThan & lessThan)
     lessThan.mRight->acceptVisitor(*this);
 }
 
+void PrintVisitor::visitIfThenElse(const IfThenElse &ifThenElse)
+{
+    std::cout << "if ";
+    ifThenElse.mCondition->acceptVisitor(*this);
+    mIndent++;
+    ifThenElse.mIfBlock->acceptVisitor(*this);
+    mIndent--;
+    std::cout << "else\n";
+    ifThenElse.mElseBlock->acceptVisitor(*this);
+}
+
+
 } // namespace ast

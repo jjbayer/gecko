@@ -101,4 +101,17 @@ void LessThan::acceptVisitor(Visitor &visitor)
     visitor.visitLessThan(*this);
 }
 
+IfThenElse::IfThenElse(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock, std::unique_ptr<Scope> &&elseBlock)
+    : mCondition(std::move(condition))
+    , mIfBlock(std::move(ifBlock))
+    , mElseBlock(std::move(elseBlock))
+{
+
+}
+
+void IfThenElse::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitIfThenElse(*this);
+}
+
 } // namespace ast

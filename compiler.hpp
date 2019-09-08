@@ -28,6 +28,7 @@ public:
     void visitScope(const ast::Scope &scope) override;
     void visitWhile(const ast::While &loop) override;
     void visitLessThan(const ast::LessThan &intLessThan) override;
+    void visitIfThenElse(const ast::IfThenElse &ifThenElse) override;
 
 private:
 

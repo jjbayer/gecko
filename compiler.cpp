@@ -87,7 +87,6 @@ void Compiler::visitWhile(const ast::While &loop)
     const auto ipCondition = latestInstructionPointer();
 
     const auto jumpCondition = mLookup.freshObjectId();
-    // TODO: negate condition at compile time, not runtime
     mInstructions.push_back(negateInt(condition, jumpCondition));
 
     mInstructions.push_back(noop()); // placeholder for jump_if
@@ -117,6 +116,34 @@ void Compiler::visitLessThan(const ast::LessThan &lessThan)
     mTypes[latestObjectId] = mTypes[lhs];
 
     mInstructions.push_back(intLessThan(lhs, rhs, latestObjectId));
+}
+
+void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
+{
+    ifThenElse.mCondition->acceptVisitor(*this);
+    const auto condition = latestObjectId;
+    if( mTypes[condition] != ObjectType::INT ) {
+        throw TypeMismatch();
+    }
+
+    mInstructions.push_back(noop());
+    const auto ipJumpToIf = latestInstructionPointer();  // Will hold instruction to jump to if block
+
+    ifThenElse.mElseBlock->acceptVisitor(*this);
+    mInstructions.push_back(noop());
+    const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
+
+    mInstructions.push_back(noop());
+    const auto ipStartIfBlock = latestInstructionPointer();
+
+    ifThenElse.mIfBlock->acceptVisitor(*this);
+
+    // TODO: wrap push_back in method which returns instruction pointer
+    mInstructions.push_back(noop()); // This is the end
+    const auto ipEnd = latestInstructionPointer();
+
+    mInstructions[ipJumpToIf] = jumpIf(condition, ipStartIfBlock);
+    mInstructions[ipJumpToEnd] = jump(ipEnd);
 }
 
 void Compiler::lookup(const std::string &name)

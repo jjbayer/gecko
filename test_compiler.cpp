@@ -77,6 +77,28 @@ BOOST_AUTO_TEST_CASE(test_compiler)
         program.addStatement(std::move(funCall));
     }
 
+    auto ifBody = std::make_unique<Scope>();
+    {
+        auto funCall = std::make_unique<FunctionCall>(
+            std::make_unique<Name>("print")
+        );
+        funCall->addArgument(std::make_unique<IntLiteral>(100));
+        ifBody->addStatement(std::move(funCall));
+    }
+    auto elseBody = std::make_unique<Scope>();
+    {
+        auto funCall = std::make_unique<FunctionCall>(
+            std::make_unique<Name>("print")
+        );
+        funCall->addArgument(std::make_unique<IntLiteral>(200));
+        elseBody->addStatement(std::move(funCall));
+    }
+    program.addStatement(std::make_unique<IfThenElse>(
+        std::make_unique<IntLiteral>(0),
+        std::move(ifBody),
+        std::move(elseBody)
+    ));
+
     std::cout << "BEGIN Output of executed program: \n";
     Compiler compiler;
     program.acceptVisitor(compiler);

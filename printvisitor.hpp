@@ -15,9 +15,12 @@ public:
     void visitScope(const Scope &scope);
     void visitWhile(const While &loop);
     void visitLessThan(const LessThan &lessThan);
+    // TODO: add visitIf()
+    void visitIfThenElse(const IfThenElse &ifThenElse);
 
 private:
     int mIndent = 0;
+
 };
 
 } // namespace ast

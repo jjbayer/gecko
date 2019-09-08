@@ -105,6 +105,21 @@ public:
 };
 
 
+class IfThenElse: public Statement
+{
+public:
+    IfThenElse(std::unique_ptr<Expression> && condition,
+             std::unique_ptr<Scope> && ifBlock,
+             std::unique_ptr<Scope> && elseBlock);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Expression> mCondition;
+    std::unique_ptr<Scope> mIfBlock;
+    std::unique_ptr<Scope> mElseBlock;
+};
+
+
 class While: public Statement
 {
 public:
@@ -127,6 +142,5 @@ public:
     std::unique_ptr<Singular> mLeft;
     std::unique_ptr<Expression> mRight;
 };
-
 
 } // namespace ast

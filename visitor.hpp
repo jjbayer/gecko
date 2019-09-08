@@ -11,6 +11,7 @@ class LessThan;
 class Name;
 class Scope;
 class While;
+class IfThenElse;
 
 class Visitor
 {
@@ -23,6 +24,7 @@ public:
     virtual void visitName(const Name & name) = 0;
     virtual void visitScope(const Scope & scope) = 0;
     virtual void visitWhile(const While & loop) = 0;
+    virtual void visitIfThenElse(const IfThenElse & ifThenElse) = 0;
 
 };
 
