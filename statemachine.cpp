@@ -47,5 +47,28 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         return std::make_shared<StateNumericLiteral>();
     }
 
+    if ( c == '"' ) {
+        tokens.rbegin()->type = Token::StringLiteral;
+        it++;
+
+        return std::make_shared<StateStringLiteral>(); // FIXME: what if string literal not closed?
+    }
+
     throw std::runtime_error(std::string("Unexpected character '") + c + "'");
+}
+
+std::shared_ptr<State> StateStringLiteral::handle(State::Iterator &it, std::vector<Token> &tokens)
+{
+    const auto c = *it;
+
+    if( c == '"') {
+        it++;
+
+        return std::make_shared<StateInitial>();
+    }
+
+    tokens.rbegin()->value += c;
+    it++;
+
+    return std::make_shared<StateStringLiteral>();
 }

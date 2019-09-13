@@ -13,15 +13,25 @@ public:
 };
 
 
-class StateNumericLiteral: public State
-{
-    const char * name() const override { return "int_literal"; }
-    std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
-};
-
 class StateInitial: public State
 {
 public:
     const char * name() const override { return "initial"; }
     std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
 };
+
+
+class StateNumericLiteral: public State
+{
+    const char * name() const override { return "numeric_literal"; }
+    std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
+};
+
+
+class StateStringLiteral: public State
+{
+    const char * name() const override { return "string_literal"; }
+    std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
+};
+
+

@@ -12,5 +12,9 @@ std::vector<Token> Tokenizer::tokenize(const std::string &input)
         currentState = currentState->handle(it, tokens);
     }
 
+    if( tokens.rbegin()->type == Token::Undefined ) {
+        tokens.pop_back();
+    }
+
     return tokens;
 }

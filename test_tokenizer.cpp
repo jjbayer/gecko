@@ -6,7 +6,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(test_tokenizer)
+BOOST_AUTO_TEST_CASE(test_numeric_literals)
 {
     const std::string program {"123.4 +567"};
 
@@ -18,4 +18,17 @@ BOOST_AUTO_TEST_CASE(test_tokenizer)
     BOOST_CHECK_EQUAL(tokens[1].type, Token::Plus);
     BOOST_CHECK_EQUAL(tokens[2].type, Token::IntLiteral);
     BOOST_CHECK_EQUAL(tokens[2].value, "567");
+}
+
+BOOST_AUTO_TEST_CASE(test_string_literals)
+{
+    const std::string program {"\"abc\"  \"A quick brown 'fox'. Did he jump?\" "};
+
+    Tokenizer tokenizer;
+    const auto tokens = tokenizer.tokenize(program);
+    BOOST_REQUIRE_EQUAL(tokens.size(), 2);
+    BOOST_CHECK_EQUAL(tokens[0].type, Token::StringLiteral);
+    BOOST_CHECK_EQUAL(tokens[0].value, "abc");
+    BOOST_CHECK_EQUAL(tokens[1].type, Token::StringLiteral);
+    BOOST_CHECK_EQUAL(tokens[1].value, "A quick brown 'fox'. Did he jump?");
 }

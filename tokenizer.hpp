@@ -9,6 +9,7 @@ struct Token
         Undefined,
         IntLiteral,
         FloatLiteral,
+        StringLiteral,
         Plus
     };
 
