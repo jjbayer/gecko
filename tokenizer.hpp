@@ -8,6 +8,7 @@ struct Token
     enum Type {
         Undefined,
         IntLiteral,
+        FloatLiteral,
         Plus
     };
 

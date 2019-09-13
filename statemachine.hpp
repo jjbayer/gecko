@@ -13,7 +13,7 @@ public:
 };
 
 
-class StateIntLiteral: public State
+class StateNumericLiteral: public State
 {
     const char * name() const override { return "int_literal"; }
     std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
