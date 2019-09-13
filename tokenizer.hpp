@@ -5,28 +5,14 @@
 
 struct Token
 {
-    enum class Type
-    {
-        Unknown,
-        LineBreak,
-        Indent,
-        Int,
-        Float,
-        String,
-        Name,
-        Plus,
-        Minus,
-        Times,
-        DivideBy,
-        ParenOpen,
-        ParenClose,
-        BracketOpen,
-        BracketClose,
-        BraceOpen,
-        BraceClose
+    enum Type {
+        Undefined,
+        IntLiteral,
+        Plus
     };
 
-    Type type;
+    Type type = Undefined;
+    std::string value = "";
 };
 
 

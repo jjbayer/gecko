@@ -8,12 +8,12 @@
 
 BOOST_AUTO_TEST_CASE(test_tokenizer)
 {
-    const std::string program {"123 +"};
+    const std::string program {"123 +456"};
 
     Tokenizer tokenizer;
     const auto tokens = tokenizer.tokenize(program);
-//    BOOST_CHECK_EQUAL(tokens.size(), 3);
-//    BOOST_CHECK_EQUAL(tokens[0].type, Token::Type::Float);
-//    BOOST_CHECK_EQUAL(tokens[1].type, Token::Type::Plus);
-//    BOOST_CHECK_EQUAL(tokens[2].type, Token::Type::Int);
+    BOOST_REQUIRE_EQUAL(tokens.size(), 3);
+    BOOST_CHECK_EQUAL(tokens[0].type, Token::IntLiteral);
+    BOOST_CHECK_EQUAL(tokens[1].type, Token::Plus);
+    BOOST_CHECK_EQUAL(tokens[2].type, Token::IntLiteral);
 }
