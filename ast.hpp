@@ -2,6 +2,16 @@
 #include <memory>
 #include <vector>
 
+/*
+ * expr := sum
+ * sum := multiplication [ "+" sum ]
+ * multiplication := factor [ "*" multiplication ]
+ * factor := "(" expression ")" | atom
+ * atom := int_literal | string_literal | call
+ * call := name [ "(" function_args ")" ]
+ * function_args = expression [ "," function_args ]
+*/
+
 
 namespace ast {
 
