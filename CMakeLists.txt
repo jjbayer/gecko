@@ -9,6 +9,8 @@ add_library(compiled_language
     executor.cpp
     instructions.cpp
     printvisitor.cpp
+    statemachine.cpp
+    tokenizer.cpp
 )
 
 find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
@@ -21,3 +23,7 @@ add_test(test_instructions test_instructions)
 add_executable(test_compiler test_compiler.cpp)
 target_link_libraries(test_compiler compiled_language Boost::unit_test_framework)
 add_test(test_compiler test_compiler)
+
+add_executable(test_tokenizer test_tokenizer.cpp)
+target_link_libraries(test_tokenizer compiled_language Boost::unit_test_framework)
+add_test(test_tokenizer test_tokenizer)
