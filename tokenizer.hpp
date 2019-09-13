@@ -7,10 +7,38 @@ struct Token
 {
     enum Type {
         Undefined,
+
         IntLiteral,
         FloatLiteral,
         StringLiteral,
-        Plus
+        Name,
+
+        Assign,
+
+        Plus,
+        Minus,
+        Times,
+        DivideBy,
+
+        Equal,
+        NotEqual,
+        LessThan,
+        LTE,
+        GreaterThan,
+        GTE,
+
+        // TODO: (bitwise) and / or
+        // TODO: unary operators
+
+        ParenLeft,
+        ParenRight,
+        BracketLeft,
+        BracketRight,
+        BraceLeft,
+        BraceRight,
+
+        LineBreak,
+        Indent,
     };
 
     Type type = Undefined;

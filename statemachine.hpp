@@ -34,4 +34,16 @@ class StateStringLiteral: public State
     std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
 };
 
+class StateName: public State
+{
+    const char * name() const override { return "name"; }
+    std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
+};
+
+class StateIndent: public State
+{
+    const char * name() const override { return "ident"; }
+    std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens) override;
+};
+
 
