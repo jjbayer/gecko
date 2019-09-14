@@ -26,6 +26,36 @@ print(x)
 
 ```
 
+## Error handling dilemma
+
+I want the language to be safe by default, i.e. an expression like ``a = b + c[1]``
+should perform a bounds check and an overflow check at runtime.
+
+I also want Rust-style error handling, i.e. every outcome of an operation must be handled
+explicitly. However, it would be annoying to have to re-write the statement above as
+
+```
+switch c[1]
+    Success(el)
+        switch b + el
+            Success(sum)
+                a = sum
+            Overflow
+                ...
+    OutOfBounds
+        ...
+```
+
+This would be much easier with C++ style exceptions, but then you don't get the benefits of explicit exception handling. The '?'-operator from Rust would make the syntax a bit better,
+
+```
+a = (b + c[1]?)?
+```
+
+but it does not make me happy. Plus it seduces the developer to just add question marks all over the place, in which case error handling would be just as incomplete as in C++.
+
+I hope I will come up with a variant to make this safe and convenient at the same time.
+
 ## Future Work
 
 ### Enum
