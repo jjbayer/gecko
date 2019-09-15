@@ -26,7 +26,7 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator & it, const TokenIter
 
 std::unique_ptr<ast::Singular> parseSingular(TokenIterator & it, const TokenIterator & end);
 
-std::unique_ptr<ast::FunctionCall> parseFunctionCall(TokenIterator & it, const TokenIterator & end);
+std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator & it, const TokenIterator & end);
 
 // TODO: more operators: or, and, <, >, <=, ...
 // TODO: multiline nested expressions

@@ -5,7 +5,7 @@
 namespace ast
 {
 
-Name::Name(const std::string &&name)
+Name::Name(const std::string &name)
     : mName(name)
 {
 
@@ -16,7 +16,7 @@ void Name::acceptVisitor(Visitor &visitor)
     visitor.visitName(*this);
 }
 
-IntLiteral::IntLiteral(int value)
+IntLiteral::IntLiteral(int64_t value)
     : mValue(value)
 {
 
@@ -64,7 +64,7 @@ void FunctionCall::acceptVisitor(Visitor &visitor)
     visitor.visitFunctionCall(*this);
 }
 
-Addition::Addition(std::unique_ptr<Singular> &&left, std::unique_ptr<Expression> &&right)
+Addition::Addition(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
     : mLeft(std::move(left))
     , mRight(std::move(right))
 {

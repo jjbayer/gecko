@@ -1,4 +1,6 @@
 #include "parser.hpp"
+#include <sstream>
+
 
 std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &end, int indent)
 {
@@ -55,10 +57,10 @@ std::unique_ptr<ast::Statement> parseAssignment(TokenIterator &it, const TokenIt
 
     auto value = parseExpression(it, end);
 
-    return std::make_shared<ast::Assignment>()
+    return std::make_unique<ast::Assignment>(std::move(assignee), std::move(value));
 }
 
-std::unique_ptr<ast::Assignment> parseAssignee(TokenIterator &it, const TokenIterator &end)
+std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenIterator &end)
 {
     // TODO: unit test for every exception
     if( it == end ) throw std::runtime_error("Expected assignee, got EOF");
@@ -66,7 +68,7 @@ std::unique_ptr<ast::Assignment> parseAssignee(TokenIterator &it, const TokenIte
     // TODO: not only names can be assigned to
     if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token " + std::to_string(it->type));
 
-    return std::make_shared<Name>(it->value);
+    return std::make_unique<ast::Name>(it->value);
 }
 
 std::unique_ptr<ast::Expression> parseExpression(TokenIterator &it, const TokenIterator &end)
@@ -127,15 +129,26 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
 
     if( it->type == Token::IntLiteral ) {
 
-        return std::make_unique<ast::IntLiteral>((it++)->value);
+        std::stringstream stream;
+        stream << (it++)->value;
+        int64_t value;
+        stream >> value;
+
+        return std::make_unique<ast::IntLiteral>(value);
     }
     // TODO: string literal
 //    if( it->type == Token::StringLiteral ) return std::make_unique<ast::StringLiteral>((it++)->value);
 
+    // TODO: float literal
+
+    // TODO: dict literal
+
+    // TODO: list literal
+
     return parseFunctionCall(it, end);
 }
 
-std::unique_ptr<ast::FunctionCall> parseFunctionCall(TokenIterator &it, const TokenIterator &end)
+std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenIterator &end)
 {
     if( it == end ) throw std::runtime_error("Expected name, got EOF");
 

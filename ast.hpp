@@ -45,7 +45,7 @@ class Assignee: public Singular
 class Name: public Assignee
 {
 public:
-    Name(const std::string && name);
+    Name(const std::string & name);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -56,7 +56,7 @@ public:
 class IntLiteral: public Singular
 {
 public:
-    IntLiteral(int value);
+    IntLiteral(int64_t value);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -81,11 +81,11 @@ public:
 class Addition: public Expression
 {
 public:
-    Addition(std::unique_ptr<Singular> && left, std::unique_ptr<Expression> && right);
+    Addition(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) override;
 
-    std::unique_ptr<Singular> mLeft;
+    std::unique_ptr<Expression> mLeft;
     std::unique_ptr<Expression> mRight;
 };
 

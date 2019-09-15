@@ -31,7 +31,10 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     assignment.mValue->acceptVisitor(*this);
     const auto sourceId = latestObjectId;
 
-    const auto created = lookupOrCreate(assignment.mAssignee->mName);
+    // TODO: what if assignee is not name?
+    auto name = dynamic_cast<ast::Name*>(assignment.mAssignee.get());
+
+    const auto created = lookupOrCreate(name->mName);
     const auto sourceType = mTypes[sourceId];
     if( ! created && mTypes[latestObjectId] != sourceType ) {
         throw TypeMismatch(); // TODO: info
