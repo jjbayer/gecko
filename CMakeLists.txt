@@ -14,6 +14,9 @@ add_library(compiled_language
     tokenizer.cpp
 )
 
+add_executable(gecko gecko.cpp)
+target_link_libraries(gecko compiled_language)
+
 find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
 
 enable_testing()

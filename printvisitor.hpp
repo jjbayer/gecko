@@ -2,7 +2,7 @@
 #include "visitor.hpp"
 
 
-namespace ast {
+namespace ast { // TODO: does not belong in this namespace
 
 class PrintVisitor: public Visitor
 {
