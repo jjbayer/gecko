@@ -9,8 +9,10 @@ std::vector<Token> Tokenizer::tokenize(const std::string &input)
 
     auto start = std::make_shared<StateInitial>();
     std::shared_ptr<State> currentState = start;
+
+    Position position;
     for(auto it = input.begin(); it < input.end(); ) {
-        currentState = currentState->handle(it, tokens);
+        currentState = currentState->handle(it, tokens, position);
     }
 
     if( tokens.rbegin()->type == Token::Undefined ) {

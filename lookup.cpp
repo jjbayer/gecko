@@ -24,7 +24,7 @@ ObjectId Lookup::lookup(const std::__cxx11::string &name) const
         }
     }
 
-    throw UndefinedVariable();  // TODO: context
+    throw UndefinedVariable({}, name);  // TODO: context
 }
 
 std::pair<ObjectId, bool> Lookup::lookupOrCreate(const std::__cxx11::string &name)

@@ -2,6 +2,11 @@
 #include <string>
 #include <vector>
 
+struct Position
+{
+    int lineNumber = 1;
+    int column = 1;
+};
 
 struct Token
 {
@@ -52,6 +57,8 @@ struct Token
 
     Type type = Undefined;
     std::string value = "";
+
+    Position position;
 };
 
 

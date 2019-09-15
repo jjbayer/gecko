@@ -1,32 +1,12 @@
 #include "statemachine.hpp"
+#include  "exceptions.hpp"
 
-std::shared_ptr<State> StateNumericLiteral::handle(Iterator &it, std::vector<Token> & tokens)
-{
-    const auto c = *it;
 
-    if( c == '.' ) {
-        tokens.rbegin()->type = Token::FloatLiteral;
-        tokens.rbegin()->value += c;
-        it++;
 
-        return std::make_shared<StateNumericLiteral>();
-    }
-
-    if( c >= '0' && c <= '9' ) {
-
-        tokens.rbegin()->value += c;
-        it++;
-
-        return std::make_shared<StateNumericLiteral>();
-    }
-
-    return std::make_shared<StateInitial>();
-}
-
-std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & tokens)
+std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & tokens, Position &position)
 {
     if( tokens.rbegin()->type != Token::Undefined) {
-        tokens.push_back({Token::Undefined, ""}); // Always start with a fresh token
+        tokens.push_back({Token::Undefined, "", position}); // Always start with a fresh token
     }
 
     const auto c = *it;
@@ -98,6 +78,8 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         *tokens.rbegin() = {Token::LineBreak, "<linebreak>"};
         tokens.emplace_back(); // S.t. state indent starts with fresh
         it++;
+        position = { position.lineNumber + 1, 1};
+        tokens.rbegin()->position = position;
         return std::make_shared<StateIndent>();
     }
 
@@ -121,10 +103,34 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         return std::make_shared<StateStringLiteral>(); // FIXME: what if string literal not closed?
     }
 
-    throw std::runtime_error(std::string("Unexpected character '") + c + "'");
+    throw UnexpectedCharacter(position, c);
 }
 
-std::shared_ptr<State> StateStringLiteral::handle(State::Iterator &it, std::vector<Token> &tokens)
+std::shared_ptr<State> StateNumericLiteral::handle(Iterator &it, std::vector<Token> & tokens, Position &position)
+{
+    const auto c = *it;
+
+    if( c == '.' ) {
+        tokens.rbegin()->type = Token::FloatLiteral;
+        tokens.rbegin()->value += c;
+        it++;
+
+        return std::make_shared<StateNumericLiteral>();
+    }
+
+    if( c >= '0' && c <= '9' ) {
+
+        tokens.rbegin()->value += c;
+        it++;
+        position.column += 1;
+
+        return std::make_shared<StateNumericLiteral>();
+    }
+
+    return std::make_shared<StateInitial>();
+}
+
+std::shared_ptr<State> StateStringLiteral::handle(State::Iterator &it, std::vector<Token> &tokens, Position &position)
 {
     const auto c = *it;
 
@@ -140,7 +146,7 @@ std::shared_ptr<State> StateStringLiteral::handle(State::Iterator &it, std::vect
     return std::make_shared<StateStringLiteral>();
 }
 
-std::shared_ptr<State> StateName::handle(State::Iterator &it, std::vector<Token> &tokens)
+std::shared_ptr<State> StateName::handle(State::Iterator &it, std::vector<Token> &tokens, Position &position)
 {
     const auto c = *it;
 
@@ -155,7 +161,7 @@ std::shared_ptr<State> StateName::handle(State::Iterator &it, std::vector<Token>
     return std::make_shared<StateInitial>();
 }
 
-std::shared_ptr<State> StateIndent::handle(State::Iterator &it, std::vector<Token> &tokens)
+std::shared_ptr<State> StateIndent::handle(State::Iterator &it, std::vector<Token> &tokens, Position &position)
 {
     const auto c = *it;
 

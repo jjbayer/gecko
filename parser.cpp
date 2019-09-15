@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "exceptions.hpp"
 #include <sstream>
 
 
@@ -28,9 +29,7 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
         }
 
         if( indentCounter != indent ) {
-            // TODO: Error hierarchy. IndentError is_a ParseError is_a ...
-            // TODO: keep line and column no. with every token and AST node
-            throw std::runtime_error("Unexpected indent " + std::to_string(indentCounter));
+            throw UnexpectedIndent(it->position, indentCounter, indent);
         }
 
         scope->addStatement( parseStatement(it, end, indent) );
@@ -41,8 +40,8 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
 
 std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    // TODO: other statements. return, for, while...
-    if( it == end ) throw std::runtime_error("Expected statement, got EOF");
+    // TODO: other statements. return, for, ...
+    if( it == end ) throw UnexpectedEndOfFile("statement");
 
     if( it->type == Token::While ) {
         it++; // Consume keyword
@@ -59,10 +58,10 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
 
     auto statement = parseAssignment(it, end, indent);
 
-    if( it == end ) throw std::runtime_error("Expected line break, got EOF");
+    if( it == end )  throw UnexpectedEndOfFile("line break");
 
     // TODO: token type names
-    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected line break, got token '" + it->value + "'");
+    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
 
     it++; // consume line break
 
@@ -92,7 +91,7 @@ std::unique_ptr<ast::Statement> parseAssignment(TokenIterator &it, const TokenIt
 std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenIterator &end, int indent)
 {
     // TODO: unit test for every exception
-    if( it == end ) throw std::runtime_error("Expected assignee, got EOF");
+    if( it == end ) throw UnexpectedEndOfFile("assignee");
 
     // TODO: not only names can be assigned to
     if( it->type != Token::Name ) {
@@ -166,7 +165,7 @@ std::unique_ptr<ast::Expression> parseMultiplication(TokenIterator &it, const To
 
 std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    if( it == end ) throw std::runtime_error("Expected factor, got EOF");
+    if( it == end ) throw UnexpectedEndOfFile("factor");
 
     // TODO: unit test parenthesized expression
     if( it->type == Token::ParenLeft ) {
@@ -174,8 +173,8 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenItera
 
         auto expr = parseExpression(it, end, indent);
 
-        if( it == end ) throw std::runtime_error("Expected token ')', got EOF");
-        if( it->type != Token::ParenRight ) throw std::runtime_error("Expected token ')', got token '" + it->value + "'");
+        if( it == end ) throw UnexpectedEndOfFile(")");
+        if( it->type != Token::ParenRight ) throw UnexpectedToken(*it, ")");
 
         it++; // consume closing parenthesis
 
@@ -187,7 +186,7 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenItera
 
 std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    if( it == end ) throw std::runtime_error("Expected singular expression, got EOF");
+    if( it == end ) throw UnexpectedEndOfFile("singular expression");
 
     if( it->type == Token::IntLiteral ) {
 
@@ -212,10 +211,9 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
 
 std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    if( it == end ) throw std::runtime_error("Expected name, got EOF");
-
+    if( it == end ) throw UnexpectedEndOfFile("name");
     // TODO: token type to string
-    if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token '" + it->value + "'");
+    if( it->type != Token::Name ) throw UnexpectedToken(*it, "name");
 
     auto name = std::make_unique<ast::Name>(it->value);
 
@@ -230,7 +228,7 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
 
     auto functionCall = std::make_unique<ast::FunctionCall>(std::move(name));
 
-    if( it == end ) throw std::runtime_error("Expected function args, got EOF");
+    if( it == end ) throw UnexpectedEndOfFile("function arguments");
 
     if( it->type == Token::ParenRight) { // Empty argument list
 
@@ -242,8 +240,8 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
        functionCall->addArgument(parseExpression(it, end, indent));
     } while( it != end && it->type == Token::Comma);
 
-    if( it == end ) throw std::runtime_error("Expected token ')', got EOF");
-    if( it->type != Token::ParenRight ) throw std::runtime_error("Expected token ')', got token '" + it->value + "'");
+    if( it == end ) throw UnexpectedEndOfFile("')");
+    if( it->type != Token::ParenRight ) throw UnexpectedToken(*it, "')'");
 
     it++; // consume closing parenthesis
 
@@ -253,13 +251,13 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
 std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &end, int indent)
 {
     auto condition = parseExpression(it, end, indent);
-    if( it == end ) throw std::runtime_error("Expected linebreak, got EOF");
-    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected linebreak, got token " + it->value);
+    if( it == end ) throw UnexpectedEndOfFile("line break");
+    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
 
     it++; // Consume newline
     auto body = parseScope(it, end, indent + 1);
 
-    if( body->mStatements.empty() ) throw std::runtime_error("While statement with empty body");
+    if( body->mStatements.empty() ) throw EmptyBody(it->position, "while");
 
     return std::make_unique<ast::While>(std::move(condition), std::move(body));
 }
@@ -269,13 +267,13 @@ std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &e
 std::unique_ptr<ast::IfThenElse> parseIfThenElse(TokenIterator &it, const TokenIterator &end, int indent)
 {
     auto condition = parseExpression(it, end, indent);
-    if( it == end ) throw std::runtime_error("Expected linebreak, got EOF");
-    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected linebreak, got token " + it->value);
+    if( it == end ) throw UnexpectedEndOfFile("line break");
+    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
 
     it++; // Consume newline
     auto ifBody = parseScope(it, end, indent + 1);
 
-    if( ifBody->mStatements.empty() ) throw std::runtime_error("If statement with empty 'then' body");
+    if( ifBody->mStatements.empty() ) throw EmptyBody(it->position, "then");
 
     // TODO: single function to parse expected indent
     auto indentCounter = 0;
@@ -285,13 +283,13 @@ std::unique_ptr<ast::IfThenElse> parseIfThenElse(TokenIterator &it, const TokenI
     }
     if( indentCounter != indent ) throw std::runtime_error("Unexpected indent " + std::to_string(indentCounter) + " after 'then' block ");
 
-    if( it == end ) throw std::runtime_error("Expected 'else', got EOF");
-    if( it->type != Token::Else ) throw std::runtime_error("Expected 'else', got token " + it->value);
+    if( it == end ) throw UnexpectedEndOfFile("'else'");
+    if( it->type != Token::Else ) throw UnexpectedToken(*it, "'else'");
 
     it++;
 
-    if( it == end ) throw std::runtime_error("Expected linebreak, got EOF");
-    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected linebreak, got token " + it->value);
+    if( it == end ) throw UnexpectedEndOfFile("line break");
+    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
 
     it++;
 

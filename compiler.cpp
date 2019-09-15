@@ -17,7 +17,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
 
     // TODO: other forms off addition
     if( mTypes[lhs] != ObjectType::INT || mTypes[rhs] != ObjectType::INT) {
-        throw TypeMismatch();
+        throw TypeMismatch({}, ""); // TODO: mPosition, text
     }
 
     latestObjectId = mLookup.freshObjectId();
@@ -37,7 +37,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     const auto created = lookupOrCreate(name->mName);
     const auto sourceType = mTypes[sourceId];
     if( ! created && mTypes[latestObjectId] != sourceType ) {
-        throw TypeMismatch(); // TODO: info
+        throw TypeMismatch({}, ""); // TODO: mPosition, text
     }
     mTypes[latestObjectId] = sourceType;
 
@@ -85,7 +85,7 @@ void Compiler::visitWhile(const ast::While &loop)
     loop.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::INT ) {
-        throw TypeMismatch();
+        throw TypeMismatch({}, ""); // TODO: mPosition, text
     }
     const auto ipCondition = latestInstructionPointer();
 
@@ -112,7 +112,7 @@ void Compiler::visitLessThan(const ast::LessThan &lessThan)
 
     // TODO: other forms off addition
     if( mTypes[lhs] != mTypes[rhs] ) {
-        throw TypeMismatch();
+        throw TypeMismatch({}, ""); // TODO: mPosition, text
     }
 
     latestObjectId = mLookup.freshObjectId();
@@ -126,7 +126,7 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
     ifThenElse.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::INT ) {
-        throw TypeMismatch();
+        throw TypeMismatch({}, ""); // TODO: mPosition, text
     }
 
     mInstructions.push_back(noop());
