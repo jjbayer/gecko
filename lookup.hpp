@@ -23,6 +23,8 @@ public:
 
     ObjectId freshObjectId() { return mObjectId++; } // TODO: this should not be in this class
 
+    int numObjectIdsUsed() const { return mObjectId; }
+
 private:
 
 

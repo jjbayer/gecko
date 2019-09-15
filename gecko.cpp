@@ -50,7 +50,7 @@ int main(int argc, char ** argv)
     std::cout << "*** Program output ***\n";
     Compiler compiler;
     tree->acceptVisitor(compiler);
-    run(compiler.instructions());
+    run(compiler.instructions(), compiler.numObjectIdsUsed());
     std::cout << "**********************\n";
 
 

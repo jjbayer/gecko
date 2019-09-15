@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     std::cout << "BEGIN Output of executed program: \n";
     Compiler compiler;
     program.acceptVisitor(compiler);
-    run(compiler.instructions());
+    run(compiler.instructions(), compiler.numObjectIdsUsed());
     std::cout << "END\n";
 
 }

@@ -19,6 +19,7 @@ class Compiler: public ast::Visitor
 public:
 
     const std::vector<Instruction> & instructions() const;
+    int numObjectIdsUsed() const { return mLookup.numObjectIdsUsed(); }
 
     void visitAddition(const ast::Addition &addition) override;
     void visitAssignment(const ast::Assignment &assignment) override;
