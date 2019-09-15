@@ -50,6 +50,13 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
         return parseWhile(it, end, indent);
     }
 
+    if( it->type == Token::If ) {
+        it++; // Consume keyword
+
+        // TODO: parse if without else
+        return parseIfThenElse(it, end, indent);
+    }
+
     auto statement = parseAssignment(it, end, indent);
 
     if( it == end ) throw std::runtime_error("Expected line break, got EOF");
@@ -88,7 +95,10 @@ std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenItera
     if( it == end ) throw std::runtime_error("Expected assignee, got EOF");
 
     // TODO: not only names can be assigned to
-    if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token '" + it->value + "'");
+    if( it->type != Token::Name ) {
+
+        return nullptr;
+    }
 
     auto name = std::make_unique<ast::Name>(it->value);
 
@@ -255,3 +265,39 @@ std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &e
 }
 
 
+
+std::unique_ptr<ast::IfThenElse> parseIfThenElse(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    auto condition = parseExpression(it, end, indent);
+    if( it == end ) throw std::runtime_error("Expected linebreak, got EOF");
+    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected linebreak, got token " + it->value);
+
+    it++; // Consume newline
+    auto ifBody = parseScope(it, end, indent + 1);
+
+    if( ifBody->mStatements.empty() ) throw std::runtime_error("If statement with empty 'then' body");
+
+    // TODO: single function to parse expected indent
+    auto indentCounter = 0;
+    while( it != end && it->type == Token::Indent) {
+        indentCounter++;
+        it++;
+    }
+    if( indentCounter != indent ) throw std::runtime_error("Unexpected indent " + std::to_string(indentCounter) + " after 'then' block ");
+
+    if( it == end ) throw std::runtime_error("Expected 'else', got EOF");
+    if( it->type != Token::Else ) throw std::runtime_error("Expected 'else', got token " + it->value);
+
+    it++;
+
+    if( it == end ) throw std::runtime_error("Expected linebreak, got EOF");
+    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected linebreak, got token " + it->value);
+
+    it++;
+
+    auto elseBody = parseScope(it, end, indent + 1);
+
+    return std::make_unique<ast::IfThenElse>(std::move(condition),
+                                             std::move(ifBody),
+                                             std::move(elseBody));
+}

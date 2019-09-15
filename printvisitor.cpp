@@ -74,11 +74,15 @@ void PrintVisitor::visitIfThenElse(const IfThenElse &ifThenElse)
 {
     std::cout << "if ";
     ifThenElse.mCondition->acceptVisitor(*this);
+    std::cout << "\n";
     mIndent++;
     ifThenElse.mIfBlock->acceptVisitor(*this);
     mIndent--;
+    for(int i = 0; i < mIndent; i++) std::cout << "    ";
     std::cout << "else\n";
+    mIndent++;
     ifThenElse.mElseBlock->acceptVisitor(*this);
+    mIndent--;
 }
 
 

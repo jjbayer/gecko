@@ -158,7 +158,12 @@ std::shared_ptr<State> StateName::handle(State::Iterator &it, std::vector<Token>
 std::shared_ptr<State> StateIndent::handle(State::Iterator &it, std::vector<Token> &tokens)
 {
     const auto c = *it;
-    // FIXME: if no. of spaces mod 4 == 1 -> push token
+
+    const auto & token = tokens.rbegin();
+    if( token->type == Token::Indent && token->value == "    " ) {
+        tokens.push_back({Token::Undefined, ""});
+    }
+
     if( c == ' ' ) {
         tokens.rbegin()->type = Token::Indent;
         tokens.rbegin()->value += c;
