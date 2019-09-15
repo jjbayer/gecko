@@ -89,7 +89,7 @@ void While::acceptVisitor(Visitor &visitor)
     visitor.visitWhile(*this);
 }
 
-LessThan::LessThan(std::unique_ptr<Singular> &&left, std::unique_ptr<Expression> &&right)
+LessThan::LessThan(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
     : mLeft(std::move(left))
     , mRight(std::move(right))
 {

@@ -143,11 +143,11 @@ public:
 class LessThan: public Expression
 {
 public:
-    LessThan(std::unique_ptr<Singular> && left, std::unique_ptr<Expression> && right);
+    LessThan(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) override;
 
-    std::unique_ptr<Singular> mLeft;
+    std::unique_ptr<Expression> mLeft;
     std::unique_ptr<Expression> mRight;
 };
 

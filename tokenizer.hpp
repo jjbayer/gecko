@@ -40,6 +40,14 @@ struct Token
 
         LineBreak,
         Indent,
+
+        If,
+        Else,
+        While,
+        For,
+        Switch,
+        Enum,
+        Struct,
     };
 
     Type type = Undefined;
