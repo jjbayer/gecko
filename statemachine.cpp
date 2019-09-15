@@ -26,7 +26,7 @@ std::shared_ptr<State> StateNumericLiteral::handle(Iterator &it, std::vector<Tok
 std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & tokens)
 {
     if( tokens.rbegin()->type != Token::Undefined) {
-        tokens.emplace_back(); // Always start with a fresh token
+        tokens.push_back({Token::Undefined, ""}); // Always start with a fresh token
     }
 
     const auto c = *it;
@@ -37,65 +37,65 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
     }
 
     if( c == ',' ) {
-        *tokens.rbegin() = {Token::Comma};
+        *tokens.rbegin() = {Token::Comma, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
 
     if( c == '+' ) {
-        *tokens.rbegin() = {Token::Plus}; // TODO: unary operator
+        *tokens.rbegin() = {Token::Plus, &c}; // TODO: unary operator
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == '=' ) {
-        *tokens.rbegin() = {Token::Assign};
+        *tokens.rbegin() = {Token::Assign, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
 
     if( c == '<' ) {
-        *tokens.rbegin() = {Token::LessThan};
+        *tokens.rbegin() = {Token::LessThan, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == '>' ) {
-        *tokens.rbegin() = {Token::GreaterThan};
+        *tokens.rbegin() = {Token::GreaterThan, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == '(' ) {
-        *tokens.rbegin() = {Token::ParenLeft};
+        *tokens.rbegin() = {Token::ParenLeft, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == ')' ) {
-        *tokens.rbegin() = {Token::ParenRight};
+        *tokens.rbegin() = {Token::ParenRight, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == '[' ) {
-        *tokens.rbegin() = {Token::BracketLeft};
+        *tokens.rbegin() = {Token::BracketLeft, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == ']' ) {
-        *tokens.rbegin() = {Token::BraceRight};
+        *tokens.rbegin() = {Token::BraceRight, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == '{' ) {
-        *tokens.rbegin() = {Token::BraceLeft};
+        *tokens.rbegin() = {Token::BraceLeft, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
     if( c == '}' ) {
-        *tokens.rbegin() = {Token::BraceRight};
+        *tokens.rbegin() = {Token::BraceRight, &c};
         it++;
         return std::make_shared<StateInitial>();
     }
 
     if( c == '\n' ) {
-        *tokens.rbegin() = {Token::LineBreak};
+        *tokens.rbegin() = {Token::LineBreak, "<linebreak>"};
         tokens.emplace_back(); // S.t. state indent starts with fresh
         it++;
         return std::make_shared<StateIndent>();

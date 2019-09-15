@@ -8,6 +8,10 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
 
     while( it != end ) {
 
+        if( it-> type == Token::LineBreak ) {
+            it++;
+            continue; // TODO: remove extra line breaks in tokenizer
+        }
         auto indentCounter = 0;
         while( it->type == Token::Indent ) {
             indentCounter++;
@@ -21,6 +25,8 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
 
         scope->addStatement( parseStatement(it, end) );
     }
+
+    return std::move(scope);
 }
 
 std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIterator &end)
@@ -33,7 +39,7 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
     if( it == end ) throw std::runtime_error("Expected line break, got EOF");
 
     // TODO: token type names
-    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected line break, got token " + std::to_string(it->type));
+    if( it->type != Token::LineBreak ) throw std::runtime_error("Expected line break, got token '" + it->value + "'");
 
     it++; // consume line break
 
@@ -66,9 +72,20 @@ std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenItera
     if( it == end ) throw std::runtime_error("Expected assignee, got EOF");
 
     // TODO: not only names can be assigned to
-    if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token " + std::to_string(it->type));
+    if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token '" + it->value + "'");
 
-    return std::make_unique<ast::Name>(it->value);
+    auto name = std::make_unique<ast::Name>(it->value);
+
+    it++;
+
+    if( it == end || it->type == Token::Assign ) {
+
+        return std::move(name);
+    }
+
+    it--; // Give it another try
+
+    return nullptr;
 }
 
 std::unique_ptr<ast::Expression> parseExpression(TokenIterator &it, const TokenIterator &end)
@@ -84,6 +101,8 @@ std::unique_ptr<ast::Expression> parseSum(TokenIterator &it, const TokenIterator
         return lhs;
     }
 
+    it++; // Consume operator
+
     auto rhs = parseSum(it, end);
 
     return std::make_unique<ast::Addition>(std::move(lhs), std::move(rhs));
@@ -96,6 +115,8 @@ std::unique_ptr<ast::Expression> parseMultiplication(TokenIterator &it, const To
 
         return lhs;
     }
+
+    it++; // Consume operator
 
     auto rhs = parseMultiplication(it, end);
 
@@ -113,7 +134,7 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenItera
         auto expr = parseExpression(it, end);
 
         if( it == end ) throw std::runtime_error("Expected token ')', got EOF");
-        if( it->type != Token::ParenRight ) throw std::runtime_error("Expected token ')', got token " + std::to_string(it->type));
+        if( it->type != Token::ParenRight ) throw std::runtime_error("Expected token ')', got token '" + it->value + "'");
 
         it++; // consume closing parenthesis
 
@@ -153,7 +174,7 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
     if( it == end ) throw std::runtime_error("Expected name, got EOF");
 
     // TODO: token type to string
-    if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token " + std::to_string(it->type));
+    if( it->type != Token::Name ) throw std::runtime_error("Expected name, got token '" + it->value + "'");
 
     auto name = std::make_unique<ast::Name>(it->value);
 
@@ -181,7 +202,7 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
     } while( it != end && it->type == Token::Comma);
 
     if( it == end ) throw std::runtime_error("Expected token ')', got EOF");
-    if( it->type != Token::ParenRight ) throw std::runtime_error("Expected token ')', got token " + std::to_string(it->type));
+    if( it->type != Token::ParenRight ) throw std::runtime_error("Expected token ')', got token '" + it->value + "'");
 
     it++; // consume closing parenthesis
 
