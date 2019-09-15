@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_full_program)
     BOOST_CHECK_EQUAL(tokens[2].type, Token::IntLiteral);
     BOOST_CHECK_EQUAL(tokens[2].value, "0");
     BOOST_CHECK_EQUAL(tokens[3].type, Token::LineBreak);
-    BOOST_CHECK_EQUAL(tokens[4].type, Token::Name);
+    BOOST_CHECK_EQUAL(tokens[4].type, Token::While);
     BOOST_CHECK_EQUAL(tokens[4].value, "while");
     BOOST_CHECK_EQUAL(tokens[5].type, Token::Name);
     BOOST_CHECK_EQUAL(tokens[5].value, "x");
