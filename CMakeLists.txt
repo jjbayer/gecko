@@ -8,6 +8,7 @@ add_library(compiled_language
     exceptions.cpp
     executor.cpp
     instructions.cpp
+    parser.cpp
     printvisitor.cpp
     statemachine.cpp
     tokenizer.cpp

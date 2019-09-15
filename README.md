@@ -11,6 +11,20 @@ I'm writing a programming language from scratch. It's a work in progress.
 * static read/write checker (s.t. threads cannot read and write to the same variable at the same time),
 * safe by default, fast if needed (e.g. bounds checks, arithmetic overflow).
 
+## Parser
+
+Expression parsing
+
+    /*
+     * expr := sum
+     * sum := multiplication [ "+" sum ]
+     * multiplication := factor [ "*" multiplication ]
+     * factor := "(" expression ")" | atom
+     * atom := int_literal | string_literal | call
+     * call := name [ "(" function_args ")" ]
+     * function_args = expression [ "," function_args ]
+    */
+
 ## Examples
 
 ### Simple

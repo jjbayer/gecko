@@ -36,6 +36,12 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         return std::make_shared<StateInitial>();
     }
 
+    if( c == ',' ) {
+        *tokens.rbegin() = {Token::Comma};
+        it++;
+        return std::make_shared<StateInitial>();
+    }
+
     if( c == '+' ) {
         *tokens.rbegin() = {Token::Plus}; // TODO: unary operator
         it++;

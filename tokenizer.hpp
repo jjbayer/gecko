@@ -30,6 +30,7 @@ struct Token
         // TODO: (bitwise) and / or
         // TODO: unary operators
 
+        Comma,
         ParenLeft,
         ParenRight,
         BracketLeft,

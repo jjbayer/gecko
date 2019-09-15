@@ -27,8 +27,8 @@ void IntLiteral::acceptVisitor(Visitor &visitor)
     visitor.visitIntLiteral(*this);
 }
 
-Assignment::Assignment(std::unique_ptr<Name> &&name, std::unique_ptr<Expression> &&value)
-    : mName(std::move(name))
+Assignment::Assignment(std::unique_ptr<Assignee> &&name, std::unique_ptr<Expression> &&value)
+    : mAssignee(std::move(name))
     , mValue(std::move(value))
 {
 }

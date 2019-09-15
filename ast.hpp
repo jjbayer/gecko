@@ -2,15 +2,7 @@
 #include <memory>
 #include <vector>
 
-/*
- * expr := sum
- * sum := multiplication [ "+" sum ]
- * multiplication := factor [ "*" multiplication ]
- * factor := "(" expression ")" | atom
- * atom := int_literal | string_literal | call
- * call := name [ "(" function_args ")" ]
- * function_args = expression [ "," function_args ]
-*/
+
 
 
 namespace ast {
@@ -44,7 +36,13 @@ class Singular: public Expression
 };
 
 
-class Name: public Singular
+class Assignee: public Singular
+{
+
+};
+
+
+class Name: public Assignee
 {
 public:
     Name(const std::string && name);
@@ -95,11 +93,11 @@ public:
 class Assignment: public Statement
 {
 public:
-    Assignment(std::unique_ptr<Name> && name, std::unique_ptr<Expression> && value);
+    Assignment(std::unique_ptr<Assignee> && name, std::unique_ptr<Expression> && value);
 
     void acceptVisitor(Visitor & visitor) override;
 
-    std::unique_ptr<Name> mName;
+    std::unique_ptr<Assignee> mAssignee;
     std::unique_ptr<Expression> mValue;
 };
 

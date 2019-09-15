@@ -15,7 +15,7 @@ void PrintVisitor::visitAddition(const Addition & addition)
 
 void PrintVisitor::visitAssignment(const Assignment &assignment)
 {
-    assignment.mName->acceptVisitor(*this);
+    assignment.mAssignee->acceptVisitor(*this);
     std::cout << " = ";
     assignment.mValue->acceptVisitor(*this);
 }

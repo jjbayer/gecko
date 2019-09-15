@@ -31,7 +31,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     assignment.mValue->acceptVisitor(*this);
     const auto sourceId = latestObjectId;
 
-    const auto created = lookupOrCreate(assignment.mName->mName);
+    const auto created = lookupOrCreate(assignment.mAssignee->mName);
     const auto sourceType = mTypes[sourceId];
     if( ! created && mTypes[latestObjectId] != sourceType ) {
         throw TypeMismatch(); // TODO: info
