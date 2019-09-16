@@ -15,15 +15,19 @@ I'm writing a programming language from scratch. It's a work in progress.
 
 Expression parsing
 
-    /*
-     * expr := sum
-     * sum := multiplication [ "+" sum ]
-     * multiplication := factor [ "*" multiplication ]
-     * factor := "(" expression ")" | atom
-     * atom := int_literal | string_literal | call
-     * call := name [ "(" function_args ")" ]
-     * function_args = expression [ "," function_args ]
-    */
+
+    expr := or_
+    or := and [ "or" or ]
+    and := comparison [ "and" and ]
+    comparison = sum [ comparator sum ]*
+    comparator = "<" | "<=" | ">" | ">=" | "==" | "!="
+    sum := multiplication [ "+" sum ]
+    multiplication := factor [ "*" multiplication ]
+    factor := [ "not" ] singular
+    singular := "(" expression ")" | atom
+    atom := int_literal | string_literal | call
+    call := name [ "(" function_args ")" ]
+    function_args = expression [ "," function_args ]
 
 ## Examples
 
