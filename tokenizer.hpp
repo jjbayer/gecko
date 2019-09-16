@@ -53,6 +53,11 @@ struct Token
         Switch,
         Enum,
         Struct,
+
+        True,
+        False,
+        And,
+        Or,
     };
 
     Type type = Undefined;

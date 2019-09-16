@@ -27,9 +27,31 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
+
+    if( c == '-' ) {
+        *tokens.rbegin() = {Token::Minus, &c}; // TODO: unary operator
+        advance(it, position);
+        return std::make_shared<StateInitial>();
+    }
+
+    if( c == '*' ) {
+        *tokens.rbegin() = {Token::Times, &c};
+        advance(it, position);
+        return std::make_shared<StateInitial>();
+    }
+
+    if( c == '/' ) {
+        *tokens.rbegin() = {Token::DivideBy, &c};
+        advance(it, position);
+        return std::make_shared<StateInitial>();
+    }
+
     if( c == '=' ) {
+        // TODO: parse '=='
         *tokens.rbegin() = {Token::Assign, &c};
         advance(it, position);
+        if( )
+
         return std::make_shared<StateInitial>();
     }
 

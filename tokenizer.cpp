@@ -29,6 +29,10 @@ std::vector<Token> Tokenizer::tokenize(const std::string &input)
             {"switch", Token::Switch},
             {"enum", Token::Enum},
             {"struct", Token::Struct},
+            {"true", Token::True},
+            {"false", Token::False},
+            {"and", Token::And},
+            {"or", Token::Or}
         };
 
         auto it = keywords.find(token.value);
