@@ -10,6 +10,11 @@ public:
 
     virtual const char * name() const = 0;
     virtual std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens, Position & position) = 0;
+
+protected:
+    /// Advance one character
+    /// TODO: tokenize list of lines => position becomes implicit
+    void advance(Iterator & it, Position & position);
 };
 
 

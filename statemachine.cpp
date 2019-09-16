@@ -12,73 +12,72 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
     const auto c = *it;
 
     if( c == ' ' ) {
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == ',' ) {
         *tokens.rbegin() = {Token::Comma, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '+' ) {
         *tokens.rbegin() = {Token::Plus, &c}; // TODO: unary operator
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '=' ) {
         *tokens.rbegin() = {Token::Assign, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '<' ) {
         *tokens.rbegin() = {Token::LessThan, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '>' ) {
         *tokens.rbegin() = {Token::GreaterThan, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '(' ) {
         *tokens.rbegin() = {Token::ParenLeft, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == ')' ) {
         *tokens.rbegin() = {Token::ParenRight, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '[' ) {
         *tokens.rbegin() = {Token::BracketLeft, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == ']' ) {
         *tokens.rbegin() = {Token::BraceRight, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '{' ) {
         *tokens.rbegin() = {Token::BraceLeft, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '}' ) {
         *tokens.rbegin() = {Token::BraceRight, &c};
-        it++;
+        advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '\n' ) {
         *tokens.rbegin() = {Token::LineBreak, "<linebreak>"};
         tokens.emplace_back(); // S.t. state indent starts with fresh
-        it++;
-        position = { position.lineNumber + 1, 1};
+        advance(it, position);
         tokens.rbegin()->position = position;
         return std::make_shared<StateIndent>();
     }
@@ -91,14 +90,14 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
     if( c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ) {
         tokens.rbegin()->type = Token::Name;
         tokens.rbegin()->value += c; // s.t. StateName can include numbers
-        it++;
+        advance(it, position);
 
         return std::make_shared<StateName>();
     }
 
     if ( c == '"' ) {
         tokens.rbegin()->type = Token::StringLiteral;
-        it++;
+        advance(it, position);
 
         return std::make_shared<StateStringLiteral>(); // FIXME: what if string literal not closed?
     }
@@ -113,7 +112,7 @@ std::shared_ptr<State> StateNumericLiteral::handle(Iterator &it, std::vector<Tok
     if( c == '.' ) {
         tokens.rbegin()->type = Token::FloatLiteral;
         tokens.rbegin()->value += c;
-        it++;
+        advance(it, position);
 
         return std::make_shared<StateNumericLiteral>();
     }
@@ -121,8 +120,7 @@ std::shared_ptr<State> StateNumericLiteral::handle(Iterator &it, std::vector<Tok
     if( c >= '0' && c <= '9' ) {
 
         tokens.rbegin()->value += c;
-        it++;
-        position.column += 1;
+        advance(it, position);
 
         return std::make_shared<StateNumericLiteral>();
     }
@@ -135,13 +133,13 @@ std::shared_ptr<State> StateStringLiteral::handle(State::Iterator &it, std::vect
     const auto c = *it;
 
     if( c == '"') {
-        it++;
+        advance(it, position);
 
         return std::make_shared<StateInitial>();
     }
 
     tokens.rbegin()->value += c;
-    it++;
+    advance(it, position);
 
     return std::make_shared<StateStringLiteral>();
 }
@@ -153,7 +151,7 @@ std::shared_ptr<State> StateName::handle(State::Iterator &it, std::vector<Token>
     if( (c >= '0' && c <= '9') || c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ) {
 
         tokens.rbegin()->value += c;
-        it++;
+        advance(it, position);
 
         return std::make_shared<StateName>();
     }
@@ -173,10 +171,22 @@ std::shared_ptr<State> StateIndent::handle(State::Iterator &it, std::vector<Toke
     if( c == ' ' ) {
         tokens.rbegin()->type = Token::Indent;
         tokens.rbegin()->value += c;
-        it++;
+        advance(it, position);
 
         return std::make_shared<StateIndent>();
     }
 
     return std::make_shared<StateInitial>();
+}
+
+void State::advance(State::Iterator &it, Position &position)
+{
+    const auto c = *it;
+    it++;
+    if( c == '\n') {
+        position.lineNumber++;
+        position.column = 1;
+    } else {
+        position.column++;
+    }
 }
