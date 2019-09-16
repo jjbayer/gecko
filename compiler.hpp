@@ -9,7 +9,10 @@
 
 enum class ObjectType
 {
-    INT = 0
+    BOOLEAN = 0,
+    INT = 1,
+    FLOAT = 2,
+    STRING = 3
 };
 
 

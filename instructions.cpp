@@ -27,7 +27,7 @@ Instruction printInt(ObjectId id)
 Instruction intGte(ObjectId left, ObjectId right, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_int = data[left].as_int >= data[right].as_int;
+        data[target].as_bool = data[left].as_int >= data[right].as_int;
     };
 }
 
@@ -57,15 +57,15 @@ Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
 //        std::cout << data[left].as_int << " < " << data[right].as_int << std::endl;
-        data[target].as_int = data[left].as_int < data[right].as_int;
+        data[target].as_bool = data[left].as_int < data[right].as_int;
     };
 }
 
 Instruction negateInt(ObjectId source, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        const auto value = data[source].as_int;
-        data[target].as_int = value ? 0 : 1;
+        const auto value = data[source].as_bool;
+        data[target].as_bool = value ? 0 : 1;
     };
 }
 

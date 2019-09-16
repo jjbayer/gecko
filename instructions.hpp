@@ -4,6 +4,7 @@
 
 
 union Object {
+    bool as_bool;
     int64_t as_int;  // TODO: what  if 32 bit arch?
     double as_float;
     // RefCounted<std::string> as_string; // TODO: own string type
