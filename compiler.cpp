@@ -121,6 +121,28 @@ void Compiler::visitLessThan(const ast::LessThan &lessThan)
     mInstructions.push_back(intLessThan(lhs, rhs, latestObjectId));
 }
 
+void Compiler::visitIfThen(const ast::IfThen &ifThen)
+{
+    ifThen.mCondition->acceptVisitor(*this);
+    const auto condition = latestObjectId;
+    if( mTypes[condition] != ObjectType::INT ) {
+        throw TypeMismatch({}, ""); // TODO: mPosition, text
+    }
+
+    const auto negatedCondition = mLookup.freshObjectId();
+    mInstructions.push_back(negateInt(condition, negatedCondition));
+
+    mInstructions.push_back(noop());
+    const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
+
+    ifThen.mIfBlock->acceptVisitor(*this);
+
+    mInstructions.push_back(noop()); // This is the end
+    const auto ipEnd = latestInstructionPointer();
+
+    mInstructions[ipJumpToEnd] = jumpIf(negatedCondition, ipEnd);
+}
+
 void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
 {
     ifThenElse.mCondition->acceptVisitor(*this);

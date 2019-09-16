@@ -7,16 +7,17 @@ namespace ast { // TODO: does not belong in this namespace
 class PrintVisitor: public Visitor
 {
 public:
-    void visitAddition(const Addition &visitable);
-    void visitAssignment(const Assignment &assignment);
-    void visitFunctionCall(const FunctionCall &functionCall);
-    void visitIntLiteral(const IntLiteral &intLiteral);
-    void visitName(const Name &name);
-    void visitScope(const Scope &scope);
-    void visitWhile(const While &loop);
-    void visitLessThan(const LessThan &lessThan);
+    void visitAddition(const Addition &visitable) override;
+    void visitAssignment(const Assignment &assignment) override;
+    void visitFunctionCall(const FunctionCall &functionCall) override;
+    void visitIntLiteral(const IntLiteral &intLiteral) override;
+    void visitName(const Name &name) override;
+    void visitScope(const Scope &scope) override;
+    void visitWhile(const While &loop) override;
+    void visitLessThan(const LessThan &lessThan) override;
     // TODO: add visitIf()
-    void visitIfThenElse(const IfThenElse &ifThenElse);
+    void visitIfThen(const ast::IfThen &ifThen) override;
+    void visitIfThenElse(const IfThenElse &ifThenElse) override;
 
 private:
     int mIndent = 0;

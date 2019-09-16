@@ -70,6 +70,16 @@ void PrintVisitor::visitLessThan(const LessThan & lessThan)
     lessThan.mRight->acceptVisitor(*this);
 }
 
+void PrintVisitor::visitIfThen(const IfThen &ifThen)
+{
+    std::cout << "if ";
+    ifThen.mCondition->acceptVisitor(*this);
+    std::cout << "\n";
+    mIndent++;
+    ifThen.mIfBlock->acceptVisitor(*this);
+    mIndent--;
+}
+
 void PrintVisitor::visitIfThenElse(const IfThenElse &ifThenElse)
 {
     std::cout << "if ";

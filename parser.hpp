@@ -33,7 +33,7 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator & it, const Token
 
 std::unique_ptr<ast::While> parseWhile(TokenIterator & it, const TokenIterator & end, int indent);
 
-std::unique_ptr<ast::IfThenElse> parseIfThenElse(TokenIterator & it, const TokenIterator & end, int indent);
+std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator & it, const TokenIterator & end, int indent);
 
 // TODO: more operators: or, and, <, >, <=, ...
 // TODO: multiline nested expressions

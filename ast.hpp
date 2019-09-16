@@ -113,6 +113,19 @@ public:
 };
 
 
+class IfThen: public Statement
+{
+public:
+    IfThen(std::unique_ptr<Expression> && condition,
+             std::unique_ptr<Scope> && ifBlock);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Expression> mCondition;
+    std::unique_ptr<Scope> mIfBlock;
+};
+
+
 class IfThenElse: public Statement
 {
 public:

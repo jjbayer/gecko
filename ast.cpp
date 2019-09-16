@@ -114,4 +114,16 @@ void IfThenElse::acceptVisitor(Visitor &visitor)
     visitor.visitIfThenElse(*this);
 }
 
+IfThen::IfThen(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock)
+    : mCondition(std::move(condition))
+    , mIfBlock(std::move(ifBlock))
+{
+
+}
+
+void IfThen::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitIfThen(*this);
+}
+
 } // namespace ast

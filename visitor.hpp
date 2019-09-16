@@ -11,8 +11,10 @@ class LessThan;
 class Name;
 class Scope;
 class While;
+class IfThen;
 class IfThenElse;
 
+// TODO: const correctness
 class Visitor
 {
 public:
@@ -24,6 +26,7 @@ public:
     virtual void visitName(const Name & name) = 0;
     virtual void visitScope(const Scope & scope) = 0;
     virtual void visitWhile(const While & loop) = 0;
+    virtual void visitIfThen(const IfThen & ifThen) = 0;
     virtual void visitIfThenElse(const IfThenElse & ifThenElse) = 0;
 
 };

@@ -264,7 +264,7 @@ std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &e
 
 
 
-std::unique_ptr<ast::IfThenElse> parseIfThenElse(TokenIterator &it, const TokenIterator &end, int indent)
+std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIterator &end, int indent)
 {
     auto condition = parseExpression(it, end, indent);
     if( it == end ) throw UnexpectedEndOfFile("line break");
@@ -283,8 +283,10 @@ std::unique_ptr<ast::IfThenElse> parseIfThenElse(TokenIterator &it, const TokenI
     }
     if( indentCounter != indent ) throw std::runtime_error("Unexpected indent " + std::to_string(indentCounter) + " after 'then' block ");
 
-    if( it == end ) throw UnexpectedEndOfFile("'else'");
-    if( it->type != Token::Else ) throw UnexpectedToken(*it, "'else'");
+    if( it == end || it->type != Token::Else ) {
+
+        return std::make_unique<ast::IfThen>(std::move(condition), std::move(ifBody));
+    }
 
     it++;
 
