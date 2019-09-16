@@ -73,3 +73,10 @@ Instruction noop()
 {
     return [](std::vector<Object> & data, InstructionPointer & ip) {};
 }
+
+Instruction setFloat(ObjectId target, double value)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_float = value;
+    };
+}

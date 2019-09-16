@@ -126,4 +126,13 @@ void IfThen::acceptVisitor(Visitor &visitor)
     visitor.visitIfThen(*this);
 }
 
+FloatLiteral::FloatLiteral(double value)
+    : mValue(value)
+{}
+
+void FloatLiteral::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitFloatLiteral(*this);
+}
+
 } // namespace ast

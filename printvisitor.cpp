@@ -33,9 +33,14 @@ void PrintVisitor::visitFunctionCall(const FunctionCall &functionCall)
     std::cout << ")";
 }
 
-void PrintVisitor::visitIntLiteral(const IntLiteral &intLiteral)
+void PrintVisitor::visitIntLiteral(const IntLiteral &literal)
 {
-    std::cout << intLiteral.mValue;
+    std::cout << literal.mValue;
+}
+
+void PrintVisitor::visitFloatLiteral(const FloatLiteral &literal)
+{
+    std::cout << literal.mValue;
 }
 
 void PrintVisitor::visitName(const Name &name)

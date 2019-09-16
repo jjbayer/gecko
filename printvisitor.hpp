@@ -10,7 +10,8 @@ public:
     void visitAddition(const Addition &visitable) override;
     void visitAssignment(const Assignment &assignment) override;
     void visitFunctionCall(const FunctionCall &functionCall) override;
-    void visitIntLiteral(const IntLiteral &intLiteral) override;
+    void visitIntLiteral(const IntLiteral &literal) override;
+    void visitFloatLiteral(const FloatLiteral & literal) override;
     void visitName(const Name &name) override;
     void visitScope(const Scope &scope) override;
     void visitWhile(const While &loop) override;

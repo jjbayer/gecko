@@ -59,11 +59,18 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     }
 }
 
-void Compiler::visitIntLiteral(const ast::IntLiteral &intLiteral)
+void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
 {
     latestObjectId = mLookup.freshObjectId();
     mTypes[latestObjectId] = ObjectType::INT;
-    mInstructions.push_back(setInt(latestObjectId, intLiteral.mValue));
+    mInstructions.push_back(setInt(latestObjectId, literal.mValue));
+}
+
+void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
+{
+    latestObjectId = mLookup.freshObjectId();
+    mTypes[latestObjectId] = ObjectType::FLOAT;
+    mInstructions.push_back(setFloat(latestObjectId, literal.mValue));
 }
 
 void Compiler::visitName(const ast::Name &name)

@@ -64,6 +64,17 @@ public:
 };
 
 
+class FloatLiteral: public Singular
+{
+public:
+    FloatLiteral(double value);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    const double mValue;
+};
+
+
 class FunctionCall: public Singular
 {
 public:
