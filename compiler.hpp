@@ -7,15 +7,6 @@
 #include <unordered_map>
 
 
-enum class ObjectType
-{
-    BOOLEAN = 0,
-    INT = 1,
-    FLOAT = 2,
-    STRING = 3
-};
-
-
 class Compiler: public ast::Visitor
 {
 
@@ -39,8 +30,8 @@ public:
 private:
 
 
-    void lookup(const std::string & name);
-    bool lookupOrCreate(const std::string & name);
+    void lookup(const LookupKey & key);
+    bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
     std::vector<Instruction> mInstructions;

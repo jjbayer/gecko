@@ -34,7 +34,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     // TODO: what if assignee is not name?
     auto name = dynamic_cast<ast::Name*>(assignment.mAssignee.get());
 
-    const auto created = lookupOrCreate(name->mName);
+    const auto created = lookupOrCreate({name->mName, {}});
     const auto sourceType = mTypes[sourceId];
     if( ! created && mTypes[latestObjectId] != sourceType ) {
         throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
@@ -47,16 +47,15 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 {
     std::vector<ObjectId> ids;
+    std::vector<ObjectType> argumentTypes;
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
         ids.push_back(latestObjectId);
+        argumentTypes.push_back(mTypes[latestObjectId]);
     }
 
-    if( functionCall.mName->mName == "print" && ids.size() == 1 && mTypes[ids[0]] == ObjectType::INT ) {
-        mInstructions.push_back(printInt(ids[0]));
-    } else {
-        throw std::runtime_error("Only single argument int printing supported right now");
-    }
+    lookup({functionCall.mName->mName, argumentTypes});
+    mInstructions.push_back(callFunction(latestObjectId, ids));
 }
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
@@ -75,7 +74,7 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 
 void Compiler::visitName(const ast::Name &name)
 {
-    lookup(name.mName); // sets latest object id
+    lookup({name.mName, {}}); // sets latest object id
 }
 
 void Compiler::visitScope(const ast::Scope &scope)
@@ -181,15 +180,15 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
     mInstructions[ipJumpToEnd] = jump(ipEnd);
 }
 
-void Compiler::lookup(const std::string &name)
+void Compiler::lookup(const LookupKey &key)
 {
-    latestObjectId = mLookup.lookup(name);
+    latestObjectId = mLookup.lookup(key);
 }
 
-bool Compiler::lookupOrCreate(const std::string &name)
+bool Compiler::lookupOrCreate(const LookupKey &key)
 {
     bool created;
-    std::tie(latestObjectId, created) = mLookup.lookupOrCreate(name);
+    std::tie(latestObjectId, created) = mLookup.lookupOrCreate(key);
 
     return created;
 }

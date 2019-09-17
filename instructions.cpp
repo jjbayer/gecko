@@ -80,3 +80,11 @@ Instruction setFloat(ObjectId target, double value)
         data[target].as_float = value;
     };
 }
+
+Instruction callFunction(ObjectId fn, std::vector<ObjectId> args)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        // FIXME: call it
+        // FIXME: return value
+    };
+}
