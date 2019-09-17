@@ -40,6 +40,7 @@ void PrintVisitor::visitIntLiteral(const IntLiteral &literal)
 
 void PrintVisitor::visitFloatLiteral(const FloatLiteral &literal)
 {
+    std::showpoint(std::cout);
     std::cout << literal.mValue;
 }
 

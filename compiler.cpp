@@ -17,7 +17,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
 
     // TODO: other forms off addition
     if( mTypes[lhs] != ObjectType::INT || mTypes[rhs] != ObjectType::INT) {
-        throw TypeMismatch({}, ""); // TODO: mPosition, text
+        throw TypeMismatch(addition.position(), ""); // TODO: mPosition, text
     }
 
     latestObjectId = mLookup.freshObjectId();
@@ -37,7 +37,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     const auto created = lookupOrCreate(name->mName);
     const auto sourceType = mTypes[sourceId];
     if( ! created && mTypes[latestObjectId] != sourceType ) {
-        throw TypeMismatch({}, ""); // TODO: mPosition, text
+        throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
     }
     mTypes[latestObjectId] = sourceType;
 
@@ -92,7 +92,7 @@ void Compiler::visitWhile(const ast::While &loop)
     loop.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::BOOLEAN ) {
-        throw TypeMismatch({}, "While condition must be boolean"); // TODO: mPosition, text
+        throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
     const auto ipCondition = latestInstructionPointer();
 
@@ -118,11 +118,11 @@ void Compiler::visitLessThan(const ast::LessThan &lessThan)
     const auto rhs = latestObjectId;
 
     if( mTypes[lhs] != ObjectType::INT ) {
-        throw TypeMismatch({}, "Only integers can be compared at the moment");
+        throw TypeMismatch(lessThan.mLeft->position(), "Only integers can be compared at the moment");
     }
 
     if( mTypes[lhs] != mTypes[rhs] ) {
-        throw TypeMismatch({}, "Can only compare objects of same type"); // TODO: mPosition, text
+        throw TypeMismatch(lessThan.mRight->position(), "Can only compare objects of same type"); // TODO: mPosition, text
     }
 
     latestObjectId = mLookup.freshObjectId();
@@ -136,7 +136,7 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
     ifThen.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::BOOLEAN ) {
-        throw TypeMismatch({}, "If-condition must be boolean"); // TODO: mPosition, text
+        throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean"); // TODO: mPosition, text
     }
 
     const auto negatedCondition = mLookup.freshObjectId();
@@ -158,7 +158,7 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
     ifThenElse.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::BOOLEAN ) {
-        throw TypeMismatch({}, "If-Else condition must be boolean"); // TODO: mPosition, text
+        throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean"); // TODO: mPosition, text
     }
 
     mInstructions.push_back(noop());

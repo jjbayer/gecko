@@ -5,8 +5,9 @@
 namespace ast
 {
 
-Name::Name(const std::string &name)
-    : mName(name)
+Name::Name(const std::string &name, const Position &position)
+    : Assignee(position)
+    , mName(name)
 {
 
 }
@@ -16,8 +17,9 @@ void Name::acceptVisitor(Visitor &visitor)
     visitor.visitName(*this);
 }
 
-IntLiteral::IntLiteral(int64_t value)
-    : mValue(value)
+IntLiteral::IntLiteral(int64_t value, const Position & position)
+    : Singular(position)
+    , mValue(value)
 {
 
 }
@@ -27,8 +29,9 @@ void IntLiteral::acceptVisitor(Visitor &visitor)
     visitor.visitIntLiteral(*this);
 }
 
-Assignment::Assignment(std::unique_ptr<Assignee> &&name, std::unique_ptr<Expression> &&value)
-    : mAssignee(std::move(name))
+Assignment::Assignment(std::unique_ptr<Assignee> &&name, std::unique_ptr<Expression> &&value, const Position &position)
+    : Statement(position)
+    , mAssignee(std::move(name))
     , mValue(std::move(value))
 {
 }
@@ -48,8 +51,9 @@ void Scope::acceptVisitor(Visitor &visitor)
     visitor.visitScope(*this); // TODO: indent
 }
 
-FunctionCall::FunctionCall(std::unique_ptr<Name> &&name)
-    : mName(std::move(name))
+FunctionCall::FunctionCall(std::unique_ptr<Name> &&name, const Position &position)
+    : Singular(position)
+    , mName(std::move(name))
 {
 
 }
@@ -64,8 +68,9 @@ void FunctionCall::acceptVisitor(Visitor &visitor)
     visitor.visitFunctionCall(*this);
 }
 
-Addition::Addition(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
-    : mLeft(std::move(left))
+Addition::Addition(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
+    : Expression(position)
+    , mLeft(std::move(left))
     , mRight(std::move(right))
 {
 
@@ -77,8 +82,9 @@ void Addition::acceptVisitor(Visitor &visitor)
     visitor.visitAddition(*this);
 }
 
-While::While(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&body)
-    : mCondition(std::move(condition))
+While::While(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&body, const Position &position)
+    : Statement(position)
+    , mCondition(std::move(condition))
     , mBody(std::move(body))
 {
 
@@ -89,8 +95,9 @@ void While::acceptVisitor(Visitor &visitor)
     visitor.visitWhile(*this);
 }
 
-LessThan::LessThan(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
-    : mLeft(std::move(left))
+LessThan::LessThan(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
+    : Expression(position)
+    , mLeft(std::move(left))
     , mRight(std::move(right))
 {
 
@@ -101,8 +108,9 @@ void LessThan::acceptVisitor(Visitor &visitor)
     visitor.visitLessThan(*this);
 }
 
-IfThenElse::IfThenElse(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock, std::unique_ptr<Scope> &&elseBlock)
-    : mCondition(std::move(condition))
+IfThenElse::IfThenElse(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock, std::unique_ptr<Scope> &&elseBlock, const Position &position)
+    : Statement(position)
+    , mCondition(std::move(condition))
     , mIfBlock(std::move(ifBlock))
     , mElseBlock(std::move(elseBlock))
 {
@@ -114,8 +122,9 @@ void IfThenElse::acceptVisitor(Visitor &visitor)
     visitor.visitIfThenElse(*this);
 }
 
-IfThen::IfThen(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock)
-    : mCondition(std::move(condition))
+IfThen::IfThen(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock, const Position &position)
+    : Statement(position)
+    , mCondition(std::move(condition))
     , mIfBlock(std::move(ifBlock))
 {
 
@@ -126,13 +135,17 @@ void IfThen::acceptVisitor(Visitor &visitor)
     visitor.visitIfThen(*this);
 }
 
-FloatLiteral::FloatLiteral(double value)
-    : mValue(value)
+FloatLiteral::FloatLiteral(double value, const Position &position)
+    : Singular(position)
+    , mValue(value)
 {}
 
 void FloatLiteral::acceptVisitor(Visitor &visitor)
 {
     visitor.visitFloatLiteral(*this);
 }
+
+Node::Node(const Position &position)
+    : mPosition(position) {}
 
 } // namespace ast

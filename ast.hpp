@@ -1,8 +1,11 @@
 #pragma once
+#include "tokenizer.hpp"  // For Posiion
+
 #include <memory>
 #include <vector>
 
 
+class Position;
 
 
 namespace ast {
@@ -14,38 +17,54 @@ class Visitor;
 class /* interface */ Node
 {
 public:
+
+    Node(const Position & position);
+
     virtual void acceptVisitor(Visitor &) = 0;
+
+    const Position & position() const {  return mPosition; }
+
+private:
+    Position mPosition;
 };
 
 
 class Statement: public Node
 {
-
+public:
+    Statement(const Position & position)
+        :Node(position) {}
 };
 
 
 class Expression: public Statement
 {
-
+public:
+    Expression(const Position & position)
+        :Statement(position) {}
 };
 
 
 class Singular: public Expression
 {
-
+public:
+    Singular(const Position & position)
+        :Expression(position) {}
 };
 
 
 class Assignee: public Singular
 {
-
+public:
+    Assignee(const Position & position)
+        :Singular(position) {}
 };
 
 
 class Name: public Assignee
 {
 public:
-    Name(const std::string & name);
+    Name(const std::string & name, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -56,7 +75,7 @@ public:
 class IntLiteral: public Singular
 {
 public:
-    IntLiteral(int64_t value);
+    IntLiteral(int64_t value, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -67,7 +86,7 @@ public:
 class FloatLiteral: public Singular
 {
 public:
-    FloatLiteral(double value);
+    FloatLiteral(double value, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -78,7 +97,7 @@ public:
 class FunctionCall: public Singular
 {
 public:
-    FunctionCall(std::unique_ptr<Name> && name);
+    FunctionCall(std::unique_ptr<Name> && name, const Position & position);
 
     void addArgument(std::unique_ptr<Expression> && expression);
 
@@ -92,7 +111,7 @@ public:
 class Addition: public Expression
 {
 public:
-    Addition(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
+    Addition(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -104,7 +123,7 @@ public:
 class Assignment: public Statement
 {
 public:
-    Assignment(std::unique_ptr<Assignee> && name, std::unique_ptr<Expression> && value);
+    Assignment(std::unique_ptr<Assignee> && name, std::unique_ptr<Expression> && value, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -116,7 +135,10 @@ public:
 class Scope: public Node
 {
 public:
-    void addStatement(std::unique_ptr<Statement> && statement);
+
+    Scope(const Position & position): Node(position) {}
+
+    void addStatement(std::unique_ptr<Statement> && statementn);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -128,7 +150,7 @@ class IfThen: public Statement
 {
 public:
     IfThen(std::unique_ptr<Expression> && condition,
-             std::unique_ptr<Scope> && ifBlock);
+             std::unique_ptr<Scope> && ifBlock, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -142,7 +164,7 @@ class IfThenElse: public Statement
 public:
     IfThenElse(std::unique_ptr<Expression> && condition,
              std::unique_ptr<Scope> && ifBlock,
-             std::unique_ptr<Scope> && elseBlock);
+             std::unique_ptr<Scope> && elseBlock, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -155,7 +177,7 @@ public:
 class While: public Statement
 {
 public:
-    While(std::unique_ptr<Expression> && condition, std::unique_ptr<Scope> && body);
+    While(std::unique_ptr<Expression> && condition, std::unique_ptr<Scope> && body, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 
@@ -167,7 +189,7 @@ public:
 class LessThan: public Expression
 {
 public:
-    LessThan(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
+    LessThan(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
 
     void acceptVisitor(Visitor & visitor) override;
 

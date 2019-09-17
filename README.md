@@ -25,7 +25,7 @@ Expression parsing
     multiplication := factor [ "*" multiplication ]
     factor := [ "not" ] singular
     singular := "(" expression ")" | atom
-    atom := int_literal | string_literal | call
+    atom := bool_literal | int_literal | string_literal | call
     call := name [ "(" function_args ")" ]
     function_args = expression [ "," function_args ]
 

@@ -50,7 +50,6 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         // TODO: parse '=='
         *tokens.rbegin() = {Token::Assign, &c};
         advance(it, position);
-        if( )
 
         return std::make_shared<StateInitial>();
     }

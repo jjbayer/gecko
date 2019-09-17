@@ -5,7 +5,9 @@
 
 std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    auto scope = std::make_unique<ast::Scope>();
+    if( it == end) throw std::runtime_error("Empty scope.");
+
+    auto scope = std::make_unique<ast::Scope>(it->position);
 
     while( it != end ) {
 
@@ -44,13 +46,11 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
     if( it == end ) throw UnexpectedEndOfFile("statement");
 
     if( it->type == Token::While ) {
-        it++; // Consume keyword
 
         return parseWhile(it, end, indent);
     }
 
     if( it->type == Token::If ) {
-        it++; // Consume keyword
 
         // TODO: parse if without else
         return parseIfThenElse(it, end, indent);
@@ -85,7 +85,10 @@ std::unique_ptr<ast::Statement> parseAssignment(TokenIterator &it, const TokenIt
 
     auto value = parseExpression(it, end, indent);
 
-    return std::make_unique<ast::Assignment>(std::move(assignee), std::move(value));
+    const auto pos = assignee->position();
+    return std::make_unique<ast::Assignment>(std::move(assignee),
+                                             std::move(value),
+                                             pos);
 }
 
 std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenIterator &end, int indent)
@@ -99,7 +102,7 @@ std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenItera
         return nullptr;
     }
 
-    auto name = std::make_unique<ast::Name>(it->value);
+    auto name = std::make_unique<ast::Name>(it->value, it->position);
 
     it++;
 
@@ -130,7 +133,8 @@ std::unique_ptr<ast::Expression> parseLessThan(TokenIterator &it, const TokenIte
 
     auto rhs = parseLessThan(it, end, indent);
 
-    return std::make_unique<ast::LessThan>(std::move(lhs), std::move(rhs));
+    const auto pos = lhs->position();
+    return std::make_unique<ast::LessThan>(std::move(lhs), std::move(rhs), pos);
 }
 
 std::unique_ptr<ast::Expression> parseSum(TokenIterator &it, const TokenIterator &end, int indent)
@@ -145,7 +149,8 @@ std::unique_ptr<ast::Expression> parseSum(TokenIterator &it, const TokenIterator
 
     auto rhs = parseSum(it, end, indent);
 
-    return std::make_unique<ast::Addition>(std::move(lhs), std::move(rhs));
+    const auto pos = lhs->position();
+    return std::make_unique<ast::Addition>(std::move(lhs), std::move(rhs), pos);
 }
 
 std::unique_ptr<ast::Expression> parseMultiplication(TokenIterator &it, const TokenIterator &end, int indent)
@@ -160,7 +165,9 @@ std::unique_ptr<ast::Expression> parseMultiplication(TokenIterator &it, const To
 
     auto rhs = parseMultiplication(it, end, indent);
 
-    return std::make_unique<ast::Addition>(std::move(lhs), std::move(rhs));
+    // FIXME: return ast::Multiplication
+    const auto pos = lhs->position();
+    return std::make_unique<ast::Addition>(std::move(lhs), std::move(rhs), pos);
 }
 
 std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenIterator &end, int indent)
@@ -195,7 +202,7 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
         int64_t value;
         stream >> value;
 
-        return std::make_unique<ast::IntLiteral>(value);
+        return std::make_unique<ast::IntLiteral>(value, it->position);
     }
 
     if( it->type == Token::FloatLiteral ) {
@@ -205,7 +212,7 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
         double value;
         stream >> value;
 
-        return std::make_unique<ast::FloatLiteral>(value);
+        return std::make_unique<ast::FloatLiteral>(value, it->position);
     }
     // TODO: string literal
 //    if( it->type == Token::StringLiteral ) return std::make_unique<ast::StringLiteral>((it++)->value);
@@ -225,7 +232,7 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
     // TODO: token type to string
     if( it->type != Token::Name ) throw UnexpectedToken(*it, "name");
 
-    auto name = std::make_unique<ast::Name>(it->value);
+    auto name = std::make_unique<ast::Name>(it->value, it->position);
 
     it++;
 
@@ -236,7 +243,8 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
 
     it++; // Consume opening parenthesis
 
-    auto functionCall = std::make_unique<ast::FunctionCall>(std::move(name));
+    const auto pos = name->position();
+    auto functionCall = std::make_unique<ast::FunctionCall>(std::move(name), pos);
 
     if( it == end ) throw UnexpectedEndOfFile("function arguments");
 
@@ -260,6 +268,9 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
 
 std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &end, int indent)
 {
+    const auto pos = it->position;
+    it++; // consume 'while'
+
     auto condition = parseExpression(it, end, indent);
     if( it == end ) throw UnexpectedEndOfFile("line break");
     if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
@@ -269,13 +280,16 @@ std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &e
 
     if( body->mStatements.empty() ) throw EmptyBody(it->position, "while");
 
-    return std::make_unique<ast::While>(std::move(condition), std::move(body));
+    return std::make_unique<ast::While>(std::move(condition), std::move(body), pos);
 }
 
 
 
 std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIterator &end, int indent)
 {
+    const auto pos = it->position;
+    it++; // consume 'if'
+
     auto condition = parseExpression(it, end, indent);
     if( it == end ) throw UnexpectedEndOfFile("line break");
     if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
@@ -295,7 +309,7 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
 
     if( it == end || it->type != Token::Else ) {
 
-        return std::make_unique<ast::IfThen>(std::move(condition), std::move(ifBody));
+        return std::make_unique<ast::IfThen>(std::move(condition), std::move(ifBody), pos);
     }
 
     it++;
@@ -309,5 +323,6 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
 
     return std::make_unique<ast::IfThenElse>(std::move(condition),
                                              std::move(ifBody),
-                                             std::move(elseBody));
+                                             std::move(elseBody),
+                                             pos);
 }
