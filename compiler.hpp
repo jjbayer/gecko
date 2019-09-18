@@ -32,7 +32,7 @@ public:
 private:
 
     void loadPrelude();
-    void lookup(const LookupKey & key);
+    void lookup(const ast::Name & variable, const std::vector<ObjectType> & argumentTypes = {});
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 

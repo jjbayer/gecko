@@ -1,5 +1,5 @@
 #include "lookup.hpp"
-#include <sstream>
+
 
 Lookup::Lookup()
 {
@@ -30,14 +30,7 @@ ObjectId Lookup::lookup(const LookupKey &key) const
         }
     }
 
-    // TODO: readable argument types
-    // TODO: key.is_function
-    std::stringstream msg;
-    msg << key.name;
-    if( ! key.functionArguments.empty() ) msg << " with function arguments ";
-    for(auto arg : key.functionArguments) msg << arg << " ";
-
-    throw UndefinedVariable({}, msg.str());  // TODO: context
+    throw LookupError {};
 }
 
 std::pair<ObjectId, bool> Lookup::lookupOrCreate(const LookupKey &name)

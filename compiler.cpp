@@ -3,6 +3,8 @@
 #include "exceptions.hpp"
 #include "builtins.hpp"
 
+#include <sstream>
+
 
 Compiler::Compiler()
 {
@@ -41,13 +43,14 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     auto name = dynamic_cast<ast::Name*>(assignment.mAssignee.get());
 
     const auto created = lookupOrCreate({name->mName, {}});
+    const auto targetId = latestObjectId;
     const auto sourceType = mTypes[sourceId];
-    if( ! created && mTypes[latestObjectId] != sourceType ) {
+    if( ! created && mTypes[targetId] != sourceType ) {
         throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
     }
-    mTypes[latestObjectId] = sourceType;
+    mTypes[targetId] = sourceType;
 
-    mInstructions.push_back(copy(sourceId, latestObjectId));
+    mInstructions.push_back(copy(sourceId, targetId));
 }
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
@@ -60,7 +63,7 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
         argumentTypes.push_back(mTypes[latestObjectId]);
     }
 
-    lookup({functionCall.mName->mName, argumentTypes});
+    lookup(*functionCall.mName, argumentTypes);
     const auto functionId = latestObjectId;
     // FIXME: use mTypes.at(...) everywhere
 
@@ -88,7 +91,7 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 
 void Compiler::visitName(const ast::Name &name)
 {
-    lookup({name.mName, {}}); // sets latest object id
+    lookup(name); // sets latest object id
 }
 
 void Compiler::visitScope(const ast::Scope &scope)
@@ -203,9 +206,21 @@ void Compiler::loadPrelude()
     mInstructions.push_back(setFunction(latestObjectId, new PrintInt));
 }
 
-void Compiler::lookup(const LookupKey &key)
+void Compiler::lookup(const ast::Name &variable, const std::vector<ObjectType> &argumentTypes)
 {
-    latestObjectId = mLookup.lookup(key);
+    try {
+        latestObjectId = mLookup.lookup({variable.mName, argumentTypes});
+    } catch(const LookupError &) {
+
+        // TODO: readable argument types
+        // TODO: key.is_function
+        std::stringstream msg;
+        msg << variable.mName;
+        if( ! argumentTypes.empty() ) msg << " with function arguments ";
+        for(auto arg : argumentTypes) msg << arg << " ";
+
+        throw UndefinedVariable(variable.position(), msg.str());
+    }
 }
 
 bool Compiler::lookupOrCreate(const LookupKey &key)

@@ -6,6 +6,9 @@
 #include "object.hpp"
 
 
+struct LookupError {};
+
+
 struct LookupKey
 {
     const std::string name = "";
