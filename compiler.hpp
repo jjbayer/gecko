@@ -12,6 +12,8 @@ class Compiler: public ast::Visitor
 
 public:
 
+    Compiler();
+
     const std::vector<Instruction> & instructions() const;
     int numObjectIdsUsed() const { return mLookup.numObjectIdsUsed(); }
 
@@ -29,7 +31,7 @@ public:
 
 private:
 
-
+    void loadPrelude();
     void lookup(const LookupKey & key);
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;

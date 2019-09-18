@@ -1,7 +1,13 @@
 #include "ast.hpp"
 #include "compiler.hpp"
 #include "exceptions.hpp"
+#include "builtins.hpp"
 
+
+Compiler::Compiler()
+{
+    loadPrelude();
+}
 
 const std::vector<Instruction> &Compiler::instructions() const
 {
@@ -55,7 +61,15 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     }
 
     lookup({functionCall.mName->mName, argumentTypes});
-    mInstructions.push_back(callFunction(latestObjectId, ids));
+    const auto functionId = latestObjectId;
+    // FIXME: use mTypes.at(...) everywhere
+
+    const auto returnValueId = mLookup.freshObjectId();
+
+    // FIXME: mTypes[returnValueId] = mReturnTypes.at(functionId);
+    mTypes[returnValueId] = ObjectType::INVALID;
+
+    mInstructions.push_back(callFunction(functionId, ids, returnValueId));
 }
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
@@ -178,6 +192,15 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
 
     mInstructions[ipJumpToIf] = jumpIf(condition, ipStartIfBlock);
     mInstructions[ipJumpToEnd] = jump(ipEnd);
+}
+
+void Compiler::loadPrelude()
+{
+    bool created;
+    std::tie(latestObjectId, created) = mLookup.lookupOrCreate({"print", {ObjectType::INT}});
+    mTypes[latestObjectId] = ObjectType::FUNCTION;
+    // FIXME: memory management
+    mInstructions.push_back(setFunction(latestObjectId, new PrintInt));
 }
 
 void Compiler::lookup(const LookupKey &key)

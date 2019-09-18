@@ -13,9 +13,9 @@ Instruction setInt(ObjectId target, int64_t value);
 
 Instruction addInt(ObjectId left, ObjectId right, ObjectId target);
 
-Instruction printInt(ObjectId id);
-
 Instruction setFloat(ObjectId target, double value);
+
+Instruction setFunction(ObjectId target, obj::Function * func);
 
 Instruction intGte(ObjectId left, ObjectId right, ObjectId target);
 
@@ -29,6 +29,7 @@ Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target);
 
 Instruction negateInt(ObjectId source, ObjectId target);
 
-Instruction callFunction(ObjectId fn, std::vector<ObjectId> args);
+/// Return value will be written to target
+Instruction callFunction(ObjectId fn, std::vector<ObjectId> argIds, ObjectId target);
 
 Instruction noop();

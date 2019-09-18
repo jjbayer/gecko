@@ -1,16 +1,20 @@
 #pragma once
 #include <stdint.h>
 
+namespace obj { class Function; }
+
 using ObjectId = int;
 
 
 /// Runtime objects do not have an ObjectType
 enum ObjectType
 {
-    BOOLEAN = 0,
-    INT = 1,
-    FLOAT = 2,
-    STRING = 3
+    INVALID = 0,
+    BOOLEAN = 1,
+    INT = 2,
+    FLOAT = 3,
+    STRING = 4,
+    FUNCTION = 5  // FIXME: derive object type from return and arg types
 };
 
 
@@ -18,4 +22,5 @@ union Object {
     bool as_bool;
     int64_t as_int;  // TODO: what  if 32 bit arch? Check sizeof types statically
     double as_float;
+    obj::Function * as_function_ptr;
 };
