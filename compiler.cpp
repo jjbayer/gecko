@@ -24,12 +24,12 @@ void Compiler::visitAddition(const ast::Addition & addition)
     const auto rhs = latestObjectId;
 
     // TODO: other forms off addition
-    if( mTypes[lhs] != ObjectType::INT || mTypes[rhs] != ObjectType::INT) {
+    if( mTypes.at(lhs) != ObjectType::INT || mTypes.at(rhs) != ObjectType::INT) {
         throw TypeMismatch(addition.position(), ""); // TODO: mPosition, text
     }
 
     latestObjectId = mLookup.freshObjectId();
-    mTypes[latestObjectId] = mTypes[lhs];
+    mTypes[latestObjectId] = mTypes.at(lhs);
 
     mInstructions.push_back(addInt(lhs, rhs, latestObjectId));
 }
@@ -44,8 +44,8 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
 
     const auto created = lookupOrCreate({name->mName, {}});
     const auto targetId = latestObjectId;
-    const auto sourceType = mTypes[sourceId];
-    if( ! created && mTypes[targetId] != sourceType ) {
+    const auto sourceType = mTypes.at(sourceId);
+    if( ! created && mTypes.at(targetId) != sourceType ) {
         throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
     }
     mTypes[targetId] = sourceType;
@@ -60,17 +60,17 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
         ids.push_back(latestObjectId);
-        argumentTypes.push_back(mTypes[latestObjectId]);
+        argumentTypes.push_back(mTypes.at(latestObjectId));
     }
 
     lookup(*functionCall.mName, argumentTypes);
     const auto functionId = latestObjectId;
     // FIXME: use mTypes.at(...) everywhere
 
-    const auto returnValueId = mLookup.freshObjectId();
+    latestObjectId = mLookup.freshObjectId();
+    const auto returnValueId = latestObjectId;
 
-    // FIXME: mTypes[returnValueId] = mReturnTypes.at(functionId);
-    mTypes[returnValueId] = ObjectType::INVALID;
+    mTypes[returnValueId] = mTypes.at(functionId); // type of function is type of return value
 
     mInstructions.push_back(callFunction(functionId, ids, returnValueId));
 }
@@ -133,11 +133,11 @@ void Compiler::visitLessThan(const ast::LessThan &lessThan)
     lessThan.mRight->acceptVisitor(*this);
     const auto rhs = latestObjectId;
 
-    if( mTypes[lhs] != ObjectType::INT ) {
+    if( mTypes.at(lhs) != ObjectType::INT ) {
         throw TypeMismatch(lessThan.mLeft->position(), "Only integers can be compared at the moment");
     }
 
-    if( mTypes[lhs] != mTypes[rhs] ) {
+    if( mTypes.at(lhs) != mTypes.at(rhs) ) {
         throw TypeMismatch(lessThan.mRight->position(), "Can only compare objects of same type"); // TODO: mPosition, text
     }
 
@@ -151,8 +151,8 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
 {
     ifThen.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
-    if( mTypes[condition] != ObjectType::BOOLEAN ) {
-        throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean"); // TODO: mPosition, text
+    if( mTypes.at(condition) != ObjectType::BOOLEAN ) {
+        throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean");
     }
 
     const auto negatedCondition = mLookup.freshObjectId();
@@ -174,7 +174,7 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
     ifThenElse.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::BOOLEAN ) {
-        throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean"); // TODO: mPosition, text
+        throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean");
     }
 
     mInstructions.push_back(noop());
@@ -201,7 +201,7 @@ void Compiler::loadPrelude()
 {
     bool created;
     std::tie(latestObjectId, created) = mLookup.lookupOrCreate({"print", {ObjectType::INT}});
-    mTypes[latestObjectId] = ObjectType::FUNCTION;
+    mTypes[latestObjectId] = ObjectType::INT;
     // FIXME: memory management
     mInstructions.push_back(setFunction(latestObjectId, new PrintInt));
 }

@@ -13,8 +13,7 @@ enum ObjectType
     BOOLEAN = 1,
     INT = 2,
     FLOAT = 3,
-    STRING = 4,
-    FUNCTION = 5  // FIXME: derive object type from return and arg types
+    STRING = 4
 };
 
 

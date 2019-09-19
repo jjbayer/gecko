@@ -82,7 +82,9 @@ Instruction callFunction(ObjectId fn, std::vector<ObjectId> argIds, ObjectId tar
         for(auto argId : argIds) args.push_back(data[argId]);
         auto & func = (*data[fn].as_function_ptr);
 
-        data[target] = func.call(args);
+        auto returnValue = func.call(args);
+
+        data[target] = returnValue;
     };
 }
 
