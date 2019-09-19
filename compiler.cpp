@@ -199,11 +199,17 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
 
 void Compiler::loadPrelude()
 {
+    registerBuiltinFunction(new PrintInt, "print");
+    registerBuiltinFunction(new AddInt, "__add__"); // FIXME: memory management
+}
+
+void Compiler::registerBuiltinFunction(obj::Function * func, const std::string &name)
+{
     bool created;
-    std::tie(latestObjectId, created) = mLookup.lookupOrCreate({"print", {ObjectType::INT}});
-    mTypes[latestObjectId] = ObjectType::INT;
+    std::tie(latestObjectId, created) = mLookup.lookupOrCreate({name, func->argumentTypes()});
+    mTypes[latestObjectId] = func->returnType();
     // FIXME: memory management
-    mInstructions.push_back(setFunction(latestObjectId, new PrintInt));
+    mInstructions.push_back(setFunction(latestObjectId, func));
 }
 
 void Compiler::lookup(const ast::Name &variable, const std::vector<ObjectType> &argumentTypes)
