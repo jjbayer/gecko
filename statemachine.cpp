@@ -17,65 +17,65 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
     }
 
     if( c == ',' ) {
-        *tokens.rbegin() = {Token::Comma, &c};
+        *tokens.rbegin() = {Token::Comma, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '+' ) {
-        *tokens.rbegin() = {Token::Plus, &c}; // TODO: unary operator
+        *tokens.rbegin() = {Token::Plus, &c, position}; // TODO: unary operator
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '-' ) {
-        *tokens.rbegin() = {Token::Minus, &c}; // TODO: unary operator
+        *tokens.rbegin() = {Token::Minus, &c, position}; // TODO: unary operator
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '*' ) {
-        *tokens.rbegin() = {Token::Times, &c};
+        *tokens.rbegin() = {Token::Times, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '/' ) {
-        *tokens.rbegin() = {Token::DivideBy, &c};
+        *tokens.rbegin() = {Token::DivideBy, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '=' ) {
         // TODO: parse '=='
-        *tokens.rbegin() = {Token::Assign, &c};
+        *tokens.rbegin() = {Token::Assign, &c, position};
         advance(it, position);
 
         return std::make_shared<StateInitial>();
     }
 
     if( c == '<' ) {
-        *tokens.rbegin() = {Token::LessThan, &c};
+        *tokens.rbegin() = {Token::LessThan, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '>' ) {
-        *tokens.rbegin() = {Token::GreaterThan, &c};
+        *tokens.rbegin() = {Token::GreaterThan, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '(' ) {
-        *tokens.rbegin() = {Token::ParenLeft, &c};
+        *tokens.rbegin() = {Token::ParenLeft, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == ')' ) {
-        *tokens.rbegin() = {Token::ParenRight, &c};
+        *tokens.rbegin() = {Token::ParenRight, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '[' ) {
-        *tokens.rbegin() = {Token::BracketLeft, &c};
+        *tokens.rbegin() = {Token::BracketLeft, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
