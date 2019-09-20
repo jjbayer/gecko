@@ -12,10 +12,11 @@ BOOST_AUTO_TEST_CASE(test_function_without_args)
         {Token::Name, "print"},
         {Token::ParenLeft, "("},
         {Token::ParenRight, ")"},
+        {Token::LineBreak},
     };
 
     auto begin = tokens.cbegin();
     const auto end = tokens.cend();
-    BOOST_CHECK_NO_THROW(parseExpression(begin, end, 0));
+    BOOST_CHECK_NO_THROW(parseScope(begin, end, 0));
 }
 

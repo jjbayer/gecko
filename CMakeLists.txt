@@ -16,6 +16,8 @@ add_library(compiled_language
 )
 target_compile_options(compiled_language PRIVATE -Wall)
 
+enable_testing()
+
 add_executable(gecko gecko.cpp)
 target_link_libraries(gecko compiled_language)
 

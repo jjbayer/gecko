@@ -250,6 +250,8 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
 
     if( it->type == Token::ParenRight) { // Empty argument list
 
+        it++;
+
         return std::move(functionCall);
     }
 
