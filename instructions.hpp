@@ -30,6 +30,6 @@ Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target);
 Instruction negateInt(ObjectId source, ObjectId target);
 
 /// Return value will be written to target
-Instruction callFunction(ObjectId fn, std::vector<ObjectId> argIds, ObjectId target);
+Instruction callFunction(ObjectId functionId, ObjectId firstArg, ObjectId target);
 
 Instruction noop();

@@ -55,24 +55,31 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 {
-    std::vector<ObjectId> ids;
     std::vector<ObjectType> argumentTypes;
+
+    std::vector<ObjectId> originalArgumentIds;
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
-        ids.push_back(latestObjectId);
+        originalArgumentIds.push_back(latestObjectId);
         argumentTypes.push_back(mTypes.at(latestObjectId));
     }
 
     lookup(*functionCall.mName, argumentTypes);
     const auto functionId = latestObjectId;
-    // FIXME: use mTypes.at(...) everywhere
 
-    latestObjectId = mLookup.freshObjectId();
-    const auto returnValueId = latestObjectId;
+    ObjectId firstArg = 0;
+    for( const auto originalArgumentId : originalArgumentIds ) {
+        const auto argumentId = mLookup.freshObjectId();
+        if(  firstArg == 0 ) firstArg = argumentId;
+        // TODO: memory management
+        mInstructions.push_back(copy(originalArgumentId, argumentId));
+    }
+
+    const auto returnValueId = latestObjectId = mLookup.freshObjectId();
 
     mTypes[returnValueId] = mTypes.at(functionId); // type of function is type of return value
 
-    mInstructions.push_back(callFunction(functionId, ids, returnValueId));
+    mInstructions.push_back(callFunction(functionId, firstArg, returnValueId));
 }
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)

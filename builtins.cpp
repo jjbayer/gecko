@@ -11,7 +11,7 @@ std::vector<ObjectType> PrintInt::argumentTypes() const
     return {ObjectType::INT};
 }
 
-Object PrintInt::call(const std::vector<Object> &args)
+Object PrintInt::call(Object *args)
 {
     std::cout << "[int " << args[0].as_int << "]\n";
 
@@ -32,7 +32,7 @@ std::vector<ObjectType> AddInt::argumentTypes() const
     return {ObjectType::INT, ObjectType::INT};
 }
 
-Object AddInt::call(const std::vector<Object> &args)
+Object AddInt::call(Object *args)
 {
     Object ret;
     ret.as_int = args[0].as_int + args[1].as_int;

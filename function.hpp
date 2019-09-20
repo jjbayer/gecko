@@ -12,7 +12,7 @@ namespace obj {
         virtual ObjectType returnType() const = 0;
         virtual std::vector<ObjectType> argumentTypes() const = 0;
 
-        virtual Object call(const std::vector<Object> & args) = 0;
+        virtual Object call(Object * args) = 0;
     };
 
 }// namespace obj

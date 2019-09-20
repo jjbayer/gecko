@@ -75,14 +75,12 @@ Instruction setFloat(ObjectId target, double value)
     };
 }
 
-Instruction callFunction(ObjectId fn, std::vector<ObjectId> argIds, ObjectId target)
+Instruction callFunction(ObjectId functionId, ObjectId firstArg, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        std::vector<Object> args;
-        for(auto argId : argIds) args.push_back(data[argId]);
-        auto & func = (*data[fn].as_function_ptr);
+        auto & func = (*data[functionId].as_function_ptr);
 
-        auto returnValue = func.call(args);
+        auto returnValue = func.call(&data[firstArg]);
 
         data[target] = returnValue;
     };

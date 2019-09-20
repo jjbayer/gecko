@@ -7,7 +7,7 @@ public:
     ObjectType returnType() const override;
     std::vector<ObjectType> argumentTypes() const override;
 
-    Object call(const std::vector<Object> &args) override;
+    Object call(Object * args) override;
 };
 
 
@@ -17,5 +17,5 @@ public:
     ObjectType returnType() const override;
     std::vector<ObjectType> argumentTypes() const override;
 
-    Object call(const std::vector<Object> &args) override;
+    Object call(Object * args) override;
 };
