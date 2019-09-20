@@ -77,13 +77,22 @@ BOOST_AUTO_TEST_CASE(test_full_program)
     BOOST_CHECK_EQUAL(tokens[18].type, Token::Name);
     BOOST_CHECK_EQUAL(tokens[18].value, "x");
     BOOST_CHECK_EQUAL(tokens[19].type, Token::ParenRight);
+}
 
+BOOST_AUTO_TEST_CASE(test_function_without_args)
+{
+    const std::string program {"print()"};
 
-
-
-
-
-
-
-
+    Tokenizer tokenizer;
+    const auto tokens = tokenizer.tokenize(program);
+    BOOST_REQUIRE_EQUAL(tokens.size(), 3);
+    BOOST_CHECK_EQUAL(tokens[0].type, Token::Name);
+    BOOST_CHECK_EQUAL(tokens[0].position.lineNumber, 1);
+    BOOST_CHECK_EQUAL(tokens[0].position.column, 1);
+    BOOST_CHECK_EQUAL(tokens[1].type, Token::ParenLeft);
+    BOOST_CHECK_EQUAL(tokens[1].position.lineNumber, 1);
+    BOOST_CHECK_EQUAL(tokens[1].position.column, 6);
+    BOOST_CHECK_EQUAL(tokens[2].type, Token::ParenRight);
+    BOOST_CHECK_EQUAL(tokens[2].position.lineNumber, 1);
+    BOOST_CHECK_EQUAL(tokens[2].position.column, 7);
 }

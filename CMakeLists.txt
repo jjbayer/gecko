@@ -21,10 +21,16 @@ target_link_libraries(gecko compiled_language)
 
 find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
 
+add_executable(test_tokenizer test_tokenizer.cpp)
+target_link_libraries(test_tokenizer compiled_language Boost::unit_test_framework)
+add_test(test_tokenizer test_tokenizer)
+
+add_executable(test_parser test_parser.cpp)
+target_link_libraries(test_parser compiled_language Boost::unit_test_framework)
+add_test(test_parser test_parser)
+
 add_executable(test_compiler test_compiler.cpp)
 target_link_libraries(test_compiler compiled_language Boost::unit_test_framework)
 add_test(test_compiler test_compiler)
 
-add_executable(test_tokenizer test_tokenizer.cpp)
-target_link_libraries(test_tokenizer compiled_language Boost::unit_test_framework)
-add_test(test_tokenizer test_tokenizer)
+
