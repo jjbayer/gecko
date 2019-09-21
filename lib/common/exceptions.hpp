@@ -1,6 +1,6 @@
 #pragma once
 #include <stdexcept>
-#include "tokenizer.hpp"
+#include "tokenizer/tokenizer.hpp"
 
 class ProgammingError: public std::runtime_error
 {

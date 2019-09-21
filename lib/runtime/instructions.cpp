@@ -1,5 +1,5 @@
 #include "instructions.hpp"
-#include "function.hpp"
+#include "common/function.hpp"
 
 
 Instruction setInt(ObjectId target, int64_t value)

@@ -1,11 +1,11 @@
 #include <fstream>
 #include <iostream>
 
-#include "tokenizer.hpp"
-#include "parser.hpp"
-#include "compiler.hpp"
-#include "executor.hpp"
-#include "printvisitor.hpp" // Just for testing
+#include "tokenizer/tokenizer.hpp"
+#include "parser/parser.hpp"
+#include "compiler/compiler.hpp"
+#include "runtime/executor.hpp"
+#include "parser/printvisitor.hpp" // Just for testing
 
 enum ReturnCodes
 {

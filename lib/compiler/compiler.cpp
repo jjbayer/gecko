@@ -1,7 +1,7 @@
-#include "ast.hpp"
+#include "parser/ast.hpp"
 #include "compiler.hpp"
-#include "exceptions.hpp"
-#include "builtins.hpp"
+#include "common/exceptions.hpp"
+#include "common/builtins.hpp"
 
 #include <sstream>
 

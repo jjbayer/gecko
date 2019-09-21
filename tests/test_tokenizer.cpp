@@ -1,4 +1,4 @@
-#include "tokenizer.hpp"
+#include "tokenizer/tokenizer.hpp"
 
 #define BOOST_TEST_MAIN
 #if !defined( WIN32 )

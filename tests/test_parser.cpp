@@ -1,4 +1,4 @@
-#include "parser.hpp"
+#include "parser/parser.hpp"
 
 #define BOOST_TEST_MAIN
 #if !defined( WIN32 )

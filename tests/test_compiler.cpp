@@ -1,8 +1,8 @@
-#include "ast.hpp"
-#include  "compiler.hpp"
-#include "executor.hpp"
-#include "exceptions.hpp"
-#include "printvisitor.hpp"
+#include "common/exceptions.hpp"
+#include "compiler/compiler.hpp"
+#include "parser/ast.hpp"
+#include "parser/printvisitor.hpp"
+#include "runtime/executor.hpp"
 
 #include <iostream>
 

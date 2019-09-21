@@ -2,8 +2,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "exceptions.hpp"
-#include "object.hpp"
+#include "common/exceptions.hpp"
+#include "common/object.hpp"
 
 
 struct LookupError {};

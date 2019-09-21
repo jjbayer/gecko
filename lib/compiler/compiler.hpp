@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lookup.hpp"
-#include "instructions.hpp"
-#include "visitor.hpp"
+#include "runtime/instructions.hpp"
+#include "parser/visitor.hpp"
 
 #include <unordered_map>
 
