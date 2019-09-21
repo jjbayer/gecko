@@ -19,3 +19,13 @@ public:
 
     Object call(Object * args) override;
 };
+
+
+class Dummy: public obj::Function
+{
+public:
+    ObjectType returnType() const override { return ObjectType::INT; }
+    std::vector<ObjectType> argumentTypes() const override { return {}; }
+
+    Object call(Object * args) override;
+};

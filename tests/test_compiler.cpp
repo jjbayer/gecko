@@ -138,3 +138,21 @@ BOOST_AUTO_TEST_CASE(test_out_of_scope)
     Compiler compiler;
     BOOST_CHECK_THROW(program->acceptVisitor(compiler), UndefinedVariable);
 }
+
+BOOST_AUTO_TEST_CASE(function_reassignment)
+{
+    auto program = std::make_unique<ast::Scope>(dummyPosition);
+    auto functionCall = std::make_unique<ast::FunctionCall>(
+                std::make_unique<ast::Name>("dummy",dummyPosition),
+                dummyPosition);
+    program->addStatement(
+                std::make_unique<ast::Assignment>(
+                    std::make_unique<ast::Name>("dummy", dummyPosition),
+                    std::make_unique<ast::IntLiteral>(123, dummyPosition),
+                    dummyPosition
+                )
+    );
+
+   Compiler compiler;
+   BOOST_CHECK_THROW(program->acceptVisitor(compiler), TypeMismatch);
+}

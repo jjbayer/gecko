@@ -215,6 +215,7 @@ void Compiler::loadPrelude()
 {
     registerBuiltinFunction(new PrintInt, "print");
     registerBuiltinFunction(new AddInt, "__add__"); // FIXME: memory management
+    registerBuiltinFunction(new Dummy, "dummy");
 }
 
 void Compiler::registerBuiltinFunction(obj::Function * func, const std::string &name)

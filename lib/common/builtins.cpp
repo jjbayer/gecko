@@ -39,3 +39,11 @@ Object AddInt::call(Object *args)
 
     return ret;
 }
+
+Object Dummy::call(Object *args)
+{
+    //  TODO: make void, target object as output argument
+    Object ret;
+    ret.as_int = 5;
+    return ret;
+}
