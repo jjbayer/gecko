@@ -8,6 +8,7 @@ class Assignment;
 class FunctionCall;
 class IntLiteral;
 class FloatLiteral;
+class BooleanLiteral;
 class LessThan;
 class Name;
 class Scope;
@@ -24,6 +25,7 @@ public:
     virtual void visitFunctionCall(const FunctionCall & functionCall) = 0;
     virtual void visitIntLiteral(const IntLiteral & intLiteral) = 0;
     virtual void visitFloatLiteral(const FloatLiteral & floatLiteral) = 0; // TODO: test literals that do not fit
+    virtual void visitBooleanLiteral(const BooleanLiteral & literal) = 0; // TODO: test literals that do not fit
     virtual void visitLessThan(const LessThan & lessThan) = 0;
     virtual void visitName(const Name & name) = 0;
     virtual void visitScope(const Scope & scope) = 0;

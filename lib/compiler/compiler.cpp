@@ -96,6 +96,13 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
     mInstructions.push_back(setFloat(latestObjectId, literal.mValue));
 }
 
+void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
+{
+    latestObjectId = mLookup.freshObjectId();
+    mTypes[latestObjectId] = ObjectType::BOOLEAN;
+    mInstructions.push_back(setBoolean(latestObjectId, literal.mValue));
+}
+
 void Compiler::visitName(const ast::Name &name)
 {
     lookup(name); // sets latest object id

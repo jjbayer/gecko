@@ -12,17 +12,20 @@ public:
     void visitFunctionCall(const FunctionCall &functionCall) override;
     void visitIntLiteral(const IntLiteral &literal) override;
     void visitFloatLiteral(const FloatLiteral & literal) override;
+    void visitBooleanLiteral(const BooleanLiteral &literal);
     void visitName(const Name &name) override;
     void visitScope(const Scope &scope) override;
     void visitWhile(const While &loop) override;
     void visitLessThan(const LessThan &lessThan) override;
-    // TODO: add visitIf()
     void visitIfThen(const ast::IfThen &ifThen) override;
     void visitIfThenElse(const IfThenElse &ifThenElse) override;
 
 private:
     int mIndent = 0;
 
+
+    // Visitor interface
+public:
 };
 
 } // namespace ast

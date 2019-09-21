@@ -148,4 +148,16 @@ void FloatLiteral::acceptVisitor(Visitor &visitor)
 Node::Node(const Position &position)
     : mPosition(position) {}
 
+BooleanLiteral::BooleanLiteral(bool value, const Position &position)
+    : Singular(position)
+    , mValue(value)
+{
+
+}
+
+void BooleanLiteral::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitBooleanLiteral(*this);
+}
+
 } // namespace ast

@@ -1,4 +1,4 @@
-enable_testing()
+
 
 find_package(Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
 

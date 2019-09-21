@@ -94,6 +94,17 @@ public:
 };
 
 
+class BooleanLiteral: public Singular
+{
+public:
+    BooleanLiteral(bool value, const Position & position);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    const bool mValue;
+};
+
+
 class FunctionCall: public Singular
 {
 public:

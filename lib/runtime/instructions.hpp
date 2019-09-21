@@ -15,6 +15,8 @@ Instruction addInt(ObjectId left, ObjectId right, ObjectId target);
 
 Instruction setFloat(ObjectId target, double value);
 
+Instruction setBoolean(ObjectId target, bool value);
+
 Instruction setFunction(ObjectId target, obj::Function * func);
 
 Instruction intGte(ObjectId left, ObjectId right, ObjectId target);

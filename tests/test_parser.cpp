@@ -6,6 +6,7 @@
 #endif
 #include <boost/test/unit_test.hpp>
 
+
 BOOST_AUTO_TEST_CASE(test_function_without_args)
 {
     std::vector<Token> tokens {
@@ -19,4 +20,16 @@ BOOST_AUTO_TEST_CASE(test_function_without_args)
     const auto end = tokens.cend();
     BOOST_CHECK_NO_THROW(parseScope(begin, end, 0));
 }
+
+BOOST_AUTO_TEST_CASE(test_boolean_literals)
+{
+    std::vector<Token> tokens {
+        {Token::True, ""},
+    };
+
+    auto begin = tokens.cbegin();
+    const auto end = tokens.cend();
+    BOOST_CHECK_NO_THROW(parseExpression(begin, end, 0));
+}
+
 

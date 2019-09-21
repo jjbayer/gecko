@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
         elseBody->addStatement(std::move(funCall));
     }
     program.addStatement(std::make_unique<IfThenElse>(
-        std::make_unique<IntLiteral>(0, dummyPosition),
+        std::make_unique<BooleanLiteral>(false, dummyPosition),
         std::move(ifBody),
         std::move(elseBody), dummyPosition
     ));
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(test_out_of_scope)
                           );
     auto program = std::make_unique<Scope>(dummyPosition);
     program->addStatement(std::make_unique<While>(
-                           std::make_unique<IntLiteral>(1, dummyPosition),
+                           std::make_unique<BooleanLiteral>(true, dummyPosition),
                            std::move(loopBody), dummyPosition));
     program->addStatement(std::make_unique<Name>("x", dummyPosition));
 
