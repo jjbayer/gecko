@@ -1,0 +1,9 @@
+x = 0
+y = 0
+
+while x < 100000000
+
+    x = __add__(x, 1)
+    y = __add__(x, y)
+
+print(y)

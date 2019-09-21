@@ -1,0 +1,9 @@
+x = 0
+y = 0
+
+while x < 100000000
+
+    x = x + 1
+    y = x + y
+
+print(y)
