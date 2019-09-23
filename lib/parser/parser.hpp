@@ -18,8 +18,11 @@ std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator & it, const TokenIter
 
 std::unique_ptr<ast::Expression> parseExpression(TokenIterator & it, const TokenIterator & end, int indent);
 
-// TODO: parse all types of operators
-std::unique_ptr<ast::Expression> parseLessThan(TokenIterator & it, const TokenIterator & end, int indent);
+std::unique_ptr<ast::Expression> parseOr(TokenIterator & it, const TokenIterator & end, int indent);
+
+std::unique_ptr<ast::Expression> parseAnd(TokenIterator & it, const TokenIterator & end, int indent);
+
+std::unique_ptr<ast::Expression> parseComparison(TokenIterator & it, const TokenIterator & end, int indent);
 
 std::unique_ptr<ast::Expression> parseSum(TokenIterator & it, const TokenIterator & end, int indent);
 

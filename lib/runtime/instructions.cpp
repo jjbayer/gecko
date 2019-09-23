@@ -47,15 +47,14 @@ Instruction copy(ObjectId source, ObjectId target)
     };
 }
 
-Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target)
+Instruction lessThan(ObjectId left, ObjectId right, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
-//        std::cout << data[left].as_int << " < " << data[right].as_int << std::endl;
         data[target].as_boolean = data[left].as_int < data[right].as_int;
     };
 }
 
-Instruction negateInt(ObjectId source, ObjectId target)
+Instruction negate(ObjectId source, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
         const auto value = data[source].as_boolean;
@@ -98,5 +97,19 @@ Instruction setBoolean(ObjectId target, bool value)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
         data[target].as_boolean = value;
+    };
+}
+
+Instruction orTest(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int || data[right].as_int;
+    };
+}
+
+Instruction andTest(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int && data[right].as_int;
     };
 }

@@ -127,7 +127,7 @@ void Compiler::visitWhile(const ast::While &loop)
     const auto ipCondition = latestInstructionPointer();
 
     const auto jumpCondition = mLookup.freshObjectId();
-    mInstructions.push_back(negateInt(condition, jumpCondition));
+    mInstructions.push_back(negate(condition, jumpCondition));
 
     mInstructions.push_back(noop()); // placeholder for jump_if
     const auto ipJumpIf = latestInstructionPointer();
@@ -140,25 +140,25 @@ void Compiler::visitWhile(const ast::While &loop)
     mInstructions[ipJumpIf] = jumpIf(jumpCondition, afterLoop);
 }
 
-void Compiler::visitLessThan(const ast::LessThan &lessThan)
+void Compiler::visitLessThan(const ast::LessThan &visitable)
 {
-    lessThan.mLeft->acceptVisitor(*this);
+    visitable.mLeft->acceptVisitor(*this);
     const auto lhs = latestObjectId;
-    lessThan.mRight->acceptVisitor(*this);
+    visitable.mRight->acceptVisitor(*this);
     const auto rhs = latestObjectId;
 
     if( mTypes.at(lhs) != ObjectType::INT ) {
-        throw TypeMismatch(lessThan.mLeft->position(), "Only integers can be compared at the moment");
+        throw TypeMismatch(visitable.mLeft->position(), "Only integers can be compared at the moment");
     }
 
     if( mTypes.at(lhs) != mTypes.at(rhs) ) {
-        throw TypeMismatch(lessThan.mRight->position(), "Can only compare objects of same type"); // TODO: mPosition, text
+        throw TypeMismatch(visitable.mRight->position(), "Can only compare objects of same type"); // TODO: mPosition, text
     }
 
     latestObjectId = mLookup.freshObjectId();
     mTypes[latestObjectId] = ObjectType::BOOLEAN;
 
-    mInstructions.push_back(intLessThan(lhs, rhs, latestObjectId));
+    mInstructions.push_back(lessThan(lhs, rhs, latestObjectId));
 }
 
 void Compiler::visitIfThen(const ast::IfThen &ifThen)
@@ -170,7 +170,7 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
     }
 
     const auto negatedCondition = mLookup.freshObjectId();
-    mInstructions.push_back(negateInt(condition, negatedCondition));
+    mInstructions.push_back(negate(condition, negatedCondition));
 
     mInstructions.push_back(noop());
     const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
@@ -209,6 +209,42 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
 
     mInstructions[ipJumpToIf] = jumpIf(condition, ipStartIfBlock);
     mInstructions[ipJumpToEnd] = jump(ipEnd);
+}
+
+void Compiler::visitOr(const ast::Or &test)
+{
+    test.mLeft->acceptVisitor(*this);
+    const auto lhs = latestObjectId;
+    test.mRight->acceptVisitor(*this);
+    const auto rhs = latestObjectId;
+
+    // TODO: other forms off addition
+    if( mTypes.at(lhs) != ObjectType::BOOLEAN || mTypes.at(rhs) != ObjectType::BOOLEAN) {
+        throw TypeMismatch(test.position(), "Both operands of 'or' must be boolean");
+    }
+
+    latestObjectId = mLookup.freshObjectId();
+    mTypes[latestObjectId] = mTypes.at(lhs);
+
+    mInstructions.push_back(orTest(lhs, rhs, latestObjectId));
+}
+
+void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
+{
+    test.mLeft->acceptVisitor(*this);
+    const auto lhs = latestObjectId;
+    test.mRight->acceptVisitor(*this);
+    const auto rhs = latestObjectId;
+
+    // TODO: other forms off addition
+    if( mTypes.at(lhs) != ObjectType::BOOLEAN || mTypes.at(rhs) != ObjectType::BOOLEAN) {
+        throw TypeMismatch(test.position(), "Both operands of 'and' must be boolean");
+    }
+
+    latestObjectId = mLookup.freshObjectId();
+    mTypes[latestObjectId] = mTypes.at(lhs);
+
+    mInstructions.push_back(andTest(lhs, rhs, latestObjectId));
 }
 
 void Compiler::loadPrelude()

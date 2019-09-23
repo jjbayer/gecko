@@ -118,11 +118,45 @@ std::unique_ptr<ast::Assignee> parseAssignee(TokenIterator &it, const TokenItera
 
 std::unique_ptr<ast::Expression> parseExpression(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    return parseLessThan(it, end, indent);
+    return parseOr(it, end, indent);
 }
 
-std::unique_ptr<ast::Expression> parseLessThan(TokenIterator &it, const TokenIterator &end, int indent)
+std::unique_ptr<ast::Expression> parseOr(TokenIterator &it, const TokenIterator &end, int indent)
 {
+    auto lhs = parseAnd(it, end, indent);
+    if( it == end || it->type != Token::Or ) {
+
+        return lhs;
+    }
+
+    it++; // Consume operator
+
+    auto rhs = parseOr(it, end, indent);
+
+    const auto pos = lhs->position();
+    return std::make_unique<ast::Or>(std::move(lhs), std::move(rhs), pos);
+}
+
+std::unique_ptr<ast::Expression> parseAnd(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    auto lhs = parseComparison(it, end, indent);
+    if( it == end || it->type != Token::And ) {
+
+        return lhs;
+    }
+
+    it++; // Consume operator
+
+    auto rhs = parseAnd(it, end, indent);
+
+    const auto pos = lhs->position();
+    return std::make_unique<ast::And>(std::move(lhs), std::move(rhs), pos);
+}
+
+std::unique_ptr<ast::Expression> parseComparison(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    // FIXME: chain of operators
+
     auto lhs = parseSum(it, end, indent);
     if( it == end || it->type != Token::LessThan ) {
 
@@ -131,7 +165,7 @@ std::unique_ptr<ast::Expression> parseLessThan(TokenIterator &it, const TokenIte
 
     it++; // Consume operator
 
-    auto rhs = parseLessThan(it, end, indent);
+    auto rhs = parseComparison(it, end, indent);
 
     const auto pos = lhs->position();
     return std::make_unique<ast::LessThan>(std::move(lhs), std::move(rhs), pos);
@@ -216,12 +250,12 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
     }
 
     if( it->type == Token::True ) {
-
+        it++;
         return std::make_unique<ast::BooleanLiteral>(true, it->position);
     }
 
     if( it->type == Token::False ) {
-
+        it++;
         return std::make_unique<ast::BooleanLiteral>(false, it->position);
     }
 
@@ -339,3 +373,5 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
                                              std::move(elseBody),
                                              pos);
 }
+
+

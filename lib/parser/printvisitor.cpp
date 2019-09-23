@@ -13,6 +13,13 @@ void PrintVisitor::visitAddition(const Addition & addition)
     addition.mRight->acceptVisitor(*this);
 }
 
+void PrintVisitor::visitAnd(const And &visitable)
+{
+    visitable.mLeft->acceptVisitor(*this);
+    std::cout << " and ";
+    visitable.mRight->acceptVisitor(*this);
+}
+
 void PrintVisitor::visitAssignment(const Assignment &assignment)
 {
     assignment.mAssignee->acceptVisitor(*this);
@@ -52,6 +59,13 @@ void PrintVisitor::visitBooleanLiteral(const BooleanLiteral &literal)
 void PrintVisitor::visitName(const Name &name)
 {
     std::cout << name.mName;
+}
+
+void PrintVisitor::visitOr(const Or &visitable)
+{
+    visitable.mLeft->acceptVisitor(*this);
+    std::cout << " or ";
+    visitable.mRight->acceptVisitor(*this);
 }
 
 void PrintVisitor::visitScope(const Scope &scope)

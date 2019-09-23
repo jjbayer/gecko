@@ -27,11 +27,16 @@ Instruction jump(InstructionPointer ipNew);
 
 Instruction copy(ObjectId source, ObjectId target);
 
-Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target);
+Instruction lessThan(ObjectId left, ObjectId right, ObjectId target);
 
-Instruction negateInt(ObjectId source, ObjectId target);
+Instruction orTest(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction andTest(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction negate(ObjectId source, ObjectId target);
 
 /// Return value will be written to target
 Instruction callFunction(ObjectId functionId, ObjectId firstArg, ObjectId target);
 
 Instruction noop();
+

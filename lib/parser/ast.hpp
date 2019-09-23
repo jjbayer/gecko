@@ -119,6 +119,30 @@ public:
 };
 
 
+class Or: public Expression
+{
+public:
+    Or(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Expression> mLeft;
+    std::unique_ptr<Expression> mRight;
+};
+
+
+class And: public Expression
+{
+public:
+    And(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Expression> mLeft;
+    std::unique_ptr<Expression> mRight;
+};
+
+
 class Addition: public Expression
 {
 public:

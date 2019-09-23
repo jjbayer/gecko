@@ -160,4 +160,30 @@ void BooleanLiteral::acceptVisitor(Visitor &visitor)
     visitor.visitBooleanLiteral(*this);
 }
 
+Or::Or(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
+    : Expression(position)
+    , mLeft(std::move(left))
+    , mRight(std::move(right))
+{
+
+}
+
+void Or::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitOr(*this);
+}
+
+And::And(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
+    : Expression(position)
+    , mLeft(std::move(left))
+    , mRight(std::move(right))
+{
+
+}
+
+void And::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitAnd(*this);
+}
+
 } // namespace ast
