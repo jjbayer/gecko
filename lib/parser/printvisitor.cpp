@@ -61,12 +61,12 @@ void PrintVisitor::visitComparison(const Comparison &visitable)
 {
     // TODO: central type to string mapping
     const std::unordered_map<Token::Type, std::string> tokenMap {
-            {Token::LessThan, "<"},
-            {Token::LTE, "<="},
-            {Token::Equal, "=="},
-            {Token::NotEqual, "!="},
-            {Token::GTE, ">="},
-            {Token::GreaterThan, ">"}
+            {Token::LessThan, " < "},
+            {Token::LTE, " <= "},
+            {Token::Equal, " == "},
+            {Token::NotEqual, " != "},
+            {Token::GTE, " >= "},
+            {Token::GreaterThan, " > "}
     };
 
     for(size_t i = 0; i < visitable.mOperators.size(); i++) {

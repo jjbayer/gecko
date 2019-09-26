@@ -105,10 +105,37 @@ void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 
 void Compiler::visitComparison(const ast::Comparison &visitable)
 {
-    // FIXME: just a placeholder implementation for the actual implementation
-    latestObjectId = mLookup.freshObjectId();
-    mTypes[latestObjectId] = ObjectType::BOOLEAN;
-    mInstructions.push_back(setBoolean(latestObjectId, true));
+    auto lastTestResult = mLookup.freshObjectId();
+    mTypes[lastTestResult] = ObjectType::BOOLEAN;
+    mInstructions.push_back(setBoolean(lastTestResult, true));
+
+    // TODO: short circuiting
+    for( size_t i = 0; i < visitable.mOperators.size(); i++ ) {
+        visitable.mOperands.at(i)->acceptVisitor(*this);
+        const auto lhs = latestObjectId;
+        visitable.mOperands.at(i+1)->acceptVisitor(*this);
+        const auto rhs = latestObjectId;
+
+        if( mTypes.at(lhs) != mTypes.at(rhs)) {
+            throw TypeMismatch(visitable.position(), "Comparison operators must have same type");
+        }
+
+        // TODO: allow other types than int
+        if( mTypes.at(lhs) != ObjectType::INT ) {
+            throw TypeMismatch(visitable.position(), "Only integer comparisons are supported right now");
+        }
+
+        const auto testResult = mLookup.freshObjectId();
+        mTypes[testResult] = ObjectType::BOOLEAN;
+        // FIXME: not only less than
+        if( visitable.mOperators.at(i) != Token::LessThan ) {
+            throw std::runtime_error("Only less than is supported for now");
+        }
+        mInstructions.push_back(lessThan(lhs, rhs, testResult));
+        mInstructions.push_back(andTest(testResult, lastTestResult, lastTestResult));
+    }
+
+    latestObjectId = lastTestResult;
 }
 
 void Compiler::visitName(const ast::Name &name)
