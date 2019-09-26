@@ -2,6 +2,7 @@
 #include "ast.hpp"
 
 #include <iostream>
+#include <unordered_map>
 
 
 namespace ast {
@@ -56,6 +57,27 @@ void PrintVisitor::visitBooleanLiteral(const BooleanLiteral &literal)
     std::cout << (literal.mValue ? "true" : "false");
 }
 
+void PrintVisitor::visitComparison(const Comparison &visitable)
+{
+    // TODO: central type to string mapping
+    const std::unordered_map<Token::Type, std::string> tokenMap {
+            {Token::LessThan, "<"},
+            {Token::LTE, "<="},
+            {Token::Equal, "=="},
+            {Token::NotEqual, "!="},
+            {Token::GTE, ">="},
+            {Token::GreaterThan, ">"}
+    };
+
+    for(size_t i = 0; i < visitable.mOperators.size(); i++) {
+        visitable.mOperands.at(i)->acceptVisitor(*this);
+        std::cout << tokenMap.at(visitable.mOperators.at(i));
+    }
+
+    // Last element
+    (*visitable.mOperands.rbegin())->acceptVisitor(*this);
+}
+
 void PrintVisitor::visitName(const Name &name)
 {
     std::cout << name.mName;
@@ -86,13 +108,6 @@ void PrintVisitor::visitWhile(const While &loop)
     loop.mBody->acceptVisitor(*this);
     mIndent--;
     // TODO: suppress additional newline
-}
-
-void PrintVisitor::visitLessThan(const LessThan & lessThan)
-{
-    lessThan.mLeft->acceptVisitor(*this);
-    std::cout << " < ";
-    lessThan.mRight->acceptVisitor(*this);
 }
 
 void PrintVisitor::visitIfThen(const IfThen &ifThen)

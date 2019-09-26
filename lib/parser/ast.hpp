@@ -221,15 +221,19 @@ public:
 };
 
 
-class LessThan: public Expression
+class Comparison: public Expression
 {
 public:
-    LessThan(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
+
+    /// Comparison needs at least 2 operands, but more can be added later
+    Comparison(std::unique_ptr<Expression> && left, Token::Type op, std::unique_ptr<Expression> && right, const Position &position);
 
     void acceptVisitor(Visitor & visitor) override;
 
-    std::unique_ptr<Expression> mLeft;
-    std::unique_ptr<Expression> mRight;
+    void addTest(Token::Type, std::unique_ptr<Expression> && operand);
+
+    std::vector<std::unique_ptr<Expression> > mOperands;
+    std::vector<Token::Type> mOperators;
 };
 
 } // namespace ast

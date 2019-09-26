@@ -1,5 +1,7 @@
 #include "parser.hpp"
 #include "common/exceptions.hpp"
+
+#include <unordered_set>
 #include <sstream>
 
 
@@ -134,6 +136,7 @@ std::unique_ptr<ast::Expression> parseOr(TokenIterator &it, const TokenIterator 
     auto rhs = parseOr(it, end, indent);
 
     const auto pos = lhs->position();
+
     return std::make_unique<ast::Or>(std::move(lhs), std::move(rhs), pos);
 }
 
@@ -157,18 +160,40 @@ std::unique_ptr<ast::Expression> parseComparison(TokenIterator &it, const TokenI
 {
     // FIXME: chain of operators
 
+    const std::unordered_set<Token::Type> operatorTypes {
+        Token::LessThan,
+        Token::LTE,
+        Token::Equal,
+        Token::NotEqual,
+        Token::GTE,
+        Token::GreaterThan,
+    };
+
     auto lhs = parseSum(it, end, indent);
-    if( it == end || it->type != Token::LessThan ) {
+    if( it == end || ! operatorTypes.count(it->type) ) {
 
         return lhs;
     }
 
+    const auto operatorType = it->type;
     it++; // Consume operator
 
-    auto rhs = parseComparison(it, end, indent);
+    auto rhs = parseSum(it, end, indent);
 
-    const auto pos = lhs->position();
-    return std::make_unique<ast::LessThan>(std::move(lhs), std::move(rhs), pos);
+    auto comparison = std::make_unique<ast::Comparison>(
+                std::move(lhs), operatorType, std::move(rhs), lhs->position());
+
+    while( it != end && operatorTypes.count(it->type)) {
+
+        const auto operatorType = it->type;
+        it++; // Consume operator
+
+        auto operand = parseSum(it, end, indent);
+
+        comparison->addTest(operatorType, std::move(operand));
+    }
+
+    return comparison;
 }
 
 std::unique_ptr<ast::Expression> parseSum(TokenIterator &it, const TokenIterator &end, int indent)

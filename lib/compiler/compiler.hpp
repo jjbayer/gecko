@@ -21,12 +21,12 @@ public:
     void visitAnd(const ast::And & test) override;
     void visitAssignment(const ast::Assignment &assignment) override;
     void visitBooleanLiteral(const ast::BooleanLiteral & literal) override;
+    void visitComparison(const ast::Comparison &visitable) override;
     void visitFloatLiteral(const ast::FloatLiteral & literal) override;
     void visitFunctionCall(const ast::FunctionCall &functionCall) override;
     void visitIfThen(const ast::IfThen &ifThenElse) override;
     void visitIfThenElse(const ast::IfThenElse &ifThenElse) override;
     void visitIntLiteral(const ast::IntLiteral & literal) override;
-    void visitLessThan(const ast::LessThan &visitable) override;
     void visitName(const ast::Name &name) override;
     void visitOr(const ast::Or & test) override;
     void visitScope(const ast::Scope &scope) override;

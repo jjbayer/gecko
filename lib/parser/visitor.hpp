@@ -7,12 +7,12 @@ class Addition;
 class And;
 class Assignment;
 class BooleanLiteral;
+class Comparison;
 class FloatLiteral;
 class FunctionCall;
 class IfThen;
 class IfThenElse;
 class IntLiteral;
-class LessThan;
 class Name;
 class Or;
 class Scope;
@@ -26,12 +26,12 @@ public:
     virtual void visitAnd(const And & test) = 0;
     virtual void visitAssignment(const Assignment & assignment) = 0;
     virtual void visitBooleanLiteral(const BooleanLiteral & literal) = 0; // TODO: test literals that do not fit
+    virtual void visitComparison(const Comparison & visitable) = 0;
     virtual void visitFloatLiteral(const FloatLiteral & floatLiteral) = 0; // TODO: test literals that do not fit
     virtual void visitFunctionCall(const FunctionCall & functionCall) = 0;
     virtual void visitIfThen(const IfThen & ifThen) = 0;
     virtual void visitIfThenElse(const IfThenElse & ifThenElse) = 0;
     virtual void visitIntLiteral(const IntLiteral & intLiteral) = 0;
-    virtual void visitLessThan(const LessThan & lessThan) = 0;
     virtual void visitName(const Name & name) = 0;
     virtual void visitOr(const Or & test) = 0;
     virtual void visitScope(const Scope & scope) = 0;

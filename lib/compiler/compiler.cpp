@@ -1,5 +1,5 @@
-#include "parser/ast.hpp"
 #include "compiler.hpp"
+#include "parser/ast.hpp"
 #include "common/exceptions.hpp"
 #include "common/builtins.hpp"
 
@@ -103,6 +103,14 @@ void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
     mInstructions.push_back(setBoolean(latestObjectId, literal.mValue));
 }
 
+void Compiler::visitComparison(const ast::Comparison &visitable)
+{
+    // FIXME: just a placeholder implementation for the actual implementation
+    latestObjectId = mLookup.freshObjectId();
+    mTypes[latestObjectId] = ObjectType::BOOLEAN;
+    mInstructions.push_back(setBoolean(latestObjectId, true));
+}
+
 void Compiler::visitName(const ast::Name &name)
 {
     lookup(name); // sets latest object id
@@ -140,26 +148,7 @@ void Compiler::visitWhile(const ast::While &loop)
     mInstructions[ipJumpIf] = jumpIf(jumpCondition, afterLoop);
 }
 
-void Compiler::visitLessThan(const ast::LessThan &visitable)
-{
-    visitable.mLeft->acceptVisitor(*this);
-    const auto lhs = latestObjectId;
-    visitable.mRight->acceptVisitor(*this);
-    const auto rhs = latestObjectId;
 
-    if( mTypes.at(lhs) != ObjectType::INT ) {
-        throw TypeMismatch(visitable.mLeft->position(), "Only integers can be compared at the moment");
-    }
-
-    if( mTypes.at(lhs) != mTypes.at(rhs) ) {
-        throw TypeMismatch(visitable.mRight->position(), "Can only compare objects of same type"); // TODO: mPosition, text
-    }
-
-    latestObjectId = mLookup.freshObjectId();
-    mTypes[latestObjectId] = ObjectType::BOOLEAN;
-
-    mInstructions.push_back(lessThan(lhs, rhs, latestObjectId));
-}
 
 void Compiler::visitIfThen(const ast::IfThen &ifThen)
 {

@@ -10,13 +10,13 @@ public:
     void visitAddition(const Addition &visitable) override;
     void visitAnd(const And &visitable) override;
     void visitAssignment(const Assignment &assignment) override;
-    void visitBooleanLiteral(const BooleanLiteral &literal);
+    void visitBooleanLiteral(const BooleanLiteral &literal) override;
+    void visitComparison(const Comparison &visitable) override;
     void visitFloatLiteral(const FloatLiteral & literal) override;
     void visitFunctionCall(const FunctionCall &functionCall) override;
     void visitIfThen(const ast::IfThen &ifThen) override;
     void visitIfThenElse(const IfThenElse &ifThenElse) override;
     void visitIntLiteral(const IntLiteral &literal) override;
-    void visitLessThan(const LessThan &lessThan) override;
     void visitName(const Name &name) override;
     void visitOr(const Or & visitable) override;
     void visitScope(const Scope &scope) override;

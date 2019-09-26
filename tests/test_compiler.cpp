@@ -66,8 +66,9 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     );
 
     auto loop = std::make_unique<While>(
-        std::make_unique<LessThan>(
+        std::make_unique<Comparison>(
             std::make_unique<Name>("x", dummyPosition),
+            Token::LessThan,
             std::make_unique<IntLiteral>(10, dummyPosition),
             dummyPosition
         ),

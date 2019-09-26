@@ -95,18 +95,6 @@ void While::acceptVisitor(Visitor &visitor)
     visitor.visitWhile(*this);
 }
 
-LessThan::LessThan(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
-    : Expression(position)
-    , mLeft(std::move(left))
-    , mRight(std::move(right))
-{
-
-}
-
-void LessThan::acceptVisitor(Visitor &visitor)
-{
-    visitor.visitLessThan(*this);
-}
 
 IfThenElse::IfThenElse(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&ifBlock, std::unique_ptr<Scope> &&elseBlock, const Position &position)
     : Statement(position)
@@ -184,6 +172,25 @@ And::And(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right
 void And::acceptVisitor(Visitor &visitor)
 {
     visitor.visitAnd(*this);
+}
+
+Comparison::Comparison(std::unique_ptr<Expression> &&left, Token::Type op, std::unique_ptr<Expression> &&right, const Position & position)
+    : Expression(position)
+    , mOperators({op})
+{
+    mOperands.push_back(std::move(left));
+    mOperands.push_back(std::move(right));
+}
+
+void Comparison::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitComparison(*this);
+}
+
+void Comparison::addTest(Token::Type operator_, std::unique_ptr<Expression> &&operand)
+{
+    mOperators.push_back(operator_);
+    mOperands.push_back(std::move(operand));
 }
 
 } // namespace ast
