@@ -127,11 +127,32 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
 
         const auto testResult = mLookup.freshObjectId();
         mTypes[testResult] = ObjectType::BOOLEAN;
-        // FIXME: not only less than
-        if( visitable.mOperators.at(i) != Token::LessThan ) {
-            throw std::runtime_error("Only less than is supported for now");
+
+        const auto & op = visitable.mOperators.at(i);
+        switch (op) {
+        case Token::LessThan:
+            mInstructions.push_back(intLessThan(lhs, rhs, testResult));
+            break;
+        case Token::LTE:
+            mInstructions.push_back(intLTE(lhs, rhs, testResult));
+            break;
+        case Token::Equal:
+            mInstructions.push_back(isEqual(lhs, rhs, testResult));
+            break;
+        case Token::NotEqual:
+            mInstructions.push_back(isNotEqual(lhs, rhs, testResult));
+            break;
+        case Token::GTE:
+            mInstructions.push_back(intGTE(lhs, rhs, testResult));
+            break;
+        case Token::GreaterThan:
+            mInstructions.push_back(intGreaterThan(lhs, rhs, testResult));
+            break;
+        default:
+            throw std::runtime_error("Unexpected comparison operator");
+            break;
         }
-        mInstructions.push_back(lessThan(lhs, rhs, testResult));
+
         mInstructions.push_back(andTest(testResult, lastTestResult, lastTestResult));
     }
 

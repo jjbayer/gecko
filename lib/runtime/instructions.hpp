@@ -27,7 +27,18 @@ Instruction jump(InstructionPointer ipNew);
 
 Instruction copy(ObjectId source, ObjectId target);
 
-Instruction lessThan(ObjectId left, ObjectId right, ObjectId target);
+Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction intLTE(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction isEqual(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction isNotEqual(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction intGTE(ObjectId left, ObjectId right, ObjectId target);
+
+Instruction intGreaterThan(ObjectId left, ObjectId right, ObjectId target);
+
 
 Instruction orTest(ObjectId left, ObjectId right, ObjectId target);
 

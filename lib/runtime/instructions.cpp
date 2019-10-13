@@ -47,7 +47,7 @@ Instruction copy(ObjectId source, ObjectId target)
     };
 }
 
-Instruction lessThan(ObjectId left, ObjectId right, ObjectId target)
+Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
         data[target].as_boolean = data[left].as_int < data[right].as_int;
@@ -111,5 +111,40 @@ Instruction andTest(ObjectId left, ObjectId right, ObjectId target)
 {
     return [=](std::vector<Object> & data, InstructionPointer & ip) {
         data[target].as_boolean = data[left].as_int && data[right].as_int;
+    };
+}
+
+Instruction intLTE(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int <= data[right].as_int;
+    };
+}
+
+Instruction isEqual(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int == data[right].as_int;
+    };
+}
+
+Instruction isNotEqual(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int != data[right].as_int;
+    };
+}
+
+Instruction intGTE(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int >= data[right].as_int;
+    };
+}
+
+Instruction intGreaterThan(ObjectId left, ObjectId right, ObjectId target)
+{
+    return [=](std::vector<Object> & data, InstructionPointer & ip) {
+        data[target].as_boolean = data[left].as_int > data[right].as_int;
     };
 }
