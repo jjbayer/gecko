@@ -54,7 +54,6 @@ int main(int argc, char ** argv)
         tree->acceptVisitor(printer);
         std::cout << "*******************\n\n";
 
-        std::cout << "*** Program output ***\n";
         tree->acceptVisitor(compiler);
 
     } catch(const ProgammingError & e) {
@@ -65,9 +64,14 @@ int main(int argc, char ** argv)
         return ReturnCodes::ProgrammingError;
     }
 
+    std::cout << "*** Compiled instructions ***\n";
+    for(const auto & instruction : compiler.instructions()) {
+        std::cout << instruction->toString() << "\n";
+    }
+
+    std::cout << "*** Program output ***\n";
     run(compiler.instructions(), compiler.numObjectIdsUsed());
     std::cout << "**********************\n";
-
 
     return OK;
 }

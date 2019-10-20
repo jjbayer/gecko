@@ -1,6 +1,7 @@
 #pragma once
 #include "common/object.hpp"
 
+#include <ostream>
 #include <vector>
 
 
@@ -10,7 +11,7 @@ using InstructionPointer = int;
 class Instruction
 {
 public:
-    virtual const char * name() const = 0;
+    virtual std::string toString() const = 0;
     /// call() can be const because it does not alter internal state of instruction
     virtual void call(std::vector<Object> & data, InstructionPointer & ip) const = 0;
     virtual ~Instruction() {}
@@ -24,8 +25,9 @@ class SetInt: public Instruction
 {
 public:
     SetInt(ObjectId target, int64_t value);
-    const char * name() const override { return "SetInt"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+
     ~SetInt() override {}
 
 private:
@@ -38,7 +40,7 @@ class AddInt: public Instruction
 {
 public:
     AddInt(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "AddInt"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~AddInt() override {}
 
@@ -53,7 +55,7 @@ class SetFloat: public Instruction
 {
 public:
     SetFloat(ObjectId target, double value);
-    const char * name() const override { return "SetFloat"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~SetFloat() override {}
 
@@ -67,7 +69,7 @@ class SetBoolean: public Instruction
 {
 public:
     SetBoolean(ObjectId target, bool value);
-    const char * name() const override { return "SetBoolean"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~SetBoolean() override {}
 
@@ -81,7 +83,7 @@ class SetFunction: public Instruction
 {
 public:
     SetFunction(ObjectId target, obj::Function * func);
-    const char * name() const override { return "SetFunction"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~SetFunction() override {}
 
@@ -95,7 +97,7 @@ class IntGte: public Instruction
 {
 public:
     IntGte(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IntGte"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IntGte() override {}
 
@@ -110,7 +112,7 @@ class JumpIf: public Instruction
 {
 public:
     JumpIf(ObjectId condition, InstructionPointer ipNew);
-    const char * name() const override { return "JumpIf"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~JumpIf() override {}
 
@@ -124,7 +126,7 @@ class Jump: public Instruction
 {
 public:
     Jump(InstructionPointer ipNew);
-    const char * name() const override { return "Jump"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~Jump() override {}
 
@@ -137,7 +139,7 @@ class Copy: public Instruction
 {
 public:
     Copy(ObjectId source, ObjectId target);
-    const char * name() const override { return "Copy"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~Copy() override {}
 
@@ -151,7 +153,7 @@ class IntLessThan: public Instruction
 {
 public:
     IntLessThan(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IntLessThan"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IntLessThan() override {}
 
@@ -166,7 +168,7 @@ class IntLTE: public Instruction
 {
 public:
     IntLTE(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IntLTE"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IntLTE() override {}
 
@@ -181,7 +183,7 @@ class IsEqual: public Instruction
 {
 public:
     IsEqual(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IsEqual"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IsEqual() override {}
 
@@ -196,7 +198,7 @@ class IsNotEqual: public Instruction
 {
 public:
     IsNotEqual(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IsNotEqual"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IsNotEqual() override {}
 
@@ -211,7 +213,7 @@ class IntGTE: public Instruction
 {
 public:
     IntGTE(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IntGTE"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IntGTE() override {}
 
@@ -226,7 +228,7 @@ class IntGreaterThan: public Instruction
 {
 public:
     IntGreaterThan(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "IntGreaterThan"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~IntGreaterThan() override {}
 
@@ -242,7 +244,7 @@ class OrTest: public Instruction
 {
 public:
     OrTest(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "OrTest"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~OrTest() override {}
 
@@ -257,7 +259,7 @@ class AndTest: public Instruction
 {
 public:
     AndTest(ObjectId left, ObjectId right, ObjectId target);
-    const char * name() const override { return "AndTest"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~AndTest() override {}
 
@@ -272,7 +274,7 @@ class Negate: public Instruction
 {
 public:
     Negate(ObjectId source, ObjectId target);
-    const char * name() const override { return "Negate"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~Negate() override {}
 
@@ -287,7 +289,7 @@ class CallFunction: public Instruction
 {
 public:
     CallFunction(ObjectId functionId, ObjectId firstArg, ObjectId target);
-    const char * name() const override { return "CallFunction"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~CallFunction() override {}
 
@@ -302,7 +304,7 @@ class Noop: public Instruction
 {
 public:
     Noop();
-    const char * name() const override { return "Noop"; }
+    std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~Noop() override {}
 };
