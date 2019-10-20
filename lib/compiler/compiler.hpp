@@ -4,6 +4,7 @@
 #include "runtime/instructions.hpp"
 #include "parser/visitor.hpp"
 
+#include <memory>
 #include <unordered_map>
 
 
@@ -14,7 +15,7 @@ public:
 
     Compiler();
 
-    const std::vector<Instruction> & instructions() const;
+    const std::vector<std::unique_ptr<Instruction> > & instructions() const;
     int numObjectIdsUsed() const { return mLookup.numObjectIdsUsed(); }
 
     void visitAddition(const ast::Addition &addition) override;
@@ -40,7 +41,7 @@ private:
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
-    std::vector<Instruction> mInstructions;
+    std::vector<std::unique_ptr<Instruction> > mInstructions;
     ObjectId latestObjectId = -1;
     std::unordered_map<ObjectId, ObjectType> mTypes;
     Lookup mLookup;

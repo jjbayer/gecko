@@ -1,150 +1,242 @@
 #include "instructions.hpp"
 #include "common/function.hpp"
 
+namespace instructions {
 
-Instruction setInt(ObjectId target, int64_t value)
+SetInt::SetInt(ObjectId target, int64_t value)
+    : mTarget(target)
+    , mValue(value)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_int = value;
-    };
+
 }
 
-Instruction addInt(ObjectId left, ObjectId right, ObjectId target)
+void SetInt::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-//        std::cout << data[left].as_int << " + " << data[right].as_int << "\n";
-        data[target].as_int = data[left].as_int + data[right].as_int;
-    };
+    data[mTarget].as_int = mValue;
+}
+
+AddInt::AddInt(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+
+}
+
+void AddInt::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_int = data[mLeft].as_int + data[mRight].as_int;
 }
 
 
-Instruction intGte(ObjectId left, ObjectId right, ObjectId target)
+IntGte::IntGte(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int >= data[right].as_int;
-    };
 }
 
-Instruction jumpIf(ObjectId condition, InstructionPointer ipNew)
+void IntGte::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-//        std::cout << "Do we jump? " << data[condition].as_int << std::endl;
-        if( data[condition].as_int ) ip = ipNew - 1;
-    };
+    data[mTarget].as_boolean = data[mLeft].as_int >= data[mRight].as_int;
 }
 
-Instruction jump(InstructionPointer ipNew)
+JumpIf::JumpIf(ObjectId condition, InstructionPointer ipNew)
+    : mCondition(condition)
+    , mIpNew(ipNew)
 {
-    return [=](std::vector<Object> &, InstructionPointer & ip) {
-        ip = ipNew - 1;
-    };
+
 }
 
-Instruction copy(ObjectId source, ObjectId target)
+void JumpIf::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target] = data[source];
-    };
+    if( data[mCondition].as_int ) ip = mIpNew - 1;
 }
 
-Instruction intLessThan(ObjectId left, ObjectId right, ObjectId target)
+Jump::Jump(InstructionPointer ipNew)
+    : mIpNew(ipNew)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int < data[right].as_int;
-    };
 }
 
-Instruction negate(ObjectId source, ObjectId target)
+void Jump::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        const auto value = data[source].as_boolean;
-        data[target].as_boolean = value ? 0 : 1;
-    };
+    ip = mIpNew - 1;
 }
 
-Instruction noop()
+Copy::Copy(ObjectId source, ObjectId target)
+    : mSource(source)
+    , mTarget(target)
 {
-    return [](std::vector<Object> & data, InstructionPointer & ip) {};
 }
 
-Instruction setFloat(ObjectId target, double value)
+void Copy::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_float = value;
-    };
+    data[mTarget] = data[mSource];
 }
 
-Instruction callFunction(ObjectId functionId, ObjectId firstArg, ObjectId target)
+IntLessThan::IntLessThan(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        auto & func = (*data[functionId].as_function_ptr);
-
-        auto returnValue = func.call(&data[firstArg]);
-
-        data[target] = returnValue;
-    };
 }
 
-Instruction setFunction(ObjectId target, obj::Function *func)
+void IntLessThan::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-
-        data[target].as_function_ptr = func; // FIXME: memory management
-    };
+    data[mTarget].as_boolean = data[mLeft].as_int < data[mRight].as_int;
 }
 
-Instruction setBoolean(ObjectId target, bool value)
+Negate::Negate(ObjectId source, ObjectId target)
+    : mSource(source)
+    , mTarget(target)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = value;
-    };
 }
 
-Instruction orTest(ObjectId left, ObjectId right, ObjectId target)
+void Negate::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int || data[right].as_int;
-    };
+    data[mTarget].as_boolean = ! data[mSource].as_boolean;
 }
 
-Instruction andTest(ObjectId left, ObjectId right, ObjectId target)
+Noop::Noop() {}
+
+void Noop::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int && data[right].as_int;
-    };
+    // Nothing to do.
 }
 
-Instruction intLTE(ObjectId left, ObjectId right, ObjectId target)
+SetFloat::SetFloat(ObjectId target, double value)
+    : mTarget(target)
+    , mValue(value)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int <= data[right].as_int;
-    };
 }
 
-Instruction isEqual(ObjectId left, ObjectId right, ObjectId target)
+void SetFloat::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int == data[right].as_int;
-    };
+    data[mTarget].as_float = mValue;
 }
 
-Instruction isNotEqual(ObjectId left, ObjectId right, ObjectId target)
+CallFunction::CallFunction(ObjectId functionId, ObjectId firstArg, ObjectId target)
+    : mFunctionId(functionId)
+    , mFirstArg(firstArg)
+    , mTarget(target)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int != data[right].as_int;
-    };
 }
 
-Instruction intGTE(ObjectId left, ObjectId right, ObjectId target)
+void CallFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int >= data[right].as_int;
-    };
+    auto & func = (*data[mFunctionId].as_function_ptr);
+
+    auto returnValue = func.call(&data[mFirstArg]);
+
+    data[mTarget] = returnValue;
 }
 
-Instruction intGreaterThan(ObjectId left, ObjectId right, ObjectId target)
+SetFunction::SetFunction(ObjectId target, obj::Function *func)
+    : mTarget(target)
+    , mFunc(func)
 {
-    return [=](std::vector<Object> & data, InstructionPointer & ip) {
-        data[target].as_boolean = data[left].as_int > data[right].as_int;
-    };
+
 }
+
+void SetFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_function_ptr = mFunc; // FIXME: memory management
+}
+
+SetBoolean::SetBoolean(ObjectId target, bool value)
+    : mTarget(target)
+    , mValue(value)
+{
+}
+
+void SetBoolean::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = mValue;
+}
+
+OrTest::OrTest(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+}
+
+void OrTest::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_boolean || data[mRight].as_boolean;
+}
+
+AndTest::AndTest(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+}
+
+void AndTest::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_boolean && data[mRight].as_boolean;
+}
+
+IntLTE::IntLTE(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+}
+
+void IntLTE::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_int <= data[mRight].as_int;
+}
+
+IsEqual::IsEqual(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+}
+
+void IsEqual::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_int == data[mRight].as_int;
+}
+
+IsNotEqual::IsNotEqual(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+}
+
+void IsNotEqual::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_int != data[mRight].as_int;
+}
+
+IntGTE::IntGTE(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+}
+
+void IntGTE::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_int >= data[mRight].as_int;
+}
+
+IntGreaterThan::IntGreaterThan(ObjectId left, ObjectId right, ObjectId target)
+    : mLeft(left)
+    , mRight(right)
+    , mTarget(target)
+{
+
+}
+
+void IntGreaterThan::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_boolean = data[mLeft].as_int > data[mRight].as_int;
+}
+
+} // namespace instructions
