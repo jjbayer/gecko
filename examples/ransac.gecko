@@ -1,0 +1,34 @@
+import random.random_entry
+
+
+function<M, T, n: int> ransac(data: List<T>, inlier_threshold: float, num_iters: int) -> M?
+    requires
+        n > 1
+        is_degenerate(List<T>) -> bool
+        fit_model<M>(List<T>) -> M
+        distance(M, T) -> float
+    
+    best_candidate = None
+    for i in 0..num_iters
+        do
+            sample = [random_entry(data) for _ in 0..n]
+        while is_degenerate(sample)
+        
+        model = fit_model<M>(sample)
+        distances = [distance(model, point) for point in data]
+        inlier_count = sum([1 for d in distances if d < inlier_threshold])
+        on best_candidate
+            None
+                best_candidate = model, inlier_count
+            Some(_, best_inlier_count)
+                if inlier_count > best_inlier_count
+                    best_candidate = model, inlier_count
+
+    on best_candidate
+        None
+            return Error("No candidate found")
+        Some(model, _)
+            return Value(model)
+
+                 
+        
