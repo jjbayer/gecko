@@ -175,12 +175,13 @@ void Compiler::visitScope(const ast::Scope &scope)
 
 void Compiler::visitWhile(const ast::While &loop)
 {
+    const auto ipStartOfCondition = latestInstructionPointer() + 1;
+
     loop.mCondition->acceptVisitor(*this);
     const auto condition = latestObjectId;
     if( mTypes[condition] != ObjectType::BOOLEAN ) {
         throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
-    const auto ipCondition = latestInstructionPointer();
 
     const auto jumpCondition = mLookup.freshObjectId();
     mInstructions.push_back(std::make_unique<instructions::Negate>(condition, jumpCondition));
@@ -189,7 +190,7 @@ void Compiler::visitWhile(const ast::While &loop)
     const auto ipJumpIf = latestInstructionPointer();
 
     loop.mBody->acceptVisitor(*this);
-    mInstructions.push_back(std::make_unique<instructions::Jump>(ipCondition));
+    mInstructions.push_back(std::make_unique<instructions::Jump>(ipStartOfCondition));
 
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // Make sure there is something to jump to
     const auto afterLoop = latestInstructionPointer();

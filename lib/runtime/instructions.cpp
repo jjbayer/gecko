@@ -61,7 +61,7 @@ std::string JumpIf::toString() const { return "JumpIf condition=" + std::to_stri
 
 void JumpIf::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    if( data[mCondition].as_int ) ip = mIpNew - 1;
+    if( data[mCondition].as_boolean ) ip = mIpNew - 1;
 }
 
 Jump::Jump(InstructionPointer ipNew)

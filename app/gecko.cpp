@@ -65,8 +65,9 @@ int main(int argc, char ** argv)
     }
 
     std::cout << "*** Compiled instructions ***\n";
+    int ip = 0;
     for(const auto & instruction : compiler.instructions()) {
-        std::cout << instruction->toString() << "\n";
+        std::cout << (ip++) << ": " << instruction->toString() << "\n";
     }
 
     std::cout << "*** Program output ***\n";
