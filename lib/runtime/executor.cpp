@@ -5,7 +5,7 @@ void run(const std::vector<std::unique_ptr<Instruction> > &instructions, int num
 {
     std::vector<Object> data(numObjects);
 
-    for(auto ip = 0; ip < instructions.size(); ip++) {
+    for(size_t ip = 0; ip < instructions.size(); ip++) {
 //        std::cout << "IP=" << ip << std::endl;
         auto & instruction = instructions.at(ip);
         instruction->call(data, ip);

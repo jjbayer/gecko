@@ -107,6 +107,7 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
 {
     auto lastTestResult = mLookup.freshObjectId();
     mTypes[lastTestResult] = ObjectType::BOOLEAN;
+
     mInstructions.push_back(std::make_unique<instructions::SetBoolean>(lastTestResult, true));
 
     // TODO: short circuiting

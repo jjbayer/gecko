@@ -1,9 +1,10 @@
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 
 namespace obj { class Function; }
 
-using ObjectId = int;
+using ObjectId = size_t;
 
 
 /// Runtime objects do not have an ObjectType
