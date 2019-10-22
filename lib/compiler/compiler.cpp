@@ -189,18 +189,15 @@ void Compiler::visitWhile(const ast::While &loop)
         throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
 
-    const auto jumpCondition = mLookup.freshObjectId();
-    mInstructions.push_back(std::make_unique<instructions::Negate>(condition, jumpCondition));
-
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // placeholder for jump_if
-    const auto ipJumpIf = latestInstructionPointer();
+    const auto ipJumpIfNot = latestInstructionPointer();
 
     loop.mBody->acceptVisitor(*this);
     mInstructions.push_back(std::make_unique<instructions::Jump>(ipStartOfCondition));
 
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // Make sure there is something to jump to
     const auto afterLoop = latestInstructionPointer();
-    mInstructions[ipJumpIf] = std::make_unique<instructions::JumpIf>(jumpCondition, afterLoop);
+    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition, afterLoop);
 }
 
 
@@ -213,9 +210,6 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
         throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean");
     }
 
-    const auto negatedCondition = mLookup.freshObjectId();
-    mInstructions.push_back(std::make_unique<instructions::Negate>(condition, negatedCondition));
-
     mInstructions.push_back(std::make_unique<instructions::Noop>());
     const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
 
@@ -224,7 +218,7 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
-    mInstructions[ipJumpToEnd] = std::make_unique<instructions::JumpIf>(negatedCondition, ipEnd);
+    mInstructions[ipJumpToEnd] = std::make_unique<instructions::JumpIfNot>(condition, ipEnd);
 }
 
 void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)

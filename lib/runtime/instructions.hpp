@@ -108,6 +108,7 @@ private:
 };
 
 
+// TODO: replace JumpIf with JumpIfNot everywhere
 class JumpIf: public Instruction
 {
 public:
@@ -115,6 +116,20 @@ public:
     std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
     ~JumpIf() override {}
+
+private:
+    const ObjectId mCondition;
+    const InstructionPointer mIpNew;
+};
+
+
+class JumpIfNot: public Instruction
+{
+public:
+    JumpIfNot(ObjectId condition, InstructionPointer ipNew);
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+    ~JumpIfNot() override {}
 
 private:
     const ObjectId mCondition;

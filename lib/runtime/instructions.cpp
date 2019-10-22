@@ -64,6 +64,21 @@ void JumpIf::call(std::vector<Object> &data, InstructionPointer &ip) const
     if( data[mCondition].as_boolean ) ip = mIpNew - 1;
 }
 
+
+JumpIfNot::JumpIfNot(ObjectId condition, InstructionPointer ipNew)
+    : mCondition(condition)
+    , mIpNew(ipNew)
+{
+
+}
+
+std::string JumpIfNot::toString() const { return "JumpIfNot condition=" + std::to_string(mCondition) +  " ip=" + std::to_string(mIpNew); }
+
+void JumpIfNot::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    if( ! data[mCondition].as_boolean ) ip = mIpNew - 1;
+}
+
 Jump::Jump(InstructionPointer ipNew)
     : mIpNew(ipNew)
 {
