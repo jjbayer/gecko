@@ -105,10 +105,11 @@ void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 
 void Compiler::visitComparison(const ast::Comparison &visitable)
 {
-    auto lastTestResult = mLookup.freshObjectId();
-    mTypes[lastTestResult] = ObjectType::BOOLEAN;
+    if( visitable.mOperands.size() < 1 ) {
+        throw CompilerBug("Expected at least one comparison");
+    }
 
-    mInstructions.push_back(std::make_unique<instructions::SetBoolean>(lastTestResult, true));
+    ObjectId lastTestResult = 0;
 
     // TODO: short circuiting
     for( size_t i = 0; i < visitable.mOperators.size(); i++ ) {
@@ -154,7 +155,11 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
             break;
         }
 
-        mInstructions.push_back(std::make_unique<instructions::AndTest>(testResult, lastTestResult, lastTestResult));
+        if( lastTestResult ) {
+            mInstructions.push_back(std::make_unique<instructions::AndTest>(testResult, lastTestResult, lastTestResult));
+        } else {
+            lastTestResult = testResult;
+        }
     }
 
     latestObjectId = lastTestResult;

@@ -2,6 +2,15 @@
 #include <stdexcept>
 #include "tokenizer/tokenizer.hpp"
 
+
+class CompilerBug: public std::runtime_error
+{
+public:
+    CompilerBug(const std::string & what)
+        : std::runtime_error(what) {}
+};
+
+
 class ProgammingError: public std::runtime_error
 {
 public:
