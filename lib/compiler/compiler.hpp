@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lookup.hpp"
+#include "objectprovider.hpp"
 #include "runtime/instructions.hpp"
 #include "parser/visitor.hpp"
 
@@ -16,7 +17,7 @@ public:
     Compiler();
 
     const std::vector<std::unique_ptr<Instruction> > & instructions() const;
-    int numObjectIdsUsed() const { return mLookup.numObjectIdsUsed(); }
+    int numObjectIdsUsed() const { return mObjectProvider.numObjectsIssued(); }
 
     void visitAddition(const ast::Addition &addition) override;
     void visitAnd(const ast::And & test) override;
@@ -37,13 +38,18 @@ private:
 
     void loadPrelude();
     void registerBuiltinFunction(obj::Function *func, const std::string & name);
-    void lookup(const ast::Name & variable, const std::vector<ObjectType> & argumentTypes = {});
+
+    // type
+    // lookup key: name, argument_types
+    // return type: again a type
+
+    void lookup(const ast::Name & name, const std::vector<ValueType> & argumentTypes);
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
     std::vector<std::unique_ptr<Instruction> > mInstructions;
-    ObjectId latestObjectId = -1;
-    std::unordered_map<ObjectId, ObjectType> mTypes;
+    CompileTimeObject latestObject;
+    ObjectProvider mObjectProvider;
     Lookup mLookup;
 
 };

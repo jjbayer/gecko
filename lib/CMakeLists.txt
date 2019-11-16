@@ -6,9 +6,14 @@ add_library(gecko
     common/function.hpp
     common/object.cpp
     common/object.hpp
+    common/utils.cpp
 
     compiler/compiler.cpp
+    compiler/compiletimeobject.cpp
     compiler/lookup.cpp
+    compiler/lookupkey.cpp
+    compiler/objectprovider.cpp
+    compiler/type.cpp
 
     parser/ast.cpp
     parser/parser.cpp

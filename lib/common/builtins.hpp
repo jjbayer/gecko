@@ -4,28 +4,37 @@
 class PrintInt: public obj::Function
 {
 public:
-    ObjectType returnType() const override;
-    std::vector<ObjectType> argumentTypes() const override;
-
     Object call(Object * args) override;
+
+    std::vector<ValueType> argumentTypes() const
+    {
+        return { ValueType::INT };
+    }
+
+    ValueType returnType() const { return ValueType::INT; }
 };
 
 
 class AddInt: public obj::Function
 {
 public:
-    ObjectType returnType() const override;
-    std::vector<ObjectType> argumentTypes() const override;
-
     Object call(Object * args) override;
+
+    std::vector<ValueType> argumentTypes() const
+    {
+        return { ValueType::INT, ValueType::INT };
+    }
+
+    ValueType returnType() const { return ValueType::INT; }
+
 };
 
 
 class Dummy: public obj::Function
 {
 public:
-    ObjectType returnType() const override { return ObjectType::INT; }
-    std::vector<ObjectType> argumentTypes() const override { return {}; }
-
     Object call(Object * args) override;
+
+    std::vector<ValueType> argumentTypes() const { return {}; }
+    ValueType returnType() const{ return ValueType::INT; }
 };

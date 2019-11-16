@@ -1,4 +1,5 @@
 #include "lookup.hpp"
+#include "common/utils.hpp"
 
 
 Lookup::Lookup()
@@ -20,7 +21,15 @@ void Lookup::pop()
     }
 }
 
-ObjectId Lookup::lookup(const LookupKey &key) const
+
+void Lookup::set(const LookupKey &key, CompileTimeObject object)
+{
+    auto & top = *mScopes.rbegin();
+    top[key] = object;
+}
+
+
+CompileTimeObject Lookup::lookup(const LookupKey &key) const
 {
     for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
         const auto found = it->find(key);
@@ -33,33 +42,6 @@ ObjectId Lookup::lookup(const LookupKey &key) const
     throw LookupError {};
 }
 
-std::pair<ObjectId, bool> Lookup::lookupOrCreate(const LookupKey &name)
-{
-    // TODO: code duplication
-    for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
-        const auto found = it->find(name);
-        if( found != it->end() ) {
 
-            return {found->second, false};
-        }
-    }
 
-    const auto objectId = freshObjectId();
-    mScopes.rbegin()->emplace(name, objectId);
 
-    return {objectId, true};
-}
-
-bool LookupKey::operator==(const LookupKey &other) const
-{
-    if( name != other.name ) return false;
-    if( functionArguments.size() != other.functionArguments.size() ) return false;
-    for(size_t i = 0; i < functionArguments.size(); i++) {
-        if( functionArguments[i] != other.functionArguments[i] ) {
-
-            return false;
-        }
-    }
-
-    return true;
-}
