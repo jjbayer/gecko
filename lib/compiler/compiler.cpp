@@ -25,7 +25,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
     const auto rhs = latestObject;
 
     // TODO: other forms off addition
-    if( lhs.type != ValueType::INT || rhs.type != ValueType::INT) {
+    if( lhs.type != BasicType::INT || rhs.type != BasicType::INT) {
         throw TypeMismatch(addition.position(), ""); // TODO: mPosition, text
     }
 
@@ -58,14 +58,14 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 {
-    std::vector<ValueType> argumentTypes;
+    std::vector<Type> argumentTypes;
 
     std::vector<ObjectId> originalArgumentIds;
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
         originalArgumentIds.push_back(latestObject.id);
         // FIXME: what if argument is a function?
-        argumentTypes.push_back(latestObject.type.returnType);
+        argumentTypes.push_back(latestObject.type);
     }
 
     lookup(*functionCall.mName, argumentTypes);
@@ -79,31 +79,31 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
         mInstructions.push_back(std::make_unique<instructions::Copy>(originalArgumentId, argument.id));
     }
 
-    auto returnValue = latestObject = mObjectProvider.createObject();
+    latestObject = mObjectProvider.createObject();
 
-    returnValue.type = {MetaType::Value, function.type.returnType}; // type of function is type of return value
+    latestObject.type = function.returnType; // type of function is type of return value
 
-    mInstructions.push_back(std::make_unique<instructions::CallFunction>(function.id, firstArg, returnValue.id));
+    mInstructions.push_back(std::make_unique<instructions::CallFunction>(function.id, firstArg, latestObject.id));
 }
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
 {
     latestObject = mObjectProvider.createObject();
-    latestObject.type = {MetaType::Value, ValueType::INT};
+    latestObject.type = BasicType::INT;
     mInstructions.push_back(std::make_unique<instructions::SetInt>(latestObject.id, literal.mValue));
 }
 
 void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 {
     latestObject = mObjectProvider.createObject();
-    latestObject.type = {MetaType::Value, ValueType::FLOAT};
+    latestObject.type = BasicType::FLOAT;
     mInstructions.push_back(std::make_unique<instructions::SetFloat>(latestObject.id, literal.mValue));
 }
 
 void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 {
     latestObject = mObjectProvider.createObject();
-    latestObject.type = {MetaType::Value, ValueType::BOOLEAN};
+    latestObject.type = BasicType::BOOLEAN;
     mInstructions.push_back(std::make_unique<instructions::SetBoolean>(latestObject.id, literal.mValue));
 }
 
@@ -127,12 +127,12 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
         }
 
         // TODO: allow other types than int
-        if( lhs.type != ValueType::INT ) {
+        if( lhs.type != BasicType::INT ) {
             throw TypeMismatch(visitable.position(), "Only integer comparisons are supported right now");
         }
 
         auto testResult = mObjectProvider.createObject();
-        testResult.type = {MetaType::Value, ValueType::BOOLEAN};
+        testResult.type = BasicType::BOOLEAN;
 
         const auto & op = visitable.mOperators.at(i);
         switch (op) {
@@ -156,7 +156,6 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
             break;
         default:
             throw std::runtime_error("Unexpected comparison operator");
-            break;
         }
 
         if( lastTestResult ) {
@@ -189,7 +188,7 @@ void Compiler::visitWhile(const ast::While &loop)
 
     loop.mCondition->acceptVisitor(*this);
     auto condition = latestObject;
-    if( condition.type != ValueType::BOOLEAN ) {
+    if( condition.type != BasicType::BOOLEAN ) {
         throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
 
@@ -210,7 +209,7 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
 {
     ifThen.mCondition->acceptVisitor(*this);
     auto condition = latestObject;
-    if( condition.type != ValueType::BOOLEAN ) {
+    if( condition.type != BasicType::BOOLEAN ) {
         throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean");
     }
 
@@ -229,7 +228,7 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
 {
     ifThenElse.mCondition->acceptVisitor(*this);
     const auto condition = latestObject;
-    if( condition.type != ValueType::BOOLEAN ) {
+    if( condition.type != BasicType::BOOLEAN ) {
         throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean");
     }
 
@@ -261,7 +260,7 @@ void Compiler::visitOr(const ast::Or &test)
     const auto rhs = latestObject;
 
     // TODO: other forms off addition
-    if( lhs.type != ValueType::BOOLEAN || rhs.type != ValueType::BOOLEAN) {
+    if( lhs.type != BasicType::BOOLEAN || rhs.type != BasicType::BOOLEAN) {
         throw TypeMismatch(test.position(), "Both operands of 'or' must be boolean");
     }
 
@@ -279,7 +278,7 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
     const auto rhs = latestObject;
 
     // TODO: other forms off addition
-    if( lhs.type != ValueType::BOOLEAN || rhs.type != ValueType::BOOLEAN) {
+    if( lhs.type != BasicType::BOOLEAN || rhs.type != BasicType::BOOLEAN) {
         throw TypeMismatch(test.position(), "Both operands of 'and' must be boolean");
     }
 
@@ -300,12 +299,13 @@ void Compiler::registerBuiltinFunction(obj::Function * func, const std::string &
 {
     // TODO: no need to lookup
     lookupOrCreate({name, func->argumentTypes()});
-    latestObject.type = {MetaType::Value, func->returnType()}; // FIXME: back to simple types
+    latestObject.type = mTypeCreator.functionType(func->returnType(), func->argumentTypes()); // FIXME: back to simple types
+    latestObject.returnType = func->returnType();
     // FIXME: memory management
     mInstructions.push_back(std::make_unique<instructions::SetFunction>(latestObject.id, func));
 }
 
-void Compiler::lookup(const ast::Name &variable, const std::vector<ValueType> &argumentTypes)
+void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argumentTypes)
 {
     try {
         latestObject = mLookup.lookup({variable.mName, argumentTypes});
@@ -325,8 +325,6 @@ void Compiler::lookup(const ast::Name &variable, const std::vector<ValueType> &a
 
 bool Compiler::lookupOrCreate(const LookupKey &key)
 {
-    bool created = false;
-
     try {
         latestObject = mLookup.lookup(key);
 
@@ -340,8 +338,6 @@ bool Compiler::lookupOrCreate(const LookupKey &key)
 
         return true;
     }
-
-    return created;
 }
 
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "object.hpp"
-#include "compiler/type.hpp"
+#include "compiler/typecreator.hpp"
 #include <vector>
 
 
@@ -12,9 +12,9 @@ namespace obj {
 
         virtual Object call(Object * args) = 0;
 
-        virtual std::vector<ValueType> argumentTypes() const = 0;
+        virtual std::vector<Type> argumentTypes() const = 0;
 
-        virtual ValueType returnType() const = 0;
+        virtual Type returnType() const = 0;
 
         virtual ~Function() {}
     };

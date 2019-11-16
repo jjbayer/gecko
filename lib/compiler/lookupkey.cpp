@@ -1,5 +1,4 @@
 #include "lookupkey.hpp"
-#include "common/utils.hpp"
 
 LookupKey::LookupKey(const std::string &name)
     : mName(name)
@@ -8,7 +7,7 @@ LookupKey::LookupKey(const std::string &name)
 
 }
 
-LookupKey::LookupKey(const std::string &name, const std::vector<ValueType> &argumentTypes)
+LookupKey::LookupKey(const std::string &name, const std::vector<Type> &argumentTypes)
     : mName(name)
     , mArgumentTypes(argumentTypes)
 {
@@ -37,3 +36,5 @@ bool LookupKey::operator==(const LookupKey &other) const
 
     return true;
 }
+
+

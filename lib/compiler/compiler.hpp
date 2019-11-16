@@ -43,13 +43,13 @@ private:
     // lookup key: name, argument_types
     // return type: again a type
 
-    void lookup(const ast::Name & name, const std::vector<ValueType> & argumentTypes);
+    void lookup(const ast::Name & name, const std::vector<Type> & argumentTypes);
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
     std::vector<std::unique_ptr<Instruction> > mInstructions;
-    CompileTimeObject latestObject;
     ObjectProvider mObjectProvider;
+    CompileTimeObject latestObject;
     Lookup mLookup;
-
+    TypeCreator mTypeCreator;
 };

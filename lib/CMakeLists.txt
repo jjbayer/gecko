@@ -13,7 +13,7 @@ add_library(gecko
     compiler/lookup.cpp
     compiler/lookupkey.cpp
     compiler/objectprovider.cpp
-    compiler/type.cpp
+    compiler/typecreator.cpp
 
     parser/ast.cpp
     parser/parser.cpp
