@@ -1,9 +1,7 @@
 
 
 add_library(gecko
-    common/builtins.cpp
     common/exceptions.cpp
-    common/function.hpp
     common/object.cpp
     common/object.hpp
     common/utils.cpp
@@ -22,6 +20,9 @@ add_library(gecko
     runtime/executor.cpp
     runtime/instructions.cpp
     runtime/instructions.hpp
+
+    runtime/objects/builtins.cpp
+    runtime/objects/string.cpp
 
     tokenizer/statemachine.cpp
     tokenizer/tokenizer.cpp

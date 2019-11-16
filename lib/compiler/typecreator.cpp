@@ -13,3 +13,15 @@ bool TypeKey::operator==(const TypeKey &other) const
 
     return true;
 }
+
+Type TypeCreator::functionType(Type returnType, std::vector<Type> argumentTypes)
+{
+    argumentTypes.push_back(returnType);
+    TypeKey key { MetaType::FUNCTION, argumentTypes };
+    auto [it, created] = mTypes.emplace(key, mNextType);
+            if( created ) {
+        mNextType++;
+    }
+
+    return it->second;
+}

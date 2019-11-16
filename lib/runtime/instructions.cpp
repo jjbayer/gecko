@@ -1,5 +1,7 @@
 #include "instructions.hpp"
-#include "common/function.hpp"
+#include "runtime/objects/function.hpp"
+#include "runtime/objects/string.hpp"
+
 
 namespace instructions {
 
@@ -164,9 +166,9 @@ std::string CallFunction::toString() const { return "CallFunction function=" + s
 
 void CallFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    auto & func = (*data[mFunctionId].as_function_ptr);
+    auto *func = static_cast<obj::Function*>(data[mFunctionId].as_ptr);
 
-    auto returnValue = func.call(&data[mFirstArg]);
+    auto returnValue = func->call(&data[mFirstArg]);
 
     data[mTarget] = returnValue;
 }
@@ -182,7 +184,7 @@ std::string SetFunction::toString() const { return "SetFunction target=" + std::
 
 void SetFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    data[mTarget].as_function_ptr = mFunc; // FIXME: memory management
+    data[mTarget].as_ptr = mFunc; // FIXME: memory management
 }
 
 SetBoolean::SetBoolean(ObjectId target, bool value)
@@ -196,6 +198,19 @@ std::string SetBoolean::toString() const { return "SetBoolean target=" + std::to
 void SetBoolean::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
     data[mTarget].as_boolean = mValue;
+}
+
+SetString::SetString(ObjectId target, const std::string & value)
+    : mTarget(target)
+    , mValue(value)
+{
+}
+
+std::string SetString::toString() const { return "SetString target=" + std::to_string(mTarget) + " value=" + mValue; }
+
+void SetString::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    data[mTarget].as_ptr = new obj::String(mValue);
 }
 
 OrTest::OrTest(ObjectId left, ObjectId right, ObjectId target)

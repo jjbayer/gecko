@@ -57,17 +57,7 @@ namespace std {
 class TypeCreator
 {
 public:
-    Type functionType(Type returnType, std::vector<Type> argumentTypes)
-    {
-        argumentTypes.push_back(returnType);
-        TypeKey key { MetaType::FUNCTION, argumentTypes };
-        auto [it, created] = mTypes.emplace(key, mNextType);
-        if( created ) {
-            mNextType++;
-        }
-
-        return it->second;
-    }
+    Type functionType(Type returnType, std::vector<Type> argumentTypes);
 
 private:
 

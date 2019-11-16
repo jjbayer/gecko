@@ -1,12 +1,13 @@
 #pragma once
-#include "object.hpp"
+#include "allocated.hpp"
+#include "common/object.hpp"
 #include "compiler/typecreator.hpp"
 #include <vector>
 
 
 namespace obj {
 
-    class Function
+    class Function: public Allocated
     {
     public:
 

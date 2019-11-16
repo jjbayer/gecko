@@ -5,6 +5,9 @@
 #include <vector>
 
 
+namespace obj { class Function; }
+
+
 using InstructionPointer = size_t;
 
 
@@ -21,6 +24,7 @@ public:
 namespace instructions {
 
 
+// TODO: set literals only once
 class SetInt: public Instruction
 {
 public:
@@ -76,6 +80,20 @@ public:
 private:
     const ObjectId mTarget;
     const bool mValue;
+};
+
+
+class SetString: public Instruction
+{
+public:
+    SetString(ObjectId target, const std::string & value);
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+    ~SetString() override {}
+
+private:
+    const ObjectId mTarget;
+    const std::string mValue;
 };
 
 

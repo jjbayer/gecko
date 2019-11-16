@@ -1,7 +1,7 @@
 #include "compiler.hpp"
 #include "parser/ast.hpp"
 #include "common/exceptions.hpp"
-#include "common/builtins.hpp"
+#include "runtime/objects/builtins.hpp"
 
 #include <sstream>
 
@@ -184,8 +184,11 @@ void Compiler::visitScope(const ast::Scope &scope)
 
 void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
 {
-    throw MissingFeature("string literal");
+    latestObject = mObjectProvider.createObject();
+    latestObject.type = BasicType::STRING;
+    mInstructions.push_back(std::make_unique<instructions::SetString>(latestObject.id, visitable.mValue));
 }
+
 
 void Compiler::visitWhile(const ast::While &loop)
 {
@@ -320,9 +323,9 @@ void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argume
         // TODO: key.is_function
         std::stringstream msg;
         msg << variable.mName;
-        if( ! argumentTypes.empty() ) msg << " with function arguments ";
+        if( ! argumentTypes.empty() ) msg << " with function arguments of types ";
         // FIXME: add type to string
-//        for(auto arg : argumentTypes) msg << arg << " ";
+        for(auto arg : argumentTypes) msg << arg << " ";
 
         throw UndefinedVariable(variable.position(), msg.str());
     }
