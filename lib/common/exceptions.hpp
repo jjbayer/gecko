@@ -11,6 +11,14 @@ public:
 };
 
 
+class MissingFeature: public CompilerBug
+{
+public:
+    MissingFeature(const std::string & what)
+        : CompilerBug(what) {}
+};
+
+
 class ProgammingError: public std::runtime_error
 {
 public:

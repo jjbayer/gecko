@@ -117,8 +117,8 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
     }
 
     if ( c == '"' ) {
-        tokens.rbegin()->type = Token::StringLiteral;
         advance(it, position);
+        tokens.rbegin()->type = Token::StringLiteral;
 
         return std::make_shared<StateStringLiteral>(); // FIXME: what if string literal not closed?
     }

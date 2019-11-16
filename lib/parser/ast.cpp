@@ -148,6 +148,18 @@ void BooleanLiteral::acceptVisitor(Visitor &visitor)
     visitor.visitBooleanLiteral(*this);
 }
 
+StringLiteral::StringLiteral(const std::string &value, const Position &position)
+    : Singular(position)
+    , mValue(value)
+{
+
+}
+
+void StringLiteral::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitStringLiteral(*this);
+}
+
 Or::Or(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
     : Expression(position)
     , mLeft(std::move(left))
@@ -192,5 +204,7 @@ void Comparison::addTest(Token::Type operator_, std::unique_ptr<Expression> &&op
     mOperators.push_back(operator_);
     mOperands.push_back(std::move(operand));
 }
+
+
 
 } // namespace ast

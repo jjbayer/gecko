@@ -182,6 +182,11 @@ void Compiler::visitScope(const ast::Scope &scope)
     mLookup.pop();
 }
 
+void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
+{
+    throw MissingFeature("string literal");
+}
+
 void Compiler::visitWhile(const ast::While &loop)
 {
     const auto ipStartOfCondition = latestInstructionPointer() + 1;

@@ -284,9 +284,11 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
         return std::make_unique<ast::BooleanLiteral>(false, it->position);
     }
 
-    // TODO: string literal
-//    if( it->type == Token::StringLiteral ) return std::make_unique<ast::StringLiteral>((it++)->value);
-
+    if( it->type == Token::StringLiteral ) {
+        auto literal = std::make_unique<ast::StringLiteral>(it->value, it->position);
+        it++;
+        return std::move(literal);
+    }
     // TODO: float literal
 
     // TODO: dict literal

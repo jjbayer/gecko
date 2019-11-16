@@ -99,6 +99,11 @@ void PrintVisitor::visitScope(const Scope &scope)
     }
 }
 
+void PrintVisitor::visitStringLiteral(const StringLiteral &visitable)
+{
+    std::cout << '"' << visitable.mValue << '"';
+}
+
 void PrintVisitor::visitWhile(const While &loop)
 {
     std::cout << "while ";

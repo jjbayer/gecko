@@ -105,6 +105,17 @@ public:
 };
 
 
+class StringLiteral: public Singular
+{
+public:
+    StringLiteral(const std::string & value, const Position & position);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    const std::string mValue;
+};
+
+
 class FunctionCall: public Singular
 {
 public:

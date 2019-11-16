@@ -16,6 +16,7 @@ class IntLiteral;
 class Name;
 class Or;
 class Scope;
+class StringLiteral;
 class While;
 
 // TODO: const correctness
@@ -35,6 +36,7 @@ public:
     virtual void visitName(const Name & name) = 0;
     virtual void visitOr(const Or & test) = 0;
     virtual void visitScope(const Scope & scope) = 0;
+    virtual void visitStringLiteral(const StringLiteral & visitable) = 0;
     virtual void visitWhile(const While & loop) = 0;
 };
 

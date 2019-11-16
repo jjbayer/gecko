@@ -20,6 +20,7 @@ public:
     void visitName(const Name &name) override;
     void visitOr(const Or & visitable) override;
     void visitScope(const Scope &scope) override;
+    void visitStringLiteral(const StringLiteral & visitable) override;
     void visitWhile(const While &loop) override;
 
 private:
