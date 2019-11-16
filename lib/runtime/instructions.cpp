@@ -1,4 +1,5 @@
 #include "instructions.hpp"
+#include <runtime/memorymanager.hpp>
 #include "runtime/objects/function.hpp"
 #include "runtime/objects/string.hpp"
 
@@ -173,19 +174,19 @@ void CallFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
     data[mTarget] = returnValue;
 }
 
-SetFunction::SetFunction(ObjectId target, obj::Function *func)
-    : mTarget(target)
-    , mFunc(func)
+
+std::string SetFunction::toString() const
 {
-
-}
-
-std::string SetFunction::toString() const { return "SetFunction target=" + std::to_string(mTarget) + " value=" + std::to_string(reinterpret_cast<u_int64_t>(mFunc)); }
+    return "SetFunction target=" + std::to_string(mTarget)
+                                 + " value=" + std::to_string(reinterpret_cast<u_int64_t>(mCreator().get())); }
 
 void SetFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    data[mTarget].as_ptr = mFunc; // FIXME: memory management
+    // TODO: copy is ugly but call() should remain const
+    data[mTarget].as_ptr = memory().add(mCreator());
 }
+
+SetFunction::~SetFunction() {}
 
 SetBoolean::SetBoolean(ObjectId target, bool value)
     : mTarget(target)
@@ -210,7 +211,7 @@ std::string SetString::toString() const { return "SetString target=" + std::to_s
 
 void SetString::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    data[mTarget].as_ptr = new obj::String(mValue);
+    data[mTarget].as_ptr = memory().add(std::make_unique<obj::String>(mValue));
 }
 
 OrTest::OrTest(ObjectId left, ObjectId right, ObjectId target)

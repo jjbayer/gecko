@@ -1,6 +1,8 @@
 #pragma once
 #include "common/object.hpp"
 
+#include <functional>
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -100,14 +102,20 @@ private:
 class SetFunction: public Instruction
 {
 public:
-    SetFunction(ObjectId target, obj::Function * func);
+    template<typename Fn>
+    SetFunction(ObjectId target, Fn creator)
+        : mTarget(target)
+        , mCreator(creator)
+    {
+
+    }
     std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
-    ~SetFunction() override {}
+    ~SetFunction() override;
 
 private:
     const ObjectId mTarget;
-    obj::Function * const mFunc;
+    std::function<std::unique_ptr<obj::Function>()> mCreator;
 };
 
 

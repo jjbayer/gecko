@@ -20,7 +20,7 @@ add_library(gecko
     runtime/executor.cpp
     runtime/instructions.cpp
     runtime/instructions.hpp
-
+    runtime/memorymanager.cpp
     runtime/objects/builtins.cpp
     runtime/objects/string.cpp
 

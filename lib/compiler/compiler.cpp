@@ -64,7 +64,6 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
         originalArgumentIds.push_back(latestObject.id);
-        // FIXME: what if argument is a function?
         argumentTypes.push_back(latestObject.type);
     }
 
@@ -298,20 +297,12 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
 
 void Compiler::loadPrelude()
 {
-    registerBuiltinFunction(new PrintInt, "print");
-    registerBuiltinFunction(new AddInt, "__add__"); // FIXME: memory management
-    registerBuiltinFunction(new Dummy, "dummy");
+    registerBuiltinFunction<PrintInt>("print");
+    registerBuiltinFunction<AddInt>("__add__");
+    registerBuiltinFunction<Dummy>("dummy");
 }
 
-void Compiler::registerBuiltinFunction(obj::Function * func, const std::string &name)
-{
-    // TODO: no need to lookup
-    lookupOrCreate({name, func->argumentTypes()});
-    latestObject.type = mTypeCreator.functionType(func->returnType(), func->argumentTypes()); // FIXME: back to simple types
-    latestObject.returnType = func->returnType();
-    // FIXME: memory management
-    mInstructions.push_back(std::make_unique<instructions::SetFunction>(latestObject.id, func));
-}
+
 
 void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argumentTypes)
 {
@@ -324,7 +315,7 @@ void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argume
         std::stringstream msg;
         msg << variable.mName;
         if( ! argumentTypes.empty() ) msg << " with function arguments of types ";
-        // FIXME: add type to string
+        // TODO: add type to string
         for(auto arg : argumentTypes) msg << arg << " ";
 
         throw UndefinedVariable(variable.position(), msg.str());

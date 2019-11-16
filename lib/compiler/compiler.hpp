@@ -38,7 +38,20 @@ public:
 private:
 
     void loadPrelude();
-    void registerBuiltinFunction(obj::Function *func, const std::string & name);
+
+    template<typename T>
+    void registerBuiltinFunction(const std::string & name)
+    {
+        T dummy;
+
+        // TODO: no need to lookup
+        lookupOrCreate({name, dummy.argumentTypes()});
+        latestObject.type = mTypeCreator.functionType(dummy.returnType(), dummy.argumentTypes());
+        latestObject.returnType = dummy.returnType();
+        mInstructions.push_back(
+            std::make_unique<instructions::SetFunction>(latestObject.id, &std::make_unique<T>)
+        );
+    }
 
     // type
     // lookup key: name, argument_types

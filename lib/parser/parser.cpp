@@ -158,8 +158,6 @@ std::unique_ptr<ast::Expression> parseAnd(TokenIterator &it, const TokenIterator
 
 std::unique_ptr<ast::Expression> parseComparison(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    // FIXME: chain of operators
-
     const std::unordered_set<Token::Type> operatorTypes {
         Token::LessThan,
         Token::LTE,
