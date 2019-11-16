@@ -42,12 +42,16 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     // TODO: what if assignee is not name?
     auto name = dynamic_cast<ast::Name*>(assignment.mAssignee.get());
 
-    const auto created = lookupOrCreate({name->mName, {}});
+    const LookupKey lookupKey {name->mName, {}};
+    const auto created = lookupOrCreate(lookupKey);
     auto destination = latestObject;
     if( ! created && destination.type != source.type ) {
         throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
     }
     destination.type = source.type;
+
+    // Write back to lookup to update type
+    mLookup.set(lookupKey, destination);
 
     mInstructions.push_back(std::make_unique<instructions::Copy>(source.id, destination.id));
 }
