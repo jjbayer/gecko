@@ -31,5 +31,3 @@ BOOST_AUTO_TEST_CASE(test_boolean_literals)
     const auto end = tokens.cend();
     BOOST_CHECK_NO_THROW(parseExpression(begin, end, 0));
 }
-
-

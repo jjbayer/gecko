@@ -26,7 +26,7 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
             it++;
         }
 
-        if ( indentCounter == (indent - 1)) {
+        if ( indentCounter < indent) {
             // Back to original scope
             it = startOfLine;
             break;
@@ -379,16 +379,20 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
 
     // TODO: single function to parse expected indent
     auto indentCounter = 0;
+    const auto startOfLine = it;
     while( it != end && it->type == Token::Indent) {
         indentCounter++;
         it++;
     }
-    if( indentCounter != indent ) throw std::runtime_error("Unexpected indent " + std::to_string(indentCounter) + " after 'then' block ");
 
-    if( it == end || it->type != Token::Else ) {
+    const auto hasElse = (indentCounter == indent && it != end && it->type == Token::Else);
 
+    if( ! hasElse ) {
+        it = startOfLine;
         return std::make_unique<ast::IfThen>(std::move(condition), std::move(ifBody), pos);
     }
+
+    // Else: else-block
 
     it++;
 
