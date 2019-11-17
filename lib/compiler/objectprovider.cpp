@@ -1,11 +1,10 @@
 #include "objectprovider.hpp"
 
-CompileTimeObject ObjectProvider::createObject()
+std::shared_ptr<CompileTimeObject> ObjectProvider::createObject(Type type)
 {
-    return { mNextObjectId++ };
-}
+    auto object = std::make_shared<CompileTimeObject>();
+    object->id = mNextObjectId++;
+    object->type = type;
 
-CompileTimeObject ObjectProvider::createObject(const Type &type)
-{
-    return { mNextObjectId++, type };
+    return object;
 }

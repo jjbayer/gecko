@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -16,15 +17,15 @@ class Lookup
 {
 public:
 
-    using Map = std::unordered_map<LookupKey, CompileTimeObject>;
+    using Map = std::unordered_map<LookupKey, std::shared_ptr<CompileTimeObject> >;
 
     Lookup();
     void push();
     void pop();
 
-    CompileTimeObject lookup(const LookupKey & key) const;
+    std::shared_ptr<CompileTimeObject> lookup(const LookupKey & key) const;
 
-    void set(const LookupKey & key, CompileTimeObject object);
+    void set(const LookupKey & key, std::shared_ptr<CompileTimeObject> object);
 
     // TODO: iterator
     const std::vector<Map> & scopes() const { return mScopes; }

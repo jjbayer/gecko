@@ -47,10 +47,15 @@ private:
 
         // TODO: no need to lookup
         lookupOrCreate({name, dummy.argumentTypes()});
-        latestObject.type = mTypeCreator.functionType(dummy.returnType(), dummy.argumentTypes());
-        latestObject.returnType = dummy.returnType();
+        latestObject->type = mTypeCreator.functionType(dummy.returnType(), dummy.argumentTypes());
+        latestObject->returnType = dummy.returnType();
+
+        // TODO: should not be necessary to update object in lookup by hand
+        //       use shared_ptrs?
+        mLookup.set({name, dummy.argumentTypes()}, latestObject);
+
         mInstructions.push_back(
-            std::make_unique<instructions::SetFunction>(latestObject.id, &std::make_unique<T>)
+            std::make_unique<instructions::SetFunction>(latestObject->id, &std::make_unique<T>)
         );
     }
 
@@ -64,7 +69,7 @@ private:
 
     std::vector<std::unique_ptr<Instruction> > mInstructions;
     ObjectProvider mObjectProvider;
-    CompileTimeObject latestObject;
+    std::shared_ptr<CompileTimeObject> latestObject = nullptr;
     Lookup mLookup;
     TypeCreator mTypeCreator;
 };

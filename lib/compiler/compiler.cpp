@@ -7,7 +7,6 @@
 
 
 Compiler::Compiler()
-    :latestObject(mObjectProvider.createObject())
 {
     loadPrelude();
 }
@@ -25,13 +24,13 @@ void Compiler::visitAddition(const ast::Addition & addition)
     const auto rhs = latestObject;
 
     // TODO: other forms off addition
-    if( lhs.type != BasicType::INT || rhs.type != BasicType::INT) {
+    if( lhs->type != BasicType::INT || rhs->type != BasicType::INT) {
         throw TypeMismatch(addition.position(), ""); // TODO: mPosition, text
     }
 
-    latestObject = mObjectProvider.createObject(lhs.type);
+    latestObject = mObjectProvider.createObject(lhs->type);
 
-    mInstructions.push_back(std::make_unique<instructions::AddInt>(lhs.id, rhs.id, latestObject.id));
+    mInstructions.push_back(std::make_unique<instructions::AddInt>(lhs->id, rhs->id, latestObject->id));
 }
 
 void Compiler::visitAssignment(const ast::Assignment &assignment)
@@ -45,15 +44,12 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     const LookupKey lookupKey {name->mName, {}};
     const auto created = lookupOrCreate(lookupKey);
     auto destination = latestObject;
-    if( ! created && destination.type != source.type ) {
+    if( ! created && destination->type != source->type ) {
         throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
     }
-    destination.type = source.type;
+    destination->type = source->type;
 
-    // Write back to lookup to update type
-    mLookup.set(lookupKey, destination);
-
-    mInstructions.push_back(std::make_unique<instructions::Copy>(source.id, destination.id));
+    mInstructions.push_back(std::make_unique<instructions::Copy>(source->id, destination->id));
 }
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
@@ -63,8 +59,8 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     std::vector<ObjectId> originalArgumentIds;
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
-        originalArgumentIds.push_back(latestObject.id);
-        argumentTypes.push_back(latestObject.type);
+        originalArgumentIds.push_back(latestObject->id);
+        argumentTypes.push_back(latestObject->type);
     }
 
     lookup(*functionCall.mName, argumentTypes);
@@ -73,30 +69,25 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     ObjectId firstArg = 0;
     for( const auto originalArgumentId : originalArgumentIds ) {
         const auto argument = mObjectProvider.createObject();
-        if(  firstArg == 0 ) firstArg = argument.id;
-        // TODO: memory management
-        mInstructions.push_back(std::make_unique<instructions::Copy>(originalArgumentId, argument.id));
+        if(  firstArg == 0 ) firstArg = argument->id;
+        mInstructions.push_back(std::make_unique<instructions::Copy>(originalArgumentId, argument->id));
     }
 
-    latestObject = mObjectProvider.createObject();
+    latestObject = mObjectProvider.createObject(function->returnType); // type of function is type of return value
 
-    latestObject.type = function.returnType; // type of function is type of return value
-
-    mInstructions.push_back(std::make_unique<instructions::CallFunction>(function.id, firstArg, latestObject.id));
+    mInstructions.push_back(std::make_unique<instructions::CallFunction>(function->id, firstArg, latestObject->id));
 }
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
 {
-    latestObject = mObjectProvider.createObject();
-    latestObject.type = BasicType::INT;
-    mInstructions.push_back(std::make_unique<instructions::SetInt>(latestObject.id, literal.mValue));
+    latestObject = mObjectProvider.createObject(BasicType::INT);
+    mInstructions.push_back(std::make_unique<instructions::SetInt>(latestObject->id, literal.mValue));
 }
 
 void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 {
-    latestObject = mObjectProvider.createObject();
-    latestObject.type = BasicType::FLOAT;
-    mInstructions.push_back(std::make_unique<instructions::SetFloat>(latestObject.id, literal.mValue));
+    latestObject = mObjectProvider.createObject(BasicType::FLOAT);
+    mInstructions.push_back(std::make_unique<instructions::SetFloat>(latestObject->id, literal.mValue));
 }
 
 void Compiler::visitFree()
@@ -104,8 +95,10 @@ void Compiler::visitFree()
     std::vector<ObjectId> objectsInUse;
     for(const auto & scope : mLookup.scopes()) {
         for( const auto & pair : scope ) {
-            // FIXME: only if is pointer type
-            objectsInUse.push_back(pair.second.id);
+            const auto & object = pair.second;
+            if( object->isAllocated() ) {
+                objectsInUse.push_back(object->id);
+            }
         }
     }
 
@@ -114,9 +107,8 @@ void Compiler::visitFree()
 
 void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 {
-    latestObject = mObjectProvider.createObject();
-    latestObject.type = BasicType::BOOLEAN;
-    mInstructions.push_back(std::make_unique<instructions::SetBoolean>(latestObject.id, literal.mValue));
+    latestObject = mObjectProvider.createObject(BasicType::BOOLEAN);
+    mInstructions.push_back(std::make_unique<instructions::SetBoolean>(latestObject->id, literal.mValue));
 }
 
 void Compiler::visitComparison(const ast::Comparison &visitable)
@@ -125,7 +117,7 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
         throw CompilerBug("Expected at least one comparison");
     }
 
-    std::optional<CompileTimeObject> lastTestResult;
+    std::shared_ptr<CompileTimeObject> lastTestResult = nullptr;
 
     // TODO: short circuiting
     for( size_t i = 0; i < visitable.mOperators.size(); i++ ) {
@@ -134,50 +126,50 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
         visitable.mOperands.at(i+1)->acceptVisitor(*this);
         const auto rhs = latestObject;
 
-        if( lhs.type != rhs.type) {
+        if( lhs->type != rhs->type) {
             throw TypeMismatch(visitable.position(), "Comparison operators must have same type");
         }
 
         // TODO: allow other types than int
-        if( lhs.type != BasicType::INT ) {
+        if( lhs->type != BasicType::INT ) {
             throw TypeMismatch(visitable.position(), "Only integer comparisons are supported right now");
         }
 
         auto testResult = mObjectProvider.createObject();
-        testResult.type = BasicType::BOOLEAN;
+        testResult->type = BasicType::BOOLEAN;
 
         const auto & op = visitable.mOperators.at(i);
         switch (op) {
         case Token::LessThan:
-            mInstructions.push_back(std::make_unique<instructions::IntLessThan>(lhs.id, rhs.id, testResult.id));
+            mInstructions.push_back(std::make_unique<instructions::IntLessThan>(lhs->id, rhs->id, testResult->id));
             break;
         case Token::LTE:
-            mInstructions.push_back(std::make_unique<instructions::IntLTE>(lhs.id, rhs.id, testResult.id));
+            mInstructions.push_back(std::make_unique<instructions::IntLTE>(lhs->id, rhs->id, testResult->id));
             break;
         case Token::Equal:
-            mInstructions.push_back(std::make_unique<instructions::IsEqual>(lhs.id, rhs.id, testResult.id));
+            mInstructions.push_back(std::make_unique<instructions::IsEqual>(lhs->id, rhs->id, testResult->id));
             break;
         case Token::NotEqual:
-            mInstructions.push_back(std::make_unique<instructions::IsNotEqual>(lhs.id, rhs.id, testResult.id));
+            mInstructions.push_back(std::make_unique<instructions::IsNotEqual>(lhs->id, rhs->id, testResult->id));
             break;
         case Token::GTE:
-            mInstructions.push_back(std::make_unique<instructions::IntGTE>(lhs.id, rhs.id, testResult.id));
+            mInstructions.push_back(std::make_unique<instructions::IntGTE>(lhs->id, rhs->id, testResult->id));
             break;
         case Token::GreaterThan:
-            mInstructions.push_back(std::make_unique<instructions::IntGreaterThan>(lhs.id, rhs.id, testResult.id));
+            mInstructions.push_back(std::make_unique<instructions::IntGreaterThan>(lhs->id, rhs->id, testResult->id));
             break;
         default:
             throw std::runtime_error("Unexpected comparison operator");
         }
 
         if( lastTestResult ) {
-            mInstructions.push_back(std::make_unique<instructions::AndTest>(testResult.id, lastTestResult->id, lastTestResult->id));
+            mInstructions.push_back(std::make_unique<instructions::AndTest>(testResult->id, lastTestResult->id, lastTestResult->id));
         } else {
             lastTestResult = testResult;
         }
     }
 
-    latestObject = *lastTestResult;
+    latestObject = lastTestResult;
 }
 
 void Compiler::visitName(const ast::Name &name)
@@ -196,9 +188,8 @@ void Compiler::visitScope(const ast::Scope &scope)
 
 void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
 {
-    latestObject = mObjectProvider.createObject();
-    latestObject.type = BasicType::STRING;
-    mInstructions.push_back(std::make_unique<instructions::SetString>(latestObject.id, visitable.mValue));
+    latestObject = mObjectProvider.createObject(BasicType::STRING);
+    mInstructions.push_back(std::make_unique<instructions::SetString>(latestObject->id, visitable.mValue));
 }
 
 
@@ -208,7 +199,7 @@ void Compiler::visitWhile(const ast::While &loop)
 
     loop.mCondition->acceptVisitor(*this);
     auto condition = latestObject;
-    if( condition.type != BasicType::BOOLEAN ) {
+    if( condition->type != BasicType::BOOLEAN ) {
         throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
 
@@ -220,7 +211,7 @@ void Compiler::visitWhile(const ast::While &loop)
 
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // Make sure there is something to jump to
     const auto afterLoop = latestInstructionPointer();
-    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition.id, afterLoop);
+    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
 }
 
 
@@ -229,7 +220,7 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
 {
     ifThen.mCondition->acceptVisitor(*this);
     auto condition = latestObject;
-    if( condition.type != BasicType::BOOLEAN ) {
+    if( condition->type != BasicType::BOOLEAN ) {
         throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean");
     }
 
@@ -241,14 +232,14 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
-    mInstructions[ipJumpToEnd] = std::make_unique<instructions::JumpIfNot>(condition.id, ipEnd);
+    mInstructions[ipJumpToEnd] = std::make_unique<instructions::JumpIfNot>(condition->id, ipEnd);
 }
 
 void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
 {
     ifThenElse.mCondition->acceptVisitor(*this);
     const auto condition = latestObject;
-    if( condition.type != BasicType::BOOLEAN ) {
+    if( condition->type != BasicType::BOOLEAN ) {
         throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean");
     }
 
@@ -268,7 +259,7 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
     mInstructions.push_back(std::make_unique<instructions::Noop>()); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
-    mInstructions[ipJumpToIf] = std::make_unique<instructions::JumpIf>(condition.id, ipStartIfBlock);
+    mInstructions[ipJumpToIf] = std::make_unique<instructions::JumpIf>(condition->id, ipStartIfBlock);
     mInstructions[ipJumpToEnd] = std::make_unique<instructions::Jump>(ipEnd);
 }
 
@@ -280,14 +271,13 @@ void Compiler::visitOr(const ast::Or &test)
     const auto rhs = latestObject;
 
     // TODO: other forms off addition
-    if( lhs.type != BasicType::BOOLEAN || rhs.type != BasicType::BOOLEAN) {
+    if( lhs->type != BasicType::BOOLEAN || rhs->type != BasicType::BOOLEAN) {
         throw TypeMismatch(test.position(), "Both operands of 'or' must be boolean");
     }
 
-    latestObject = mObjectProvider.createObject();
-    latestObject.type = lhs.type;
+    latestObject = mObjectProvider.createObject(lhs->type);
 
-    mInstructions.push_back(std::make_unique<instructions::OrTest>(lhs.id, rhs.id, latestObject.id));
+    mInstructions.push_back(std::make_unique<instructions::OrTest>(lhs->id, rhs->id, latestObject->id));
 }
 
 void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
@@ -298,14 +288,13 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
     const auto rhs = latestObject;
 
     // TODO: other forms off addition
-    if( lhs.type != BasicType::BOOLEAN || rhs.type != BasicType::BOOLEAN) {
+    if( lhs->type != BasicType::BOOLEAN || rhs->type != BasicType::BOOLEAN) {
         throw TypeMismatch(test.position(), "Both operands of 'and' must be boolean");
     }
 
-    latestObject = mObjectProvider.createObject();
-    latestObject.type = lhs.type;
+    latestObject = mObjectProvider.createObject(lhs->type);
 
-    mInstructions.push_back(std::make_unique<instructions::AndTest>(lhs.id, rhs.id, latestObject.id));
+    mInstructions.push_back(std::make_unique<instructions::AndTest>(lhs->id, rhs->id, latestObject->id));
 }
 
 void Compiler::loadPrelude()

@@ -22,14 +22,14 @@ void Lookup::pop()
 }
 
 
-void Lookup::set(const LookupKey &key, CompileTimeObject object)
+void Lookup::set(const LookupKey &key, std::shared_ptr<CompileTimeObject> object)
 {
     auto & top = *mScopes.rbegin();
     top[key] = object;
 }
 
 
-CompileTimeObject Lookup::lookup(const LookupKey &key) const
+std::shared_ptr<CompileTimeObject> Lookup::lookup(const LookupKey &key) const
 {
     for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
         const auto found = it->find(key);

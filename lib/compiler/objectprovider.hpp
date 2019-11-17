@@ -1,13 +1,12 @@
 #pragma once
 #include "compiletimeobject.hpp"
+#include <memory>
 
 
 class ObjectProvider
 {
 public:
-    CompileTimeObject createObject();
-
-    CompileTimeObject createObject(const Type & type);
+    std::shared_ptr<CompileTimeObject> createObject(Type type = BasicType::INVALID);
 
     size_t numObjectsIssued() const { return mNextObjectId; }
 
