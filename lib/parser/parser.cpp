@@ -39,7 +39,7 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
         scope->addStatement( parseStatement(it, end, indent) );
     }
 
-    return std::move(scope);
+    return scope;
 }
 
 std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIterator &end, int indent)
@@ -73,7 +73,7 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
 
     it++; // consume line break
 
-    return std::move(statement);
+    return statement;
 }
 
 std::unique_ptr<ast::Statement> parseAssignment(TokenIterator &it, const TokenIterator &end, int indent)
@@ -86,7 +86,7 @@ std::unique_ptr<ast::Statement> parseAssignment(TokenIterator &it, const TokenIt
 
     if( it == end || it->type != Token::Assign ) {
 
-        return assignee;
+        return std::move(assignee);
     }
 
     it++; // consume assignment operator
@@ -197,7 +197,7 @@ std::unique_ptr<ast::Expression> parseComparison(TokenIterator &it, const TokenI
         comparison->addTest(operatorType, std::move(operand));
     }
 
-    return comparison;
+    return std::move(comparison);
 }
 
 std::unique_ptr<ast::Expression> parseSum(TokenIterator &it, const TokenIterator &end, int indent)
@@ -248,7 +248,7 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenItera
 
         it++; // consume closing parenthesis
 
-        return std::move(expr);
+        return expr;
     }
 
     return parseSingular(it, end, indent);
