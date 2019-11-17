@@ -99,6 +99,19 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
     mInstructions.push_back(std::make_unique<instructions::SetFloat>(latestObject.id, literal.mValue));
 }
 
+void Compiler::visitFree()
+{
+    std::vector<ObjectId> objectsInUse;
+    for(const auto & scope : mLookup.scopes()) {
+        for( const auto & pair : scope ) {
+            // FIXME: only if is pointer type
+            objectsInUse.push_back(pair.second.id);
+        }
+    }
+
+    mInstructions.push_back(std::make_unique<instructions::CollectGarbage>(objectsInUse));
+}
+
 void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 {
     latestObject = mObjectProvider.createObject();

@@ -29,6 +29,7 @@ public:
     virtual void visitBooleanLiteral(const BooleanLiteral & literal) = 0; // TODO: test literals that do not fit
     virtual void visitComparison(const Comparison & visitable) = 0;
     virtual void visitFloatLiteral(const FloatLiteral & floatLiteral) = 0; // TODO: test literals that do not fit
+    virtual void visitFree() = 0;
     virtual void visitFunctionCall(const FunctionCall & functionCall) = 0;
     virtual void visitIfThen(const IfThen & ifThen) = 0;
     virtual void visitIfThenElse(const IfThenElse & ifThenElse) = 0;

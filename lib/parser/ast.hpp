@@ -247,4 +247,13 @@ public:
     std::vector<Token::Type> mOperators;
 };
 
+
+class Free: public Statement
+{
+public:
+    Free(const Position & position): Statement(position) {}
+
+    void acceptVisitor(Visitor & visitor) override;
+};
+
 } // namespace ast

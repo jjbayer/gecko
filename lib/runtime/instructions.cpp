@@ -3,6 +3,8 @@
 #include "runtime/objects/function.hpp"
 #include "runtime/objects/string.hpp"
 
+#include <sstream>
+
 
 namespace instructions {
 
@@ -311,6 +313,28 @@ std::string IntGreaterThan::toString() const { return "IntGreaterThan left=" +  
 void IntGreaterThan::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
     data[mTarget].as_boolean = data[mLeft].as_int > data[mRight].as_int;
+}
+
+CollectGarbage::CollectGarbage(std::vector<ObjectId> keepObjects)
+    :mKeepObjects(std::move(keepObjects))
+{
+
+}
+
+std::string CollectGarbage::toString() const
+{
+    std::stringstream ret;
+    ret << "Free";
+    for(auto id : mKeepObjects) ret << " " << id;
+
+    return ret.str();
+}
+
+void CollectGarbage::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    std::set<obj::Allocated*> toBeKept;
+    for(auto id : mKeepObjects ) toBeKept.insert( data[id].as_ptr );
+    memory().collectGarbage(toBeKept);
 }
 
 } // namespace instructions

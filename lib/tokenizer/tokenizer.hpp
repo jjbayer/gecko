@@ -58,6 +58,8 @@ struct Token
         False,
         And,
         Or,
+
+        Free,
     };
 
     Type type = Undefined;

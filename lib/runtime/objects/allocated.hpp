@@ -1,16 +1,12 @@
 #pragma once
 
-
 namespace obj {
 
 
 class Allocated
 {
 public:
-    virtual ~Allocated()
-    {
-
-    }
+    virtual ~Allocated() {}
 };
 
 } // namespace obj

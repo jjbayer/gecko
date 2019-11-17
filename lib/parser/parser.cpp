@@ -58,6 +58,12 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
         return parseIfThenElse(it, end, indent);
     }
 
+    if( it->type == Token::Free ) {
+        const auto position = it->position;
+        it++;
+        return std::make_unique<ast::Free>(position);
+    }
+
     auto statement = parseAssignment(it, end, indent);
 
     if( it == end )  throw UnexpectedEndOfFile("line break");

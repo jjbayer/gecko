@@ -205,6 +205,11 @@ void Comparison::addTest(Token::Type operator_, std::unique_ptr<Expression> &&op
     mOperands.push_back(std::move(operand));
 }
 
+void Free::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitFree();
+}
+
 
 
 } // namespace ast

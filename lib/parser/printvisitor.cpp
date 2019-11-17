@@ -52,6 +52,11 @@ void PrintVisitor::visitFloatLiteral(const FloatLiteral &literal)
     std::cout << literal.mValue;
 }
 
+void PrintVisitor::visitFree()
+{
+    std::cout << "free";
+}
+
 void PrintVisitor::visitBooleanLiteral(const BooleanLiteral &literal)
 {
     std::cout << (literal.mValue ? "true" : "false");

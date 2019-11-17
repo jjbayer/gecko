@@ -25,6 +25,7 @@ public:
     void visitBooleanLiteral(const ast::BooleanLiteral & literal) override;
     void visitComparison(const ast::Comparison &visitable) override;
     void visitFloatLiteral(const ast::FloatLiteral & literal) override;
+    void visitFree() override;
     void visitFunctionCall(const ast::FunctionCall &functionCall) override;
     void visitIfThen(const ast::IfThen &ifThenElse) override;
     void visitIfThenElse(const ast::IfThenElse &ifThenElse) override;

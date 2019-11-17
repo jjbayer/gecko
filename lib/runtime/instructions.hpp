@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "common/object.hpp"
 
 #include <functional>
@@ -351,5 +351,16 @@ public:
 };
 
 
+class CollectGarbage: public Instruction
+{
+public:
+    CollectGarbage(std::vector<ObjectId> keepObjects);
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+    ~CollectGarbage() override {}
+
+private:
+    const std::vector<ObjectId> mKeepObjects;
+};
 
 } // namespace instructions

@@ -16,6 +16,8 @@ class Lookup
 {
 public:
 
+    using Map = std::unordered_map<LookupKey, CompileTimeObject>;
+
     Lookup();
     void push();
     void pop();
@@ -24,9 +26,12 @@ public:
 
     void set(const LookupKey & key, CompileTimeObject object);
 
+    // TODO: iterator
+    const std::vector<Map> & scopes() const { return mScopes; }
+
 private:
 
-    std::unordered_map<LookupKey, CompileTimeObject> & currentScope() {  return *mScopes.rbegin(); }
+    Map & currentScope() {  return *mScopes.rbegin(); }
 
-    std::vector<std::unordered_map<LookupKey, CompileTimeObject> > mScopes;
+    std::vector<Map> mScopes;
 };
