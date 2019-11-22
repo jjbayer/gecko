@@ -30,7 +30,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
 
     latestObject = mObjectProvider.createObject(lhs->type);
 
-    mInstructions.push_back(std::make_unique<instructions::AddInt>(lhs->id, rhs->id, latestObject->id));
+    appendInstruction<instructions::AddInt>(lhs->id, rhs->id, latestObject->id);
 }
 
 void Compiler::visitAssignment(const ast::Assignment &assignment)
@@ -49,7 +49,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     }
     destination->type = source->type;
 
-    mInstructions.push_back(std::make_unique<instructions::Copy>(source->id, destination->id));
+    appendInstruction<instructions::Copy>(source->id, destination->id);
 }
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
@@ -70,24 +70,24 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     for( const auto originalArgumentId : originalArgumentIds ) {
         const auto argument = mObjectProvider.createObject();
         if(  firstArg == 0 ) firstArg = argument->id;
-        mInstructions.push_back(std::make_unique<instructions::Copy>(originalArgumentId, argument->id));
+        appendInstruction<instructions::Copy>(originalArgumentId, argument->id);
     }
 
     latestObject = mObjectProvider.createObject(function->returnType); // type of function is type of return value
 
-    mInstructions.push_back(std::make_unique<instructions::CallFunction>(function->id, firstArg, latestObject->id));
+    appendInstruction<instructions::CallFunction>(function->id, firstArg, latestObject->id);
 }
 
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::INT);
-    mInstructions.push_back(std::make_unique<instructions::SetInt>(latestObject->id, literal.mValue));
+    appendInstruction<instructions::SetInt>(latestObject->id, literal.mValue);
 }
 
 void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::FLOAT);
-    mInstructions.push_back(std::make_unique<instructions::SetFloat>(latestObject->id, literal.mValue));
+    appendInstruction<instructions::SetFloat>(latestObject->id, literal.mValue);
 }
 
 void Compiler::visitFree()
@@ -102,13 +102,13 @@ void Compiler::visitFree()
         }
     }
 
-    mInstructions.push_back(std::make_unique<instructions::CollectGarbage>(objectsInUse));
+    appendInstruction<instructions::CollectGarbage>(objectsInUse);
 }
 
 void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::BOOLEAN);
-    mInstructions.push_back(std::make_unique<instructions::SetBoolean>(latestObject->id, literal.mValue));
+    appendInstruction<instructions::SetBoolean>(latestObject->id, literal.mValue);
 }
 
 void Compiler::visitComparison(const ast::Comparison &visitable)
@@ -141,29 +141,29 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
         const auto & op = visitable.mOperators.at(i);
         switch (op) {
         case Token::LessThan:
-            mInstructions.push_back(std::make_unique<instructions::IntLessThan>(lhs->id, rhs->id, testResult->id));
+            appendInstruction<instructions::IntLessThan>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::LTE:
-            mInstructions.push_back(std::make_unique<instructions::IntLTE>(lhs->id, rhs->id, testResult->id));
+            appendInstruction<instructions::IntLTE>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::Equal:
-            mInstructions.push_back(std::make_unique<instructions::IsEqual>(lhs->id, rhs->id, testResult->id));
+            appendInstruction<instructions::IsEqual>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::NotEqual:
-            mInstructions.push_back(std::make_unique<instructions::IsNotEqual>(lhs->id, rhs->id, testResult->id));
+            appendInstruction<instructions::IsNotEqual>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::GTE:
-            mInstructions.push_back(std::make_unique<instructions::IntGTE>(lhs->id, rhs->id, testResult->id));
+            appendInstruction<instructions::IntGTE>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::GreaterThan:
-            mInstructions.push_back(std::make_unique<instructions::IntGreaterThan>(lhs->id, rhs->id, testResult->id));
+            appendInstruction<instructions::IntGreaterThan>(lhs->id, rhs->id, testResult->id);
             break;
         default:
             throw std::runtime_error("Unexpected comparison operator");
         }
 
         if( lastTestResult ) {
-            mInstructions.push_back(std::make_unique<instructions::AndTest>(testResult->id, lastTestResult->id, lastTestResult->id));
+            appendInstruction<instructions::AndTest>(testResult->id, lastTestResult->id, lastTestResult->id);
         } else {
             lastTestResult = testResult;
         }
@@ -189,7 +189,7 @@ void Compiler::visitScope(const ast::Scope &scope)
 void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
 {
     latestObject = mObjectProvider.createObject(BasicType::STRING);
-    mInstructions.push_back(std::make_unique<instructions::SetString>(latestObject->id, visitable.mValue));
+    appendInstruction<instructions::SetString>(latestObject->id, visitable.mValue);
 }
 
 
@@ -203,13 +203,13 @@ void Compiler::visitWhile(const ast::While &loop)
         throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
 
-    mInstructions.push_back(std::make_unique<instructions::Noop>()); // placeholder for jump_if
+    appendInstruction<instructions::Noop>(); // placeholder for jump_if
     const auto ipJumpIfNot = latestInstructionPointer();
 
     loop.mBody->acceptVisitor(*this);
-    mInstructions.push_back(std::make_unique<instructions::Jump>(ipStartOfCondition));
+    appendInstruction<instructions::Jump>(ipStartOfCondition);
 
-    mInstructions.push_back(std::make_unique<instructions::Noop>()); // Make sure there is something to jump to
+    appendInstruction<instructions::Noop>(); // Make sure there is something to jump to
     const auto afterLoop = latestInstructionPointer();
     mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
 }
@@ -224,12 +224,12 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
         throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean");
     }
 
-    mInstructions.push_back(std::make_unique<instructions::Noop>());
+    appendInstruction<instructions::Noop>();
     const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
 
     ifThen.mIfBlock->acceptVisitor(*this);
 
-    mInstructions.push_back(std::make_unique<instructions::Noop>()); // This is the end
+    appendInstruction<instructions::Noop>(); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
     mInstructions[ipJumpToEnd] = std::make_unique<instructions::JumpIfNot>(condition->id, ipEnd);
@@ -243,20 +243,20 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
         throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean");
     }
 
-    mInstructions.push_back(std::make_unique<instructions::Noop>());
+    appendInstruction<instructions::Noop>();
     const auto ipJumpToIf = latestInstructionPointer();  // Will hold instruction to jump to if block
 
     ifThenElse.mElseBlock->acceptVisitor(*this);
-    mInstructions.push_back(std::make_unique<instructions::Noop>());
+    appendInstruction<instructions::Noop>();
     const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
 
-    mInstructions.push_back(std::make_unique<instructions::Noop>());
+    appendInstruction<instructions::Noop>();
     const auto ipStartIfBlock = latestInstructionPointer();
 
     ifThenElse.mIfBlock->acceptVisitor(*this);
 
     // TODO: wrap push_back in method which returns instruction pointer
-    mInstructions.push_back(std::make_unique<instructions::Noop>()); // This is the end
+    appendInstruction<instructions::Noop>(); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
     mInstructions[ipJumpToIf] = std::make_unique<instructions::JumpIf>(condition->id, ipStartIfBlock);
@@ -277,7 +277,7 @@ void Compiler::visitOr(const ast::Or &test)
 
     latestObject = mObjectProvider.createObject(lhs->type);
 
-    mInstructions.push_back(std::make_unique<instructions::OrTest>(lhs->id, rhs->id, latestObject->id));
+    appendInstruction<instructions::OrTest>(lhs->id, rhs->id, latestObject->id);
 }
 
 void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
@@ -294,7 +294,7 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
 
     latestObject = mObjectProvider.createObject(lhs->type);
 
-    mInstructions.push_back(std::make_unique<instructions::AndTest>(lhs->id, rhs->id, latestObject->id));
+    appendInstruction<instructions::AndTest>(lhs->id, rhs->id, latestObject->id);
 }
 
 void Compiler::loadPrelude()

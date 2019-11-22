@@ -67,6 +67,12 @@ private:
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
+    template<typename T, typename ... Args>
+    void appendInstruction(Args && ... args)
+    {
+        mInstructions.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+    }
+
     std::vector<std::unique_ptr<Instruction> > mInstructions;
     ObjectProvider mObjectProvider;
     std::shared_ptr<CompileTimeObject> latestObject = nullptr;

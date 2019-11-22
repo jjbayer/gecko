@@ -15,6 +15,12 @@ public:
 
 private:
     using Map = std::map<obj::Allocated *const, std::unique_ptr<obj::Allocated>>;
+
+    // FIXME: once we have user-defined functions, mAllocatedObjects
+    //        should be a stack where each layer contains only objects allocated by current function
+    //        collectGarbage() should only remove elements from the top of the stack.
+    //        Else, it would delete objects invisible to the current function but still in use
+    //        by the caller.
     Map mAllocatedObjects;
 };
 
