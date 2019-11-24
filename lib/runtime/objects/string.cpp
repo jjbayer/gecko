@@ -5,9 +5,11 @@
 namespace obj {
 
 String::String(std::string value)
-    : mValue(value)
+    : mValue(std::move(value))
 {
 
 }
+
+
 
 } // namespace obj

@@ -50,10 +50,6 @@ private:
         latestObject->type = mTypeCreator.functionType(dummy.returnType(), dummy.argumentTypes());
         latestObject->returnType = dummy.returnType();
 
-        // TODO: should not be necessary to update object in lookup by hand
-        //       use shared_ptrs?
-        mLookup.set({name, dummy.argumentTypes()}, latestObject);
-
         mInstructions.push_back(
             std::make_unique<instructions::SetFunction>(latestObject->id, &std::make_unique<T>)
         );

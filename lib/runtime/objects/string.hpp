@@ -5,11 +5,13 @@
 
 namespace obj {
 
-
+// TODO: single pointer
 class String: public Allocated
 {
 public:
     String(std::string value);
+
+    const std::string & value() const { return mValue; }
 
 private:
     std::string mValue;

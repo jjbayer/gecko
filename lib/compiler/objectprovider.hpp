@@ -6,7 +6,7 @@
 class ObjectProvider
 {
 public:
-    std::shared_ptr<CompileTimeObject> createObject(Type type = BasicType::INVALID);
+    std::shared_ptr<CompileTimeObject> createObject(Type type = BasicType::NONE);
 
     size_t numObjectsIssued() const { return mNextObjectId; }
 

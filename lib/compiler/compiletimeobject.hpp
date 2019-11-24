@@ -6,8 +6,8 @@
 struct CompileTimeObject
 {
     ObjectId id;
-    Type type = BasicType::INVALID;
-    Type returnType = BasicType::INVALID; // Only for functions
+    Type type = BasicType::NONE;
+    Type returnType = BasicType::NONE; // Only for functions
 
     bool isAllocated() const { return type >= BasicType::STRING; }
 };

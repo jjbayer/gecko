@@ -300,6 +300,7 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
 void Compiler::loadPrelude()
 {
     registerBuiltinFunction<PrintInt>("print");
+    registerBuiltinFunction<PrintString>("print");
     registerBuiltinFunction<AddInt>("__add__");
     registerBuiltinFunction<Dummy>("dummy");
 }

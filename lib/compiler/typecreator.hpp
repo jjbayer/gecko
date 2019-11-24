@@ -9,7 +9,7 @@ using Type = unsigned long;
 
 
 enum BasicType {
-    INVALID,
+    NONE,
     BOOLEAN,
     INT,
     FLOAT,
