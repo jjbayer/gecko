@@ -179,12 +179,11 @@ void CallFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 
 std::string SetFunction::toString() const
 {
-    return "SetFunction target=" + std::to_string(mTarget)
-                                 + " value=" + std::to_string(reinterpret_cast<u_int64_t>(mCreator().get())); }
+    return "SetFunction target=" + std::to_string(mTarget);
+}
 
 void SetFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    // TODO: copy is ugly but call() should remain const
     data[mTarget].as_ptr = memory().add(mCreator());
 }
 
