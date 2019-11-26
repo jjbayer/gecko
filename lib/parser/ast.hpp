@@ -256,4 +256,18 @@ public:
     void acceptVisitor(Visitor & visitor) override;
 };
 
+
+class For: public Statement
+{
+public:
+    For(std::unique_ptr<Name> loopVariable, std::unique_ptr<Expression> range, std::unique_ptr<Scope> body, const Position & position);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Name> mLoopVariable;
+    std::unique_ptr<Expression> mRange;
+    std::unique_ptr<Scope> mBody;
+};
+
+
 } // namespace ast

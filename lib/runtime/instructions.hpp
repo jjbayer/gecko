@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include "common/object.hpp"
+#include "runtime/objects/tuple.hpp"
 
 #include <functional>
 #include <memory>
 #include <ostream>
+#include <sstream>
 #include <vector>
 
 
@@ -361,6 +363,72 @@ public:
 
 private:
     const std::vector<ObjectId> mKeepObjects;
+};
+
+
+template<int TupleSize>
+class ReadFromTuple: public Instruction
+{
+public:
+
+    ReadFromTuple(ObjectId tuple, size_t index, ObjectId target)
+        : mTuple(tuple)
+        , mIndex(index)
+        , mTarget(target)
+    {
+
+    }
+    std::string toString() const override
+    {
+        std::stringstream stream;
+        stream << "ReadFromTuple " << mTuple << " " << mIndex << " " <<  mTarget;
+
+        return stream.str();
+    }
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override
+    {
+        auto tuple = static_cast<obj::Tuple<TupleSize> *>(data[mTuple].as_ptr);
+        data[mTarget] = tuple->data[mIndex];
+    }
+
+private:
+    const ObjectId mTuple;
+    const size_t mIndex;
+    const ObjectId mTarget;
+};
+
+
+template<int TupleSize>
+class WriteToTuple: public Instruction
+{
+public:
+
+    WriteToTuple(ObjectId tuple, size_t index, ObjectId source)
+        : mTuple(tuple)
+        , mIndex(index)
+        , mSource(source)
+    {
+
+    }
+
+    std::string toString() const override
+    {
+        std::stringstream stream;
+        stream << "WriteToTuple " << mTuple << " " << mIndex << " " <<  mSource;
+
+        return stream.str();
+    }
+
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override
+    {
+        auto tuple = static_cast<obj::Tuple<TupleSize> *>(data[mTuple].as_ptr);
+        tuple->data[mIndex] = data[mSource];
+    }
+
+private:
+    const ObjectId mTuple;
+    const size_t mIndex;
+    const ObjectId mSource;
 };
 
 } // namespace instructions

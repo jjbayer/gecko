@@ -1,7 +1,9 @@
 #include "instructions.hpp"
+#include "instructions.hpp"
 #include <runtime/memorymanager.hpp>
 #include "runtime/objects/function.hpp"
 #include "runtime/objects/string.hpp"
+#include "runtime/objects/tuple.hpp"
 
 #include <sstream>
 
@@ -335,5 +337,17 @@ void CollectGarbage::call(std::vector<Object> &data, InstructionPointer &ip) con
     for(auto id : mKeepObjects ) toBeKept.insert( data[id].as_ptr );
     memory().collectGarbage(toBeKept);
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 } // namespace instructions

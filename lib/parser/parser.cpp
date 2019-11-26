@@ -52,6 +52,11 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
         return parseWhile(it, end, indent);
     }
 
+    if( it->type == Token::For ) {
+
+        return parseFor(it, end, indent);
+    }
+
     if( it->type == Token::If ) {
 
         // TODO: parse if without else
@@ -63,6 +68,7 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
         it++;
         return std::make_unique<ast::Free>(position);
     }
+
 
     auto statement = parseAssignment(it, end, indent);
 
@@ -410,3 +416,36 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
 }
 
 
+
+std::unique_ptr<ast::For> parseFor(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    const auto position = it->position;
+    it++; // Consume "for"
+
+    if( it == end ) throw UnexpectedEndOfFile("name");
+    if( it->type != Token::Name ) {
+        throw UnexpectedToken(*it, "name");
+    }
+    auto loopVar = std::make_unique<ast::Name>(it->value, it->position);
+
+    it++; // Consume name
+
+    if( it == end ) throw UnexpectedEndOfFile("in");
+    if( it->type != Token::In ) {
+        throw  UnexpectedToken(*it, "name");
+    }
+
+    it++; // Consume "in"
+
+    if( it == end ) throw UnexpectedEndOfFile("expression");
+    auto range = parseExpression(it, end, indent);
+
+    if( it == end ) throw UnexpectedEndOfFile("line break");
+    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+
+    it++; // consume line break
+
+    auto body = parseScope(it, end, indent + 1);
+
+    return std::make_unique<ast::For>(std::move(loopVar), std::move(range), std::move(body), position);
+}

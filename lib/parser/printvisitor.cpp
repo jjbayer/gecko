@@ -52,6 +52,20 @@ void PrintVisitor::visitFloatLiteral(const FloatLiteral &literal)
     std::cout << literal.mValue;
 }
 
+void PrintVisitor::visitFor(const For &loop)
+{
+    std::cout << "for ";
+    loop.mLoopVariable->acceptVisitor(*this);
+    std::cout << " in ";
+    loop.mRange->acceptVisitor(*this);
+
+    std::cout << "\n";
+    mIndent++;
+    loop.mBody->acceptVisitor(*this);
+    mIndent--;
+    // TODO: suppress additional newline
+}
+
 void PrintVisitor::visitFree()
 {
     std::cout << "free";

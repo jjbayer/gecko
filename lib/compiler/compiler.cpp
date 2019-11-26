@@ -90,6 +90,47 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
     appendInstruction<instructions::SetFloat>(latestObject->id, literal.mValue);
 }
 
+void Compiler::visitFor(const ast::For &loop)
+{
+    loop.mRange->acceptVisitor(*this);
+    const auto range = latestObject;
+    auto nextFn = mLookup.lookup({"next", {range->type}});
+    auto optional = mObjectProvider.createObject(nextFn->returnType);
+    auto itemType = getOptionalType(mTypeCreator, optional->type);
+
+    // Create new address & special scope for loop var:
+    auto loopVar = mObjectProvider.createObject(itemType);
+    mLookup.push();
+    mLookup.set(loop.mLoopVariable->mName, loopVar);
+
+    auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
+    appendInstruction<instructions::SetInt>(expectedEnumKey->id, 1);
+
+    appendInstruction<instructions::CallFunction>(nextFn->id, range->id, optional->id);
+    const auto ipNext = latestInstructionPointer();
+
+    // TODO: Visit enum
+    auto enumKey = mObjectProvider.createObject(BasicType::INT);
+    appendInstruction<instructions::ReadFromTuple<2> >(optional->id, 0, enumKey->id);
+    auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
+    appendInstruction<instructions::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
+
+    appendInstruction<instructions::Noop>(); // placeholder for jump_if
+    const auto ipJumpIfNot = latestInstructionPointer();
+
+    // Now we are in the section where optional has value
+    appendInstruction<instructions::ReadFromTuple<2> >(optional->id, 1, loopVar->id);
+
+    loop.mBody->acceptVisitor(*this);
+    appendInstruction<instructions::Jump>(ipNext);
+
+    appendInstruction<instructions::Noop>(); // Make sure there is something to jump to
+    const auto afterLoop = latestInstructionPointer();
+    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
+
+    mLookup.pop();
+}
+
 void Compiler::visitFree()
 {
     std::vector<ObjectId> objectsInUse;

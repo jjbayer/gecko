@@ -210,6 +210,20 @@ void Free::acceptVisitor(Visitor &visitor)
     visitor.visitFree();
 }
 
+For::For(std::unique_ptr<Name> loopVariable, std::unique_ptr<Expression> range, std::unique_ptr<Scope> body, const Position &position)
+    : Statement(position)
+    , mLoopVariable(std::move(loopVariable))
+    , mRange(std::move(range))
+    , mBody(std::move(body))
+{
+
+}
+
+void For::acceptVisitor(Visitor &visitor)
+{
+
+}
+
 
 
 } // namespace ast

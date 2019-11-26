@@ -21,7 +21,8 @@ enum MetaType
 {
     VALUE,
     FUNCTION,
-    STRUCT
+    STRUCT,
+    ENUM
 };
 
 
@@ -59,6 +60,8 @@ class TypeCreator
 public:
     Type functionType(Type returnType, std::vector<Type> argumentTypes);
 
+    const TypeKey & getTypeKey(Type type) const;
+
 private:
 
     Type issueNewType() { return mNextType++; }
@@ -66,7 +69,10 @@ private:
     Type mNextType = 11;
 
     std::unordered_map<TypeKey, Type> mTypes;
-
+    std::unordered_map<Type, TypeKey> mReverse;
 };
 
+
+// TODO: move somewhere else
+Type getOptionalType(const TypeCreator & typeCreator, Type type);
 

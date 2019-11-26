@@ -13,6 +13,7 @@ public:
     void visitBooleanLiteral(const BooleanLiteral &literal) override;
     void visitComparison(const Comparison &visitable) override;
     void visitFloatLiteral(const FloatLiteral & literal) override;
+    void visitFor(const For & loop) override;
     void visitFree() override;
     void visitFunctionCall(const FunctionCall &functionCall) override;
     void visitIfThen(const ast::IfThen &ifThen) override;

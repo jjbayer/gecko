@@ -34,6 +34,8 @@ std::vector<Token> Tokenizer::tokenize(const std::string &input)
             {"and", Token::And},
             {"or", Token::Or},
             {"free", Token::Free},
+            {"for", Token::For},
+            {"in", Token::In},
         };
 
         auto it = keywords.find(token.value);

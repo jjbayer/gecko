@@ -50,6 +50,7 @@ struct Token
         Else,
         While,
         For,
+        In,
         Switch,
         Enum,
         Struct,

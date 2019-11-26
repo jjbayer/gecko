@@ -9,6 +9,7 @@ class Assignment;
 class BooleanLiteral;
 class Comparison;
 class FloatLiteral;
+class For;
 class FunctionCall;
 class IfThen;
 class IfThenElse;
@@ -29,6 +30,7 @@ public:
     virtual void visitBooleanLiteral(const BooleanLiteral & literal) = 0; // TODO: test literals that do not fit
     virtual void visitComparison(const Comparison & visitable) = 0;
     virtual void visitFloatLiteral(const FloatLiteral & floatLiteral) = 0; // TODO: test literals that do not fit
+    virtual void visitFor(const For & loop) = 0;
     virtual void visitFree() = 0;
     virtual void visitFunctionCall(const FunctionCall & functionCall) = 0;
     virtual void visitIfThen(const IfThen & ifThen) = 0;
