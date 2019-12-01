@@ -2,6 +2,7 @@
 #include "parser/ast.hpp"
 #include "common/exceptions.hpp"
 #include "runtime/objects/builtins.hpp"
+#include "runtime/objects/stdin.hpp"
 
 #include <sstream>
 
@@ -347,7 +348,7 @@ void Compiler::loadPrelude()
 
     lookupOrCreate({"stdin"}); // TODO: no need to lookup
     latestObject->type = mTypeCreator.structType("Stdin");
-    registerBuiltinFunction<NextStdin>("next");
+    registerBuiltinFunction<obj::NextStdin>("next");
 }
 
 void Compiler::lookup(const ast::Name &name)
