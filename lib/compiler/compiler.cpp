@@ -112,7 +112,7 @@ void Compiler::visitFor(const ast::For &loop)
 
     // TODO: Visit enum
     auto enumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<instructions::ReadFromTuple<2> >(optional->id, 0, enumKey->id);
+    appendInstruction<instructions::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
     auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
     appendInstruction<instructions::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
 
@@ -120,7 +120,7 @@ void Compiler::visitFor(const ast::For &loop)
     const auto ipJumpIfNot = latestInstructionPointer();
 
     // Now we are in the section where optional has value
-    appendInstruction<instructions::ReadFromTuple<2> >(optional->id, 1, loopVar->id);
+    appendInstruction<instructions::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
 
     loop.mBody->acceptVisitor(*this);
     appendInstruction<instructions::Jump>(ipNext);
