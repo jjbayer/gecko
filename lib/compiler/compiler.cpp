@@ -215,7 +215,7 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
 
 void Compiler::visitName(const ast::Name &name)
 {
-    lookup(name, {}); // sets latest object id
+    lookup(name); // sets latest object id
 }
 
 void Compiler::visitScope(const ast::Scope &scope)
@@ -344,7 +344,22 @@ void Compiler::loadPrelude()
     registerBuiltinFunction<PrintString>("print");
     registerBuiltinFunction<AddInt>("__add__");
     registerBuiltinFunction<Dummy>("dummy");
+
+    lookupOrCreate({"stdin"}); // TODO: no need to lookup
+    latestObject->type = mTypeCreator.structType("Stdin");
+    registerBuiltinFunction<NextStdin>("next");
 }
+
+void Compiler::lookup(const ast::Name &name)
+{
+    try {
+        latestObject = mLookup.lookup({name.mName});
+    } catch(const LookupError &) {
+
+        throw UndefinedVariable(name.position(), name.mName);
+    }
+}
+
 
 
 

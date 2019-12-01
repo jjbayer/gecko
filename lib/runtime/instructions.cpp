@@ -179,17 +179,17 @@ void CallFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
 }
 
 
-std::string SetFunction::toString() const
+std::string SetAllocated::toString() const
 {
     return "SetFunction target=" + std::to_string(mTarget);
 }
 
-void SetFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
+void SetAllocated::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
     data[mTarget].as_ptr = memory().add(mCreator());
 }
 
-SetFunction::~SetFunction() {}
+SetAllocated::~SetAllocated() {}
 
 SetBoolean::SetBoolean(ObjectId target, bool value)
     : mTarget(target)

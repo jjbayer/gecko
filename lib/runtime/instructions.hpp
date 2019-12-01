@@ -101,11 +101,11 @@ private:
 };
 
 
-class SetFunction: public Instruction
+class SetAllocated: public Instruction
 {
 public:
     template<typename Fn>
-    SetFunction(ObjectId target, Fn creator)
+    SetAllocated(ObjectId target, Fn creator)
         : mTarget(target)
         , mCreator(creator)
     {
@@ -113,11 +113,11 @@ public:
     }
     std::string toString() const override;
     void call(std::vector<Object> & data, InstructionPointer & ip) const override;
-    ~SetFunction() override;
+    ~SetAllocated() override;
 
 private:
     const ObjectId mTarget;
-    std::function<std::unique_ptr<obj::Function>()> mCreator;
+    std::function<std::unique_ptr<obj::Allocated>()> mCreator;
 };
 
 

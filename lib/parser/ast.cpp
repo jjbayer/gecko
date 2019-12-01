@@ -221,7 +221,7 @@ For::For(std::unique_ptr<Name> loopVariable, std::unique_ptr<Expression> range, 
 
 void For::acceptVisitor(Visitor &visitor)
 {
-
+    visitor.visitFor(*this);
 }
 
 

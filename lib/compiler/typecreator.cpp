@@ -12,6 +12,8 @@ bool TypeKey::operator==(const TypeKey &other) const
         if( arguments[i] != other.arguments[i] ) return false;
     }
 
+    if( fullName != other.fullName) return false;
+
     return true;
 }
 
@@ -19,18 +21,28 @@ Type TypeCreator::functionType(Type returnType, std::vector<Type> argumentTypes)
 {
     argumentTypes.push_back(returnType);
     TypeKey key { MetaType::FUNCTION, argumentTypes };
-    auto [it, created] = mTypes.emplace(key, mNextType);
-    if( created ) {
-        mReverse[mNextType] = key;
-        mNextType++;
-    }
 
-    return it->second;
+    return getType(key);
+}
+
+Type TypeCreator::structType(const std::string &name)
+{
+    return getType({ MetaType::STRUCT, {}, name});
 }
 
 const TypeKey &TypeCreator::getTypeKey(Type type) const
 {
     return mReverse.at(type);
+}
+
+Type TypeCreator::getType(const TypeKey &key)
+{
+    auto [it, created] = mTypes.emplace(key, mNextType);
+    if( created ) {
+        mReverse[mNextType++] = key;
+    }
+
+    return it->second;
 }
 
 Type getOptionalType(const TypeCreator &typeCreator, Type type)
@@ -45,4 +57,10 @@ Type getOptionalType(const TypeCreator &typeCreator, Type type)
     }
 
     return typeKey.arguments[1];
+}
+
+TypeCreator & typeCreator()
+{
+    static TypeCreator ret;
+    return ret;
 }

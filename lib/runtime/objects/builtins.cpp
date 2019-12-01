@@ -1,5 +1,7 @@
 #include "builtins.hpp"
 #include "runtime/objects/string.hpp"
+#include "runtime/objects/tuple.hpp"
+#include "runtime/memorymanager.hpp"
 #include <iostream>
 
 
@@ -33,4 +35,32 @@ Object PrintString::call(Object *args)
     std::cout << string->value() << "\n";
 
     return {};
+}
+
+Object NextStdin::call(Object *args)
+{
+    Object ret;
+
+    auto tuple = std::make_unique<obj::Tuple<2>>();
+    if(  std::cin.eof() ) {
+        tuple->data[0].as_int = 0;
+    } else {
+
+        std::string value;
+        std::getline(std::cin, value);
+
+        // FIXME: check for errors
+        tuple->data[0].as_int = 1;
+        auto ptr = std::make_unique<obj::String>(value);
+        tuple->data[1].as_ptr = memory().add(std::move(ptr));
+    }
+
+    ret.as_ptr = memory().add(std::move(tuple));
+
+    return ret;
+}
+
+std::vector<Type> NextStdin::argumentTypes() const
+{
+    return { typeCreator().structType("Stdin") };
 }

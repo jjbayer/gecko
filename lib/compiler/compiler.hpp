@@ -52,15 +52,13 @@ private:
         latestObject->returnType = dummy.returnType();
 
         mInstructions.push_back(
-            std::make_unique<instructions::SetFunction>(latestObject->id, &std::make_unique<T>)
+            std::make_unique<instructions::SetAllocated>(latestObject->id, &std::make_unique<T>)
         );
     }
 
-    // type
-    // lookup key: name, argument_types
-    // return type: again a type
-
+    void lookup(const ast::Name & name);
     void lookup(const ast::Name & name, const std::vector<Type> & argumentTypes);
+
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
@@ -74,5 +72,5 @@ private:
     ObjectProvider mObjectProvider;
     std::shared_ptr<CompileTimeObject> latestObject = nullptr;
     Lookup mLookup;
-    TypeCreator mTypeCreator;
+    TypeCreator & mTypeCreator = typeCreator(); // TODO: no globals
 };

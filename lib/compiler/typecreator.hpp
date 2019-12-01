@@ -30,6 +30,7 @@ struct TypeKey
 {
     MetaType metaType;
     std::vector<Type> arguments;
+    std::string fullName = "";
 
     bool operator==(const TypeKey & other) const;
 };
@@ -58,19 +59,26 @@ namespace std {
 class TypeCreator
 {
 public:
+    // TODO: only one getType() function
     Type functionType(Type returnType, std::vector<Type> argumentTypes);
+
+    Type structType(const std::string & name);
+
+    Type getType(const TypeKey & key);
 
     const TypeKey & getTypeKey(Type type) const;
 
 private:
 
-    Type issueNewType() { return mNextType++; }
 
     Type mNextType = 11;
 
     std::unordered_map<TypeKey, Type> mTypes;
     std::unordered_map<Type, TypeKey> mReverse;
 };
+
+
+TypeCreator &typeCreator();
 
 
 // TODO: move somewhere else
