@@ -32,14 +32,15 @@ void Lookup::set(const LookupKey &key, std::shared_ptr<CompileTimeObject> object
 std::shared_ptr<CompileTimeObject> Lookup::lookup(const LookupKey &key) const
 {
     for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
-        const auto found = it->find(key);
-        if( found != it->end() ) {
+        const auto & scope = *it;
+        const auto found = scope.find(key);
+        if( found != scope.end() ) {
 
             return found->second;
         }
     }
 
-    throw LookupError {};
+    return nullptr;
 }
 
 

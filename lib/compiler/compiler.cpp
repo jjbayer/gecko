@@ -42,7 +42,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     // TODO: what if assignee is not name?
     auto name = dynamic_cast<ast::Name*>(assignment.mAssignee.get());
 
-    const LookupKey lookupKey {name->mName, {}};
+    const LookupKey lookupKey {name->mName};
     const auto created = lookupOrCreate(lookupKey);
     auto destination = latestObject;
     if( ! created && destination->type != source->type ) {
@@ -96,6 +96,9 @@ void Compiler::visitFor(const ast::For &loop)
     loop.mRange->acceptVisitor(*this);
     const auto range = latestObject;
     auto nextFn = mLookup.lookup({"next", {range->type}});
+
+    if( ! nextFn ) throw UndefinedVariable(loop.mRange->position(), "next");
+
     auto optional = mObjectProvider.createObject(nextFn->returnType);
     auto itemType = getOptionalType(mTypeCreator, optional->type);
 
@@ -353,10 +356,9 @@ void Compiler::loadPrelude()
 
 void Compiler::lookup(const ast::Name &name)
 {
-    try {
-        latestObject = mLookup.lookup({name.mName});
-    } catch(const LookupError &) {
-
+    if( auto object =  mLookup.lookup({name.mName}) ) {
+        latestObject = object;
+    } else {
         throw UndefinedVariable(name.position(), name.mName);
     }
 }
@@ -366,10 +368,9 @@ void Compiler::lookup(const ast::Name &name)
 
 void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argumentTypes)
 {
-    try {
-        latestObject = mLookup.lookup({variable.mName, argumentTypes});
-    } catch(const LookupError &) {
-
+    if( auto object = mLookup.lookup({variable.mName, argumentTypes})) {
+        latestObject = object;
+    } else {
         // TODO: readable argument types
         // TODO: key.is_function
         std::stringstream msg;
@@ -384,14 +385,14 @@ void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argume
 
 bool Compiler::lookupOrCreate(const LookupKey &key)
 {
-    try {
-        latestObject = mLookup.lookup(key);
+    if( auto object = mLookup.lookup(key) ) {
+
+        latestObject = object;
 
         return false;
 
-    } catch(const LookupError &) {
-        // TODO: ugly try catch in non-exceptional state
-        //       use optional instead
+    } else {
+
         latestObject = mObjectProvider.createObject();
         mLookup.set(key, latestObject);
 
