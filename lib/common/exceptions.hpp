@@ -128,3 +128,25 @@ public:
 
     const char * name() const override { return "UndefinedVariable"; }
 };
+
+
+class UnknownType: public CompileError
+{
+public:
+    UnknownType(const Position & position, const std::string & text)
+        : CompileError(position, text)
+    {}
+
+    const char * name() const override { return "UnknownType"; }
+};
+
+
+class FunctionExists: public CompileError
+{
+public:
+    FunctionExists(const Position & position, const std::string & text)
+        : CompileError(position, text)
+    {}
+
+    const char * name() const override { return "FunctionAlreadyExists"; }
+};

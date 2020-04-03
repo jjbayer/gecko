@@ -61,6 +61,8 @@ private:
     void lookup(const ast::Name & name);
     void lookup(const ast::Name & name, const std::vector<Type> & argumentTypes);
 
+    void lookupType(const ast::TypeName & typeName);
+
     bool lookupOrCreate(const LookupKey & key);
     InstructionPointer latestInstructionPointer() const;
 
@@ -73,6 +75,7 @@ private:
     std::vector<std::unique_ptr<Instruction> > mInstructions;
     ObjectProvider mObjectProvider;
     std::shared_ptr<CompileTimeObject> latestObject = nullptr;
+    Type latestType = BasicType::NONE;
     Lookup mLookup;
     TypeCreator & mTypeCreator = typeCreator(); // TODO: no globals
 };

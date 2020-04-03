@@ -1,4 +1,9 @@
 function greet(name: String)
     print("Hello, " + name)
 
+function greet(n: Int)
+    123
+
+
 greet("Joris")
+greet(666)

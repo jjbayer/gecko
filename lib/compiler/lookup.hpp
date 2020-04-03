@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "typecreator.hpp"
 #include "common/exceptions.hpp"
 #include "common/object.hpp"
 #include "lookupkey.hpp"
@@ -12,27 +13,35 @@
 struct LookupError {};
 
 
+class LookupScope
+{
+public:
+    std::unordered_map<LookupKey, std::shared_ptr<CompileTimeObject> > mObjects;
+    std::unordered_map<std::string, Type> mTypes;
+};
+
+
 /// Look up variable in stack of scopes
 class Lookup
 {
 public:
-
-    using Map = std::unordered_map<LookupKey, std::shared_ptr<CompileTimeObject> >;
 
     Lookup();
     void push();
     void pop();
 
     std::shared_ptr<CompileTimeObject> lookup(const LookupKey & key) const;
+    Type lookupType(const std::string & typeName) const;
 
     void set(const LookupKey & key, std::shared_ptr<CompileTimeObject> object);
+    void setType(const std::string & typeName, Type type);
 
     // TODO: iterator
-    const std::vector<Map> & scopes() const { return mScopes; }
+    const std::vector<LookupScope> & scopes() const { return mScopes; }
 
 private:
 
-    Map & currentScope() {  return *mScopes.rbegin(); }
+    LookupScope & currentScope() {  return *mScopes.rbegin(); }
 
-    std::vector<Map> mScopes;
+    std::vector<LookupScope> mScopes;
 };

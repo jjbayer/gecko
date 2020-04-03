@@ -80,9 +80,21 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 }
 
 
-void Compiler::visitFunctionDefinition(const ast::FunctionDefinition &functionDefinition)
+void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
 {
-    throw MissingFeature("FunctionDefinition");
+    std::vector<Type> argumentTypes;
+    for(const auto & pair : def.mArguments) {
+        lookupType(*pair.second);
+        argumentTypes.push_back(latestType);
+    }
+
+    const auto lookupKey = LookupKey { def.mName->mName, argumentTypes };
+    const auto created = lookupOrCreate(lookupKey);
+    if( ! created ) throw FunctionExists(def.position(), def.mName->mName);
+    latestObject->type = typeCreator().getType(TypeKey {MetaType::FUNCTION, argumentTypes});
+    latestObject->returnType = BasicType::NONE; // FIXME: derive from function body
+
+    appendInstruction<instructions::SetAllocated>(latestObject->id, &std::make_unique<PrintInt>); // FIXME: UserFunction
 }
 
 
@@ -146,7 +158,7 @@ void Compiler::visitFree()
 {
     std::vector<ObjectId> objectsInUse;
     for(const auto & scope : mLookup.scopes()) {
-        for( const auto & pair : scope ) {
+        for( const auto & pair : scope.mObjects ) {
             const auto & object = pair.second;
             if( object->isAllocated() ) {
                 objectsInUse.push_back(object->id);
@@ -232,7 +244,7 @@ void Compiler::visitName(const ast::Name &name)
 
 void Compiler::visitTypeName(const ast::TypeName &name)
 {
-    throw MissingFeature("TypeName");
+    lookupType(name);
 }
 
 
@@ -366,6 +378,13 @@ void Compiler::loadPrelude()
     lookupOrCreate({"stdin"}); // TODO: no need to lookup
     latestObject->type = mTypeCreator.structType("Stdin");
     registerBuiltinFunction<obj::NextStdin>("next");
+
+    // Register type names
+    mLookup.setType("None", BasicType::NONE);
+    mLookup.setType("Bool", BasicType::BOOLEAN);
+    mLookup.setType("Int", BasicType::INT);
+    mLookup.setType("Float", BasicType::FLOAT);
+    mLookup.setType("String", BasicType::STRING);
 }
 
 void Compiler::lookup(const ast::Name &name)
@@ -376,7 +395,6 @@ void Compiler::lookup(const ast::Name &name)
         throw UndefinedVariable(name.position(), name.mName);
     }
 }
-
 
 
 
@@ -396,6 +414,21 @@ void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argume
         throw UndefinedVariable(variable.position(), msg.str());
     }
 }
+
+
+void Compiler::lookupType(const ast::TypeName & typeName)
+{
+    Type type;
+    try {
+        type = mLookup.lookupType(typeName.mName);
+    } catch(const LookupError &) {
+
+        throw UnknownType(typeName.position(), typeName.mName);
+    }
+
+    latestType = type;
+}
+
 
 bool Compiler::lookupOrCreate(const LookupKey &key)
 {
