@@ -79,3 +79,6 @@ class Tokenizer
 public:
     std::vector<Token> tokenize(const std::string & input);
 };
+
+
+const std::string & tokenName(Token::Type tokenType);

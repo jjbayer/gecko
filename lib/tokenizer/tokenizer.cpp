@@ -47,3 +47,52 @@ std::vector<Token> Tokenizer::tokenize(const std::string &input)
 
     return tokens;
 }
+
+
+const std::string & tokenName(Token::Type tokenType) {
+    static const std::map<Token::Type, std::string> names {
+        {Token::And, "And"},
+        {Token::Assign, "Assign"},
+        {Token::BraceLeft, "BraceLeft"},
+        {Token::BraceRight, "BraceRight"},
+        {Token::BracketLeft, "BracketLeft"},
+        {Token::BracketRight, "BracketRight"},
+        {Token::Colon, "Colon"},
+        {Token::Comma, "Comma"},
+        {Token::DivideBy, "DivideBy"},
+        {Token::Else, "Else"},
+        {Token::Enum, "Enum"},
+        {Token::Equal, "Equal"},
+        {Token::False, "False"},
+        {Token::FloatLiteral, "FloatLiteral"},
+        {Token::For, "For"},
+        {Token::Free, "Free"},
+        {Token::Function, "Function"},
+        {Token::GreaterThan, "GreaterThan"},
+        {Token::GTE, "GTE"},
+        {Token::If, "If"},
+        {Token::In, "In"},
+        {Token::Indent, "Indent"},
+        {Token::IntLiteral, "IntLiteral"},
+        {Token::LessThan, "LessThan"},
+        {Token::LineBreak, "LineBreak"},
+        {Token::LTE, "LTE"},
+        {Token::Minus, "Minus"},
+        {Token::Name, "Name"},
+        {Token::NotEqual, "NotEqual"},
+        {Token::Or, "Or"},
+        {Token::ParenLeft, "ParenLeft"},
+        {Token::ParenRight, "ParenRight"},
+        {Token::Plus, "Plus"},
+        {Token::StringLiteral, "StringLiteral"},
+        {Token::Struct, "Struct"},
+        {Token::Switch, "Switch"},
+        {Token::Times, "Times"},
+        {Token::True, "True"},
+        {Token::TypeName, "TypeName"},
+        {Token::Undefined, "Undefined"},
+        {Token::While, "While"},
+    };
+
+    return names.at(tokenType);
+}

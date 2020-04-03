@@ -5,6 +5,17 @@
 #include <sstream>
 
 
+namespace {
+
+void expect(Token::Type expectedType, const TokenIterator & it, const TokenIterator & end)
+{
+    if( it == end ) throw UnexpectedEndOfFile(expectedType);
+    if( it->type != expectedType ) throw UnexpectedToken(*it, expectedType);
+}
+
+} // anonymous namespace
+
+
 std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &end, int indent)
 {
     if( it == end) throw std::runtime_error("Empty scope.");
@@ -44,7 +55,6 @@ std::unique_ptr<ast::Scope> parseScope(TokenIterator &it, const TokenIterator &e
 
 std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    // TODO: other statements. return, for, ...
     if( it == end ) throw UnexpectedEndOfFile("statement");
 
     if( it->type == Token::While ) {
@@ -76,10 +86,7 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
 
     auto statement = parseAssignment(it, end, indent);
 
-    if( it == end )  throw UnexpectedEndOfFile("line break");
-
-    // TODO: token type names
-    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+    expect(Token::LineBreak, it, end);
 
     it++; // consume line break
 
@@ -253,8 +260,7 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator &it, const TokenItera
 
         auto expr = parseExpression(it, end, indent);
 
-        if( it == end ) throw UnexpectedEndOfFile(")");
-        if( it->type != Token::ParenRight ) throw UnexpectedToken(*it, ")");
+        expect(Token::ParenRight, it, end);
 
         it++; // consume closing parenthesis
 
@@ -314,9 +320,7 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
 
 std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    if( it == end ) throw UnexpectedEndOfFile("name");
-    // TODO: token type to string
-    if( it->type != Token::Name ) throw UnexpectedToken(*it, "name");
+    expect(Token::Name, it, end);
 
     auto name = std::make_unique<ast::Name>(it->value, it->position);
 
@@ -346,8 +350,7 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
        functionCall->addArgument(parseExpression(it, end, indent));
     } while( it != end && it->type == Token::Comma);
 
-    if( it == end ) throw UnexpectedEndOfFile("')");
-    if( it->type != Token::ParenRight ) throw UnexpectedToken(*it, "')'");
+    expect(Token::ParenRight, it, end);
 
     it++; // consume closing parenthesis
 
@@ -360,8 +363,7 @@ std::unique_ptr<ast::While> parseWhile(TokenIterator &it, const TokenIterator &e
     it++; // consume 'while'
 
     auto condition = parseExpression(it, end, indent);
-    if( it == end ) throw UnexpectedEndOfFile("line break");
-    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+    expect(Token::LineBreak, it, end);
 
     it++; // Consume newline
     auto body = parseScope(it, end, indent + 1);
@@ -379,8 +381,8 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
     it++; // consume 'if'
 
     auto condition = parseExpression(it, end, indent);
-    if( it == end ) throw UnexpectedEndOfFile("line break");
-    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+
+    expect(Token::LineBreak, it, end);
 
     it++; // Consume newline
     auto ifBody = parseScope(it, end, indent + 1);
@@ -406,8 +408,7 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator &it, const TokenIt
 
     it++;
 
-    if( it == end ) throw UnexpectedEndOfFile("line break");
-    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+    expect(Token::LineBreak, it, end);
 
     it++;
 
@@ -426,26 +427,19 @@ std::unique_ptr<ast::For> parseFor(TokenIterator &it, const TokenIterator &end, 
     const auto position = it->position;
     it++; // Consume "for"
 
-    if( it == end ) throw UnexpectedEndOfFile("name");
-    if( it->type != Token::Name ) {
-        throw UnexpectedToken(*it, "name");
-    }
+    expect(Token::Name, it, end);
     auto loopVar = std::make_unique<ast::Name>(it->value, it->position);
 
     it++; // Consume name
 
-    if( it == end ) throw UnexpectedEndOfFile("in");
-    if( it->type != Token::In ) {
-        throw  UnexpectedToken(*it, "name");
-    }
+    expect(Token::In, it, end);
 
     it++; // Consume "in"
 
     if( it == end ) throw UnexpectedEndOfFile("expression");
     auto range = parseExpression(it, end, indent);
 
-    if( it == end ) throw UnexpectedEndOfFile("line break");
-    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+    expect(Token::LineBreak, it, end);
 
     it++; // consume line break
 
@@ -459,38 +453,29 @@ std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &
     const auto position = it->position;
     it++; // Consume "function"
 
-    if( it == end ) throw UnexpectedEndOfFile("name");
-    if( it->type != Token::Name ) {
-        throw UnexpectedToken(*it, "name");
-    }
+    expect(Token::Name, it, end);
     auto functionName = std::make_unique<ast::Name>(it->value, it->position);
 
     it++; // Consume name
 
-    if( it == end ) throw UnexpectedEndOfFile("(");
-    if( it->type != Token::ParenLeft ) {
-        throw  UnexpectedToken(*it, "(");
-    }
+    expect(Token::ParenLeft, it, end);
 
     it++; // Consume "("
 
     std::vector<std::pair<std::unique_ptr<ast::Name>, std::unique_ptr<ast::TypeName> > > arguments;
     while( it != end && it->type != Token::ParenRight) {
 
-        if( it == end ) throw UnexpectedEndOfFile("name");
-        if( it->type != Token::Name ) throw UnexpectedToken(*it, "name");
+        expect(Token::Name, it, end);
 
         auto name = std::make_unique<ast::Name>(it->value, it->position);
 
         it++; // consume name
 
-        if( it == end ) throw UnexpectedEndOfFile(":");
-        if( it->type != Token::Colon ) throw UnexpectedToken(*it, ":");
+        expect(Token::Colon, it, end);
 
         it++; // Consume colon
 
-        if( it == end ) throw UnexpectedEndOfFile("type name");
-        if( it->type != Token::TypeName ) throw UnexpectedToken(*it, "type name");
+        expect(Token::TypeName, it, end);
 
         auto typeName = std::make_unique<ast::TypeName>(it->value, it->position);
 
@@ -505,13 +490,11 @@ std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &
         }
     }
 
-    if( it == end ) throw UnexpectedEndOfFile("')");
-    if( it->type != Token::ParenRight ) throw UnexpectedToken(*it, "')'");
+    expect(Token::ParenRight, it, end);
 
     it++; // consume closing parenthesis
 
-    if( it == end ) throw UnexpectedEndOfFile("line break");
-    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+    expect(Token::LineBreak, it, end);
 
     it++; // consume line break
 

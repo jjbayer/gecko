@@ -56,8 +56,8 @@ public:
 class UnexpectedToken: public SyntaxError
 {
 public:
-    UnexpectedToken(const Token & token, const std::string & expected)
-        : SyntaxError(token.position, "Expected '" +  expected + "' , got '" + token.value + "'")
+    UnexpectedToken(const Token & token, Token::Type expected)
+        : SyntaxError(token.position, "Expected " +  tokenName(expected) + " , got '" + token.value + "'")
     {}
 
     const char * name() const override { return "UnexpectedToken"; }
@@ -76,6 +76,10 @@ public:
 class UnexpectedEndOfFile: public SyntaxError
 {
 public:
+    UnexpectedEndOfFile(Token::Type expected)
+        : SyntaxError({}, "Expected " +  tokenName(expected))
+    {}
+
     UnexpectedEndOfFile(const std::string & expected)
         : SyntaxError({}, "Expected " +  expected)
     {}
