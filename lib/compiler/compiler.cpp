@@ -3,6 +3,7 @@
 #include "common/exceptions.hpp"
 #include "runtime/objects/builtins.hpp"
 #include "runtime/objects/stdin.hpp"
+#include "runtime/objects/userfunction.hpp"
 
 #include <sstream>
 
@@ -94,7 +95,7 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
     latestObject->type = typeCreator().getType(TypeKey {MetaType::FUNCTION, argumentTypes});
     latestObject->returnType = BasicType::NONE; // FIXME: derive from function body
 
-    appendInstruction<instructions::SetAllocated>(latestObject->id, &std::make_unique<PrintInt>); // FIXME: UserFunction
+    appendInstruction<instructions::SetAllocated>(latestObject->id, &std::make_unique<obj::UserFunction>);
 }
 
 

@@ -24,6 +24,7 @@ add_library(gecko
     runtime/objects/builtins.cpp
     runtime/objects/string.cpp
     runtime/objects/stdin.cpp
+    runtime/objects/userfunction.cpp
 
     tokenizer/statemachine.cpp
     tokenizer/tokenizer.cpp
