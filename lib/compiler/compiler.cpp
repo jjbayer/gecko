@@ -79,6 +79,13 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
     appendInstruction<instructions::CallFunction>(function->id, firstArg, latestObject->id);
 }
 
+
+void Compiler::visitFunctionDefinition(const ast::FunctionDefinition &functionDefinition)
+{
+    throw MissingFeature("FunctionDefinition");
+}
+
+
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::INT);
@@ -221,6 +228,13 @@ void Compiler::visitName(const ast::Name &name)
 {
     lookup(name); // sets latest object id
 }
+
+
+void Compiler::visitTypeName(const ast::TypeName &name)
+{
+    throw MissingFeature("TypeName");
+}
+
 
 void Compiler::visitScope(const ast::Scope &scope)
 {

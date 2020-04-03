@@ -69,6 +69,10 @@ std::unique_ptr<ast::Statement> parseStatement(TokenIterator &it, const TokenIte
         return std::make_unique<ast::Free>(position);
     }
 
+    if( it->type == Token::Function ) {
+        return parseFunctionDefinition(it, end, indent);
+    }
+
 
     auto statement = parseAssignment(it, end, indent);
 
@@ -448,4 +452,70 @@ std::unique_ptr<ast::For> parseFor(TokenIterator &it, const TokenIterator &end, 
     auto body = parseScope(it, end, indent + 1);
 
     return std::make_unique<ast::For>(std::move(loopVar), std::move(range), std::move(body), position);
+}
+
+std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    const auto position = it->position;
+    it++; // Consume "function"
+
+    if( it == end ) throw UnexpectedEndOfFile("name");
+    if( it->type != Token::Name ) {
+        throw UnexpectedToken(*it, "name");
+    }
+    auto functionName = std::make_unique<ast::Name>(it->value, it->position);
+
+    it++; // Consume name
+
+    if( it == end ) throw UnexpectedEndOfFile("(");
+    if( it->type != Token::ParenLeft ) {
+        throw  UnexpectedToken(*it, "(");
+    }
+
+    it++; // Consume "("
+
+    std::vector<std::pair<std::unique_ptr<ast::Name>, std::unique_ptr<ast::TypeName> > > arguments;
+    while( it != end && it->type != Token::ParenRight) {
+
+        if( it == end ) throw UnexpectedEndOfFile("name");
+        if( it->type != Token::Name ) throw UnexpectedToken(*it, "name");
+
+        auto name = std::make_unique<ast::Name>(it->value, it->position);
+
+        it++; // consume name
+
+        if( it == end ) throw UnexpectedEndOfFile(":");
+        if( it->type != Token::Colon ) throw UnexpectedToken(*it, ":");
+
+        it++; // Consume colon
+
+        if( it == end ) throw UnexpectedEndOfFile("type name");
+        if( it->type != Token::TypeName ) throw UnexpectedToken(*it, "type name");
+
+        auto typeName = std::make_unique<ast::TypeName>(it->value, it->position);
+
+        arguments.push_back({std::move(name), std::move(typeName)});
+
+        it++; // consume type name
+
+        if( it != end && it->type == Token::Comma ) {
+            it++; // consume comma
+        } else {
+            break; // no more args
+        }
+    }
+
+    if( it == end ) throw UnexpectedEndOfFile("')");
+    if( it->type != Token::ParenRight ) throw UnexpectedToken(*it, "')'");
+
+    it++; // consume closing parenthesis
+
+    if( it == end ) throw UnexpectedEndOfFile("line break");
+    if( it->type != Token::LineBreak ) throw UnexpectedToken(*it, "line break");
+
+    it++; // consume line break
+
+    auto body = parseScope(it, end, indent + 1);
+
+    return std::make_unique<ast::FunctionDefinition>(std::move(functionName), std::move(arguments), std::move(body), position);
 }

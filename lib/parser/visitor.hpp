@@ -11,6 +11,7 @@ class Comparison;
 class FloatLiteral;
 class For;
 class FunctionCall;
+class FunctionDefinition;
 class IfThen;
 class IfThenElse;
 class IntLiteral;
@@ -18,7 +19,9 @@ class Name;
 class Or;
 class Scope;
 class StringLiteral;
+class TypeName;
 class While;
+
 
 // TODO: const correctness
 class Visitor
@@ -33,6 +36,7 @@ public:
     virtual void visitFor(const For & loop) = 0;
     virtual void visitFree() = 0;
     virtual void visitFunctionCall(const FunctionCall & functionCall) = 0;
+    virtual void visitFunctionDefinition(const FunctionDefinition & functionDefinition) = 0;
     virtual void visitIfThen(const IfThen & ifThen) = 0;
     virtual void visitIfThenElse(const IfThenElse & ifThenElse) = 0;
     virtual void visitIntLiteral(const IntLiteral & intLiteral) = 0;
@@ -40,6 +44,7 @@ public:
     virtual void visitOr(const Or & test) = 0;
     virtual void visitScope(const Scope & scope) = 0;
     virtual void visitStringLiteral(const StringLiteral & visitable) = 0;
+    virtual void visitTypeName(const TypeName & visitable) = 0;
     virtual void visitWhile(const While & loop) = 0;
 };
 

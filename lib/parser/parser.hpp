@@ -40,6 +40,8 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator & it, const TokenI
 
 std::unique_ptr<ast::For> parseFor(TokenIterator & it, const TokenIterator & end, int indent);
 
+std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator & it, const TokenIterator & end, int indent);
+
 
 // TODO: multiline nested expressions
 

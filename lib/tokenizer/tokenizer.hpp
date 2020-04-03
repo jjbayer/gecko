@@ -61,6 +61,10 @@ struct Token
         Or,
 
         Free,
+
+        Function,
+        Colon,
+        TypeName,
     };
 
     Type type = Undefined;

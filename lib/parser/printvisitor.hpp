@@ -16,6 +16,7 @@ public:
     void visitFor(const For & loop) override;
     void visitFree() override;
     void visitFunctionCall(const FunctionCall &functionCall) override;
+    void visitFunctionDefinition(const FunctionDefinition & functionDefinition) override;
     void visitIfThen(const ast::IfThen &ifThen) override;
     void visitIfThenElse(const IfThenElse &ifThenElse) override;
     void visitIntLiteral(const IntLiteral &literal) override;
@@ -23,6 +24,7 @@ public:
     void visitOr(const Or & visitable) override;
     void visitScope(const Scope &scope) override;
     void visitStringLiteral(const StringLiteral & visitable) override;
+    void visitTypeName(const TypeName & visitable) override;
     void visitWhile(const While &loop) override;
 
 private:

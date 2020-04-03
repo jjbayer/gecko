@@ -72,6 +72,17 @@ public:
 };
 
 
+class TypeName: public Node
+{
+public:
+    TypeName(const std::string & name, const Position & position);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    const std::string mName;
+};
+
+
 class IntLiteral: public Singular
 {
 public:
@@ -266,6 +277,24 @@ public:
 
     std::unique_ptr<Name> mLoopVariable;
     std::unique_ptr<Expression> mRange;
+    std::unique_ptr<Scope> mBody;
+};
+
+
+class FunctionDefinition: public Statement
+{
+public:
+    FunctionDefinition(
+        std::unique_ptr<Name> functionName,
+        std::vector<std::pair<std::unique_ptr<Name>, std::unique_ptr<TypeName> > > arguments,
+        std::unique_ptr<Scope> body,
+        const Position & position
+    );
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<Name> mName;
+    std::vector<std::pair<std::unique_ptr<Name>, std::unique_ptr<TypeName> > > mArguments;
     std::unique_ptr<Scope> mBody;
 };
 

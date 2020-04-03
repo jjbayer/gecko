@@ -94,6 +94,11 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
+    if( c == ':' ) {
+        *tokens.rbegin() = {Token::Colon, &c};
+        advance(it, position);
+        return std::make_shared<StateInitial>();
+    }
 
     if( c == '\n' ) {
         *tokens.rbegin() = {Token::LineBreak, "<linebreak>"};
@@ -108,7 +113,15 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         return std::make_shared<StateNumericLiteral>();
     }
 
-    if( c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ) {
+    if( c >= 'A' && c <= 'Z' ) {
+        tokens.rbegin()->type = Token::TypeName;
+        tokens.rbegin()->value += c; // s.t. StateName can include numbers
+        advance(it, position);
+
+        return std::make_shared<StateName>();
+    }
+
+    if( c == '_' || (c >= 'a' && c <= 'z') ) {
         tokens.rbegin()->type = Token::Name;
         tokens.rbegin()->value += c; // s.t. StateName can include numbers
         advance(it, position);

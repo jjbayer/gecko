@@ -17,6 +17,20 @@ void Name::acceptVisitor(Visitor &visitor)
     visitor.visitName(*this);
 }
 
+
+TypeName::TypeName(const std::string &name, const Position &position)
+    : Node(position)
+    , mName(name)
+{
+
+}
+
+void TypeName::acceptVisitor(Visitor &visitor)
+{
+    visitor.visitTypeName(*this);
+}
+
+
 IntLiteral::IntLiteral(int64_t value, const Position & position)
     : Singular(position)
     , mValue(value)
@@ -222,6 +236,26 @@ For::For(std::unique_ptr<Name> loopVariable, std::unique_ptr<Expression> range, 
 void For::acceptVisitor(Visitor &visitor)
 {
     visitor.visitFor(*this);
+}
+
+
+FunctionDefinition::FunctionDefinition(
+    std::unique_ptr<Name> functionName,
+    std::vector<std::pair<std::unique_ptr<Name>, std::unique_ptr<TypeName> > > arguments,
+    std::unique_ptr<Scope> body,
+    const Position & position
+)
+    : Statement(position)
+    , mName(std::move(functionName))
+    , mArguments(std::move(arguments))
+    , mBody(std::move(body))
+{
+
+}
+
+void FunctionDefinition::acceptVisitor(Visitor & visitor)
+{
+    visitor.visitFunctionDefinition(*this);
 }
 
 

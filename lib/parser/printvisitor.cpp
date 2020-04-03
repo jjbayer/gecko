@@ -41,6 +41,29 @@ void PrintVisitor::visitFunctionCall(const FunctionCall &functionCall)
     std::cout << ")";
 }
 
+
+void PrintVisitor::visitFunctionDefinition(const FunctionDefinition & functionDefinition)
+{
+    std::cout << "function ";
+    functionDefinition.mName->acceptVisitor(*this);
+    std::cout << "(";
+    auto tail = false;
+    for(const auto & argument : functionDefinition.mArguments) {
+        if( tail ) std::cout << ", ";
+        tail = true;
+        argument.first->acceptVisitor(*this);
+        std::cout << ": ";
+        argument.second->acceptVisitor(*this);
+    }
+    std::cout << ")";
+    std::cout << "\n";
+    mIndent++;
+    functionDefinition.mBody->acceptVisitor(*this);
+    mIndent--;
+    // TODO: suppress additional newline
+
+}
+
 void PrintVisitor::visitIntLiteral(const IntLiteral &literal)
 {
     std::cout << literal.mValue;
@@ -98,6 +121,11 @@ void PrintVisitor::visitComparison(const Comparison &visitable)
 }
 
 void PrintVisitor::visitName(const Name &name)
+{
+    std::cout << name.mName;
+}
+
+void PrintVisitor::visitTypeName(const TypeName &name)
 {
     std::cout << name.mName;
 }
