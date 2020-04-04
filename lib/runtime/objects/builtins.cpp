@@ -1,11 +1,12 @@
 #include "builtins.hpp"
 #include "runtime/objects/string.hpp"
 #include "runtime/objects/tuple.hpp"
-#include <iostream>
+#include "runtime/output.hpp"
+
 
 Object PrintInt::call(Object *args)
 {
-    std::cout << "[int " << args[0].as_int << "]\n";
+    *(getOutput().stdout) << args[0].as_int << "\n";
 
     return {};
 }
@@ -30,7 +31,7 @@ Object Dummy::call(Object *args)
 Object PrintString::call(Object *args)
 {
     const auto * string = static_cast<obj::String*>(args[0].as_ptr);
-    std::cout << string->value() << "\n";
+    (*getOutput().stdout) << string->value() << "\n";
 
     return {};
 }
