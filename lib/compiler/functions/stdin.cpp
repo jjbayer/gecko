@@ -1,11 +1,30 @@
 #include "stdin.hpp"
-#include "runtime/objects/tuple.hpp"
-#include "runtime/objects/string.hpp"
-#include "runtime/memorymanager.hpp"
-#include <iostream>
+#include "runtime/instructions.hpp"
 
 
-namespace obj {
+namespace ct {
+
+
+void NextStdin::_generateInstructions(
+    const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
+    std::vector<std::unique_ptr<Instruction> > & instructions,
+    std::shared_ptr<CompileTimeObject> returnValue
+) const
+{
+    // Prepare output variable
+    const TypeKey typeKey {MetaType::ENUM, {BasicType::NONE, BasicType::STRING}};
+    returnValue->type = typeCreator().getType(typeKey);
+    instructions.push_back(
+        std::make_unique<instructions::SetAllocated>(
+            returnValue->id, &std::make_unique<obj::Tuple<2> >
+        )
+    );
+
+    // TODO: actually read from given object
+    instructions.push_back(std::make_unique<instructions::ReadFromStdin>(returnValue->id));
+}
+
+std::vector<Type> NextStdin::argumentTypes() const { return {typeCreator().structType("Stdin")}; }
 
 
 // Type NextStdin::returnType() const

@@ -333,6 +333,24 @@ void PrintString::call(std::vector<Object> &data, InstructionPointer &ip) const
 }
 
 
+void ReadFromStdin::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    auto * tuple = static_cast<obj::Tuple<2>*>(data[mTarget].as_ptr);
+    if(  std::cin.eof() ) {
+        tuple->data[0].as_int = 0; // TODO: explicit enum value
+    } else {
+
+        std::string value;
+        std::getline(std::cin, value);
+
+        // FIXME: check for errors
+        tuple->data[0].as_int = 1;
+        auto ptr = std::make_unique<obj::String>(value);
+        tuple->data[1].as_ptr = memory().add(std::move(ptr));
+    }
+}
+
+
 
 
 

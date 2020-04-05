@@ -5,14 +5,19 @@
 namespace ct {
 
 
-// class NextStdin: public Function
-// {
-// public:
-//     Object call(Object * args) override;
+class NextStdin: public ct::Function
+{
+private:
 
-//     std::vector<Type> argumentTypes() const;
-//     Type returnType() const;
-// };
+    void _generateInstructions(
+        const std::vector<std::shared_ptr<const CompileTimeObject> > & argumentIds,
+        std::vector<std::unique_ptr<Instruction> > & instructions,
+        std::shared_ptr<CompileTimeObject> returnValue
+    ) const override;
+
+public:
+    std::vector<Type> argumentTypes() const override;
+};
 
 } // namespace ct
 

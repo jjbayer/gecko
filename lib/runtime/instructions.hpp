@@ -444,4 +444,21 @@ private:
     const ObjectId mSource;
 };
 
+
+// TODO: replace with something more generic
+class ReadFromStdin: public Instruction
+{
+public:
+    ReadFromStdin(ObjectId target)
+        : mTarget(target) {}
+
+    std::string toString() const override { return "ReadFromStdin " +  std::to_string(mTarget); }
+
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+
+
+private:
+    const ObjectId mTarget;
+};
+
 } // namespace instructions

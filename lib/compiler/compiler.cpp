@@ -2,6 +2,7 @@
 #include "parser/ast.hpp"
 #include "common/exceptions.hpp"
 #include "functions/builtins.hpp"
+#include "functions/stdin.hpp"
 
 #include <sstream>
 
@@ -107,25 +108,26 @@ void Compiler::visitFor(const ast::For &loop)
     loop.mRange->acceptVisitor(*this);
     const auto range = latestObject;
 
-    try {
-        const auto & nextFn = mLookup.lookupFunction({"next", {range->type}});
-    } catch(const LookupError &) {
-        throw UnknownFunction(loop.mRange->position(), "next");
-    }
-
     throw MissingFeature {"for-loop"};
 
-    // auto optional = mObjectProvider.createObject(nextFn->returnType);
+    // ct::Function & nextFn;
+    // try {
+    //     nextFn = mLookup.lookupFunction({"next", {range->type}});
+    // } catch(const LookupError &) {
+    //     throw UnknownFunction(loop.mRange->position(), "next");
+    // }
+    // auto optional = mObjectProvider.createObject();
     // auto itemType = getOptionalType(mTypeCreator, optional->type);
 
     // // Create new address & special scope for loop var:
     // auto loopVar = mObjectProvider.createObject(itemType);
     // mLookup.push();
-    // mLookup.set(loop.mLoopVariable->mName, loopVar);
+    // mLookup.setObject(loop.mLoopVariable->mName, loopVar);
 
     // auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
     // appendInstruction<instructions::SetInt>(expectedEnumKey->id, 1);
 
+    // nextFn
     // appendInstruction<instructions::CallFunction>(nextFn->id, range->id, optional->id);
     // const auto ipNext = latestInstructionPointer();
 
@@ -370,10 +372,9 @@ void Compiler::loadPrelude()
     registerBuiltinFunction<PrintInt>("print");
     registerBuiltinFunction<PrintString>("print");
 
-    // TODO:
-    // lookupOrCreate({"stdin"}); // TODO: no need to lookup
-    // latestObject->type = mTypeCreator.structType("Stdin");
-    // registerBuiltinFunction<obj::NextStdin>("next");
+    lookupOrCreate({"stdin"}); // TODO: no need to lookup
+    latestObject->type = mTypeCreator.structType("Stdin");
+    registerBuiltinFunction<ct::NextStdin>("next");
 
     // Register type names
     mLookup.setType("None", BasicType::NONE);
