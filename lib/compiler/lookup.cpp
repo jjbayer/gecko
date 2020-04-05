@@ -26,6 +26,7 @@ void Lookup::pop()
 
 void Lookup::setObject(const std::string &key, std::shared_ptr<CompileTimeObject> object)
 {
+    // TODO: disallow shadowing
     currentScope().mObjects[key] = object;
 }
 
@@ -51,7 +52,7 @@ std::shared_ptr<CompileTimeObject> Lookup::lookupObject(const std::string &key) 
         }
     }
 
-    throw LookupError {};
+    return nullptr; // TODO: inconsistent with other lookup functions
 }
 
 

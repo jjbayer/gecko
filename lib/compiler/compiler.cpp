@@ -25,7 +25,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
     addition.mRight->acceptVisitor(*this);
     const auto rhs = latestObject;
 
-    // TODO: other forms of addition
+    // TODO: Replace by function call __add__
     if( lhs->type != BasicType::INT || rhs->type != BasicType::INT) {
         throw TypeMismatch(addition.position(), ""); // TODO: mPosition, text
     }
