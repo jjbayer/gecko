@@ -1,12 +1,13 @@
 #include "function.hpp"
 #include "common/exceptions.hpp"
+#include "runtime/instructions.hpp"
 
 
 namespace ct {
 
 void Function::generateInstructions(
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
-    std::vector<std::unique_ptr<Instruction> > & instructions,
+    InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> output
 ) const
 {

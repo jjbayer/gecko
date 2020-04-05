@@ -74,3 +74,27 @@ greet("Joris")
 
     BOOST_CHECK_EQUAL(eval(code), "Hello, Joris!\n");
 }
+
+
+BOOST_AUTO_TEST_CASE(recursive_function)
+{
+    // Recursive functions are not supported.
+    const auto code = R"###(
+function foo()
+    foo()
+)###";
+    BOOST_CHECK_THROW(eval(code), UnknownFunction);
+}
+
+BOOST_AUTO_TEST_CASE(function_exist)
+{
+    // Recursive functions are not supported.
+    const auto code = R"###(
+function foo()
+    1
+
+function foo()
+    2
+)###";
+    BOOST_CHECK_THROW(eval(code), FunctionExists);
+}

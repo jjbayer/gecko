@@ -40,7 +40,7 @@ public:
     Type lookupType(const std::string & typeName) const;
 
     void setObject(const std::string & key, std::shared_ptr<CompileTimeObject> object);
-    void setFunction(const FunctionKey & key, std::unique_ptr<Function> function);
+    bool setFunction(const FunctionKey & key, std::unique_ptr<Function> function);
     void setType(const std::string & typeName, Type type);
 
     // TODO: iterator

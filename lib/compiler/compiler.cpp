@@ -3,6 +3,7 @@
 #include "common/exceptions.hpp"
 #include "functions/builtins.hpp"
 #include "functions/stdin.hpp"
+#include "functions/userfunction.hpp"
 
 #include <sstream>
 
@@ -14,7 +15,7 @@ Compiler::Compiler()
     loadPrelude();
 }
 
-const std::vector<std::unique_ptr<Instruction> > &Compiler::instructions() const
+const InstructionVector &Compiler::instructions() const
 {
     return mInstructions;
 }
@@ -76,18 +77,35 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
 {
     std::vector<Type> argumentTypes;
+    std::vector<std::shared_ptr<CompileTimeObject> > argumentSlots;
+
+    // Special scope for arguments
+    mLookup.push();
+
     for(const auto & pair : def.mArguments) {
         lookupType(*pair.second);
         argumentTypes.push_back(latestType);
+        lookupOrCreate(pair.first->mName);
+        latestObject->type = latestType;
+        argumentSlots.push_back(latestObject);
     }
 
+    // Compile body, but store instructions in a dedicated vector
+    InstructionVector instructions;
+    std::swap(instructions, mInstructions);
+    def.mBody->acceptVisitor(*this);
+    std::swap(instructions, mInstructions);
+
+    mLookup.pop();
+
     const auto lookupKey = FunctionKey { def.mName->mName, argumentTypes };
+    const auto created = mLookup.setFunction(lookupKey, std::make_unique<ct::UserFunction>(
+        std::move(argumentSlots),
+        BasicType::NONE, // FIXME: return type not always NONE
+        std::move(instructions)
+    ));
 
-    throw MissingFeature { "UserFunction"};
-
-    // const auto created = mLookup.setFunction(lookupKey, std::make_unique<ct::UserFunction>());
-
-    // if( ! created ) throw FunctionExists(def.position(), def.mName->mName);
+    if( ! created ) throw FunctionExists(def.position(), def.mName->mName);
 }
 
 

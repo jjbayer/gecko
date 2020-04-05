@@ -1,7 +1,7 @@
 #include "executor.hpp"
 #include <iostream>
 
-void run(const std::vector<std::unique_ptr<Instruction> > &instructions, int numObjects)
+void run(const InstructionVector &instructions, int numObjects)
 {
     std::vector<Object> data(numObjects);
 

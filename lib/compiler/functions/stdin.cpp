@@ -7,7 +7,7 @@ namespace ct {
 
 void NextStdin::_generateInstructions(
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
-    std::vector<std::unique_ptr<Instruction> > & instructions,
+    InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
 ) const
 {
@@ -15,7 +15,7 @@ void NextStdin::_generateInstructions(
     const TypeKey typeKey {MetaType::ENUM, {BasicType::NONE, BasicType::STRING}};
     returnValue->type = typeCreator().getType(typeKey);
     instructions.push_back(
-        std::make_unique<instructions::SetAllocated>(
+        std::make_shared<instructions::SetAllocated>(
             returnValue->id, &std::make_unique<obj::Tuple<2> >
         )
     );

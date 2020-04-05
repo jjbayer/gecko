@@ -4,4 +4,4 @@
 #include <memory>
 #include <vector>
 
-void run(const std::vector<std::unique_ptr<Instruction> > &instructions, int numObjectIds);
+void run(const InstructionVector &instructions, int numObjectIds);

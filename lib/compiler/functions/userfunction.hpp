@@ -2,23 +2,42 @@
 #include "function.hpp"
 
 
-// namespace ct {
+class Instruction;
 
-// class UserFunction: public Function
-// {
-// public:
-//     virtual Object call(Object * args) override;
 
-//     virtual std::vector<Type> argumentTypes() const override { return mArgumentTypes; }
+namespace ct {
 
-//     virtual Type returnType() const override { return mReturnType; }
+class UserFunction: public Function
+{
+public:
 
-//     virtual ~UserFunction() {}
+    UserFunction(std::vector<std::shared_ptr<CompileTimeObject> > argumentSlots, Type returnType, InstructionVector instructions)
+        : mArgumentSlots(std::move(argumentSlots))
+        , mReturnType(returnType)
+        , mInstructions(std::move(instructions))
+    {
+        for(const auto slot : mArgumentSlots) mArgumentTypes.push_back(slot->type);
+    }
 
-// private:
-//     std::vector<Type> mArgumentTypes;
-//     Type mReturnType;
+    virtual std::vector<Type> argumentTypes() const override { return mArgumentTypes; }
 
-// };
+    virtual Type returnType() const override { return mReturnType; }
+
+    virtual ~UserFunction() {}
+
+private:
+
+    void _generateInstructions(
+        const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
+        InstructionVector & instructions,
+        std::shared_ptr<CompileTimeObject> returnValue
+    ) const override;
+
+    std::vector<std::shared_ptr<CompileTimeObject> > mArgumentSlots;
+    std::vector<Type> mArgumentTypes;
+    Type mReturnType;
+    InstructionVector mInstructions;
+
+};
 
 } // namespace ct

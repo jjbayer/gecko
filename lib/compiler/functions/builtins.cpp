@@ -6,7 +6,7 @@ namespace ct {
 
 void PrintInt::_generateInstructions(
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
-    std::vector<std::unique_ptr<Instruction> > & instructions,
+    InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
 ) const
 {
@@ -17,7 +17,7 @@ void PrintInt::_generateInstructions(
 
 void PrintString::_generateInstructions(
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
-    std::vector<std::unique_ptr<Instruction> > & instructions,
+    InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
 ) const
 {

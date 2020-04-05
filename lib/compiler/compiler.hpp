@@ -19,7 +19,7 @@ public:
 
     Compiler();
 
-    const std::vector<std::unique_ptr<Instruction> > & instructions() const;
+    const InstructionVector & instructions() const;
     int numObjectIdsUsed() const { return mObjectProvider.numObjectsIssued(); }
 
     void visitAddition(const ast::Addition &addition) override;
@@ -64,10 +64,10 @@ private:
     template<typename T, typename ... Args>
     void appendInstruction(Args && ... args)
     {
-        mInstructions.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+        mInstructions.push_back(std::make_shared<T>(std::forward<Args>(args)...));
     }
 
-    std::vector<std::unique_ptr<Instruction> > mInstructions;
+    InstructionVector mInstructions;
     ObjectProvider mObjectProvider;
     std::shared_ptr<CompileTimeObject> latestObject = nullptr;
     Type latestType = BasicType::NONE;

@@ -25,6 +25,9 @@ public:
 };
 
 
+using InstructionVector = std::vector<std::shared_ptr<const Instruction> >;
+
+
 namespace instructions {
 
 

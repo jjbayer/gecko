@@ -11,7 +11,7 @@ private:
 
     void _generateInstructions(
         const std::vector<std::shared_ptr<const CompileTimeObject> > & argumentIds,
-        std::vector<std::unique_ptr<Instruction> > & instructions,
+        InstructionVector & instructions,
         std::shared_ptr<CompileTimeObject> returnValue
     ) const override;
 
