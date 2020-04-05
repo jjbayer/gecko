@@ -8,21 +8,19 @@
 
 
 
-class LookupKey
+class FunctionKey
 {
 public:
     /// Lookup value types
-    LookupKey(const std::string & name);
+    FunctionKey(const std::string & name);
 
     /// Lookup function types
-    LookupKey(const std::string & name, const std::vector<Type> & argumentTypes);
+    FunctionKey(const std::string & name, const std::vector<Type> & argumentTypes);
 
-    bool operator==(const LookupKey & other) const;
-
-    bool isFunction() const { return mArgumentTypes.has_value(); }
+    bool operator==(const FunctionKey & other) const;
 
     const std::string mName;
-    const std::optional<std::vector<Type> > mArgumentTypes;
+    const std::vector<Type> mArgumentTypes;
 
 };
 
@@ -30,18 +28,13 @@ public:
 namespace std {
 
   template <>
-  struct hash<LookupKey>
+  struct hash<FunctionKey>
   {
-      size_t operator()(const LookupKey &key) const
+      size_t operator()(const FunctionKey &key) const
       {
           size_t seed {0};
           hash_combine(seed, key.mName);
-          if( key.isFunction() ) {
-              hash_combine(seed, true);
-              for(auto arg : *key.mArgumentTypes) hash_combine(seed, arg);
-          } else {
-              hash_combine(seed, false);
-          }
+          for(auto arg : key.mArgumentTypes) hash_combine(seed, arg);
 
           return seed;
       }

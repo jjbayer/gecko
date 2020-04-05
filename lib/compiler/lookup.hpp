@@ -8,7 +8,11 @@
 #include "common/object.hpp"
 #include "lookupkey.hpp"
 #include "compiletimeobject.hpp"
+#include "functions/function.hpp"
 
+
+
+namespace ct {
 
 struct LookupError {};
 
@@ -16,7 +20,8 @@ struct LookupError {};
 class LookupScope
 {
 public:
-    std::unordered_map<LookupKey, std::shared_ptr<CompileTimeObject> > mObjects;
+    std::unordered_map<std::string, std::shared_ptr<CompileTimeObject> > mObjects;
+    std::unordered_map<FunctionKey, std::unique_ptr<Function> > mFunctions;
     std::unordered_map<std::string, Type> mTypes;
 };
 
@@ -30,10 +35,12 @@ public:
     void push();
     void pop();
 
-    std::shared_ptr<CompileTimeObject> lookup(const LookupKey & key) const;
+    std::shared_ptr<CompileTimeObject> lookupObject(const std::string & key) const;
+    const Function & lookupFunction(const FunctionKey & key) const;
     Type lookupType(const std::string & typeName) const;
 
-    void set(const LookupKey & key, std::shared_ptr<CompileTimeObject> object);
+    void setObject(const std::string & key, std::shared_ptr<CompileTimeObject> object);
+    void setFunction(const FunctionKey & key, std::unique_ptr<Function> function);
     void setType(const std::string & typeName, Type type);
 
     // TODO: iterator
@@ -45,3 +52,5 @@ private:
 
     std::vector<LookupScope> mScopes;
 };
+
+} // namespace ct

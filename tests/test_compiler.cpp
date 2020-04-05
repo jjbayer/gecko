@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     ));
 
     std::cout << "BEGIN Output of executed program: \n";
-    Compiler compiler;
+    ct::Compiler compiler;
     program.acceptVisitor(compiler);
     run(compiler.instructions(), compiler.numObjectIdsUsed());
     std::cout << "END\n";
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
 BOOST_AUTO_TEST_CASE(test_undefined_variable)
 {
     ast::Name x("x", dummyPosition);
-    Compiler compiler;
+    ct::Compiler compiler;
     BOOST_CHECK_THROW(x.acceptVisitor(compiler), UndefinedVariable);
 }
 
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(test_out_of_scope)
                            std::move(loopBody), dummyPosition));
     program->addStatement(std::make_unique<Name>("x", dummyPosition));
 
-    Compiler compiler;
+    ct::Compiler compiler;
     BOOST_CHECK_THROW(program->acceptVisitor(compiler), UndefinedVariable);
 }
 

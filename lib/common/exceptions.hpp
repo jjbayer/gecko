@@ -132,6 +132,17 @@ public:
 };
 
 
+class UnknownFunction: public CompileError
+{
+public:
+    UnknownFunction(const Position & position, const std::string & text)
+        : CompileError(position, text)
+    {}
+
+    const char * name() const override { return "UnknownFunction"; }
+};
+
+
 class UnknownType: public CompileError
 {
 public:

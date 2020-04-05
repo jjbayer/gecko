@@ -327,22 +327,6 @@ private:
 };
 
 
-/// Return value will be written to target
-class CallFunction: public Instruction
-{
-public:
-    CallFunction(ObjectId functionId, ObjectId firstArg, ObjectId target);
-    std::string toString() const override;
-    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
-    ~CallFunction() override {}
-
-private:
-    const ObjectId mFunctionId;
-    const ObjectId mFirstArg;
-    const ObjectId mTarget;
-};
-
-
 class Noop: public Instruction
 {
 public:
@@ -425,6 +409,38 @@ public:
 private:
     const ObjectId mTuple;
     const size_t mIndex;
+    const ObjectId mSource;
+};
+
+
+class PrintInt: public Instruction
+{
+public:
+    PrintInt(ObjectId source)
+        : mSource(source) {}
+
+    std::string toString() const override { return "PrintInt " +  std::to_string(mSource); }
+
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+
+
+private:
+    const ObjectId mSource;
+};
+
+
+class PrintString: public Instruction
+{
+public:
+    PrintString(ObjectId source)
+        : mSource(source) {}
+
+    std::string toString() const override { return "PrintString " +  std::to_string(mSource); }
+
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+
+
+private:
     const ObjectId mSource;
 };
 

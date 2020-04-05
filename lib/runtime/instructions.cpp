@@ -1,9 +1,9 @@
 #include "instructions.hpp"
 #include "instructions.hpp"
 #include <runtime/memorymanager.hpp>
-#include "runtime/objects/function.hpp"
 #include "runtime/objects/string.hpp"
 #include "runtime/objects/tuple.hpp"
+#include "runtime/output.hpp"
 
 #include <sstream>
 
@@ -158,24 +158,6 @@ std::string SetFloat::toString() const { return "SetFloat target=" + std::to_str
 void SetFloat::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
     data[mTarget].as_float = mValue;
-}
-
-CallFunction::CallFunction(ObjectId functionId, ObjectId firstArg, ObjectId target)
-    : mFunctionId(functionId)
-    , mFirstArg(firstArg)
-    , mTarget(target)
-{
-}
-
-std::string CallFunction::toString() const { return "CallFunction function=" + std::to_string(mFunctionId) + " args=" + std::to_string(mFirstArg) + " target=" + std::to_string(mTarget); }
-
-void CallFunction::call(std::vector<Object> &data, InstructionPointer &ip) const
-{
-    auto *func = static_cast<obj::Function*>(data[mFunctionId].as_ptr);
-
-    auto returnValue = func->call(&data[mFirstArg]);
-
-    data[mTarget] = returnValue;
 }
 
 
@@ -338,6 +320,17 @@ void CollectGarbage::call(std::vector<Object> &data, InstructionPointer &ip) con
     memory().collectGarbage(toBeKept);
 }
 
+
+void PrintInt::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    *(getOutput().stdout) << data[mSource].as_int << "\n";
+}
+
+
+void PrintString::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    *(getOutput().stdout) << static_cast<obj::String*>(data[mSource].as_ptr)->value() << "\n";
+}
 
 
 

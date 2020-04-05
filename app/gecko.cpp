@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
 
     std::unique_ptr<ast::Scope> tree;
 
-    Compiler compiler;
+    ct::Compiler compiler;
 
     try {
         Tokenizer tokenizer;

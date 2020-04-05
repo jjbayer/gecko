@@ -8,6 +8,10 @@ add_library(gecko
 
     compiler/compiler.cpp
     compiler/compiletimeobject.cpp
+    compiler/functions/function.cpp
+    compiler/functions/builtins.cpp
+    compiler/functions/userfunction.cpp
+    compiler/functions/stdin.cpp
     compiler/lookup.cpp
     compiler/lookupkey.cpp
     compiler/objectprovider.cpp
@@ -21,10 +25,7 @@ add_library(gecko
     runtime/instructions.cpp
     runtime/instructions.hpp
     runtime/memorymanager.cpp
-    runtime/objects/builtins.cpp
     runtime/objects/string.cpp
-    runtime/objects/stdin.cpp
-    runtime/objects/userfunction.cpp
     runtime/output.cpp
 
     tokenizer/statemachine.cpp

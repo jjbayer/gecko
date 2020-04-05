@@ -25,7 +25,7 @@ std::string eval(const std::string & code)
     const auto end = tokens.cend();
     const auto ast = parseScope(it, end, 0);
 
-    Compiler compiler;
+    ct::Compiler compiler;
     ast->acceptVisitor(compiler);
 
     std::stringstream stream;

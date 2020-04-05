@@ -1,12 +1,12 @@
 #include "compiler.hpp"
 #include "parser/ast.hpp"
 #include "common/exceptions.hpp"
-#include "runtime/objects/builtins.hpp"
-#include "runtime/objects/stdin.hpp"
-#include "runtime/objects/userfunction.hpp"
+#include "functions/builtins.hpp"
 
 #include <sstream>
 
+
+namespace ct {
 
 Compiler::Compiler()
 {
@@ -25,7 +25,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
     addition.mRight->acceptVisitor(*this);
     const auto rhs = latestObject;
 
-    // TODO: other forms off addition
+    // TODO: other forms of addition
     if( lhs->type != BasicType::INT || rhs->type != BasicType::INT) {
         throw TypeMismatch(addition.position(), ""); // TODO: mPosition, text
     }
@@ -43,8 +43,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     // TODO: what if assignee is not name?
     auto name = dynamic_cast<ast::Name*>(assignment.mAssignee.get());
 
-    const LookupKey lookupKey {name->mName};
-    const auto created = lookupOrCreate(lookupKey);
+    const auto created = lookupOrCreate(name->mName);
     auto destination = latestObject;
     if( ! created && destination->type != source->type ) {
         throw TypeMismatch(assignment.position(), ""); // TODO: mPosition, text
@@ -58,26 +57,18 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 {
     std::vector<Type> argumentTypes;
 
-    std::vector<ObjectId> originalArgumentIds;
+    std::vector<std::shared_ptr<const CompileTimeObject> > arguments;
     for( const auto & arg : functionCall.mArguments ) {
         arg->acceptVisitor(*this);
-        originalArgumentIds.push_back(latestObject->id);
+        arguments.push_back(latestObject);
         argumentTypes.push_back(latestObject->type);
     }
 
-    lookup(*functionCall.mName, argumentTypes);
-    const auto function = latestObject;
+    const auto & function = mLookup.lookupFunction({functionCall.mName->mName, argumentTypes});
 
-    ObjectId firstArg = 0;
-    for( const auto originalArgumentId : originalArgumentIds ) {
-        const auto argument = mObjectProvider.createObject();
-        if(  firstArg == 0 ) firstArg = argument->id;
-        appendInstruction<instructions::Copy>(originalArgumentId, argument->id);
-    }
-
-    latestObject = mObjectProvider.createObject(function->returnType); // type of function is type of return value
-
-    appendInstruction<instructions::CallFunction>(function->id, firstArg, latestObject->id);
+    auto returnValue = mObjectProvider.createObject(BasicType::NONE);
+    function.generateInstructions(arguments, mInstructions, returnValue);
+    latestObject = returnValue;
 }
 
 
@@ -89,13 +80,13 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
         argumentTypes.push_back(latestType);
     }
 
-    const auto lookupKey = LookupKey { def.mName->mName, argumentTypes };
-    const auto created = lookupOrCreate(lookupKey);
-    if( ! created ) throw FunctionExists(def.position(), def.mName->mName);
-    latestObject->type = typeCreator().getType(TypeKey {MetaType::FUNCTION, argumentTypes});
-    latestObject->returnType = BasicType::NONE; // FIXME: derive from function body
+    const auto lookupKey = FunctionKey { def.mName->mName, argumentTypes };
 
-    appendInstruction<instructions::SetAllocated>(latestObject->id, &std::make_unique<obj::UserFunction>);
+    throw MissingFeature { "UserFunction"};
+
+    // const auto created = mLookup.setFunction(lookupKey, std::make_unique<ct::UserFunction>());
+
+    // if( ! created ) throw FunctionExists(def.position(), def.mName->mName);
 }
 
 
@@ -115,44 +106,49 @@ void Compiler::visitFor(const ast::For &loop)
 {
     loop.mRange->acceptVisitor(*this);
     const auto range = latestObject;
-    auto nextFn = mLookup.lookup({"next", {range->type}});
 
-    if( ! nextFn ) throw UndefinedVariable(loop.mRange->position(), "next");
+    try {
+        const auto & nextFn = mLookup.lookupFunction({"next", {range->type}});
+    } catch(const LookupError &) {
+        throw UnknownFunction(loop.mRange->position(), "next");
+    }
 
-    auto optional = mObjectProvider.createObject(nextFn->returnType);
-    auto itemType = getOptionalType(mTypeCreator, optional->type);
+    throw MissingFeature {"for-loop"};
 
-    // Create new address & special scope for loop var:
-    auto loopVar = mObjectProvider.createObject(itemType);
-    mLookup.push();
-    mLookup.set(loop.mLoopVariable->mName, loopVar);
+    // auto optional = mObjectProvider.createObject(nextFn->returnType);
+    // auto itemType = getOptionalType(mTypeCreator, optional->type);
 
-    auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<instructions::SetInt>(expectedEnumKey->id, 1);
+    // // Create new address & special scope for loop var:
+    // auto loopVar = mObjectProvider.createObject(itemType);
+    // mLookup.push();
+    // mLookup.set(loop.mLoopVariable->mName, loopVar);
 
-    appendInstruction<instructions::CallFunction>(nextFn->id, range->id, optional->id);
-    const auto ipNext = latestInstructionPointer();
+    // auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
+    // appendInstruction<instructions::SetInt>(expectedEnumKey->id, 1);
 
-    // TODO: Visit enum
-    auto enumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<instructions::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
-    auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
-    appendInstruction<instructions::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
+    // appendInstruction<instructions::CallFunction>(nextFn->id, range->id, optional->id);
+    // const auto ipNext = latestInstructionPointer();
 
-    appendInstruction<instructions::Noop>(); // placeholder for jump_if
-    const auto ipJumpIfNot = latestInstructionPointer();
+    // // TODO: Visit enum
+    // auto enumKey = mObjectProvider.createObject(BasicType::INT);
+    // appendInstruction<instructions::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
+    // auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
+    // appendInstruction<instructions::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
 
-    // Now we are in the section where optional has value
-    appendInstruction<instructions::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
+    // appendInstruction<instructions::Noop>(); // placeholder for jump_if
+    // const auto ipJumpIfNot = latestInstructionPointer();
 
-    loop.mBody->acceptVisitor(*this);
-    appendInstruction<instructions::Jump>(ipNext);
+    // // Now we are in the section where optional has value
+    // appendInstruction<instructions::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
 
-    appendInstruction<instructions::Noop>(); // Make sure there is something to jump to
-    const auto afterLoop = latestInstructionPointer();
-    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
+    // loop.mBody->acceptVisitor(*this);
+    // appendInstruction<instructions::Jump>(ipNext);
 
-    mLookup.pop();
+    // appendInstruction<instructions::Noop>(); // Make sure there is something to jump to
+    // const auto afterLoop = latestInstructionPointer();
+    // mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
+
+    // mLookup.pop();
 }
 
 void Compiler::visitFree()
@@ -239,7 +235,7 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
 
 void Compiler::visitName(const ast::Name &name)
 {
-    lookup(name); // sets latest object id
+    lookupObject(name); // sets latest object id
 }
 
 
@@ -373,12 +369,11 @@ void Compiler::loadPrelude()
 {
     registerBuiltinFunction<PrintInt>("print");
     registerBuiltinFunction<PrintString>("print");
-    registerBuiltinFunction<AddInt>("__add__");
-    registerBuiltinFunction<Dummy>("dummy");
 
-    lookupOrCreate({"stdin"}); // TODO: no need to lookup
-    latestObject->type = mTypeCreator.structType("Stdin");
-    registerBuiltinFunction<obj::NextStdin>("next");
+    // TODO:
+    // lookupOrCreate({"stdin"}); // TODO: no need to lookup
+    // latestObject->type = mTypeCreator.structType("Stdin");
+    // registerBuiltinFunction<obj::NextStdin>("next");
 
     // Register type names
     mLookup.setType("None", BasicType::NONE);
@@ -388,31 +383,13 @@ void Compiler::loadPrelude()
     mLookup.setType("String", BasicType::STRING);
 }
 
-void Compiler::lookup(const ast::Name &name)
+
+void Compiler::lookupObject(const ast::Name &variable)
 {
-    if( auto object =  mLookup.lookup({name.mName}) ) {
+    if( auto object = mLookup.lookupObject(variable.mName) ) {
         latestObject = object;
     } else {
-        throw UndefinedVariable(name.position(), name.mName);
-    }
-}
-
-
-
-void Compiler::lookup(const ast::Name &variable, const std::vector<Type> &argumentTypes)
-{
-    if( auto object = mLookup.lookup({variable.mName, argumentTypes})) {
-        latestObject = object;
-    } else {
-        // TODO: readable argument types
-        // TODO: key.is_function
-        std::stringstream msg;
-        msg << variable.mName;
-        if( ! argumentTypes.empty() ) msg << " with function arguments of types ";
-        // TODO: add type to string
-        for(auto arg : argumentTypes) msg << arg << " ";
-
-        throw UndefinedVariable(variable.position(), msg.str());
+        throw UndefinedVariable(variable.position(), variable.mName);
     }
 }
 
@@ -431,9 +408,9 @@ void Compiler::lookupType(const ast::TypeName & typeName)
 }
 
 
-bool Compiler::lookupOrCreate(const LookupKey &key)
+bool Compiler::lookupOrCreate(const std::string &key)
 {
-    if( auto object = mLookup.lookup(key) ) {
+    if( auto object = mLookup.lookupObject(key) ) {
 
         latestObject = object;
 
@@ -442,7 +419,7 @@ bool Compiler::lookupOrCreate(const LookupKey &key)
     } else {
 
         latestObject = mObjectProvider.createObject();
-        mLookup.set(key, latestObject);
+        mLookup.setObject(key, latestObject);
 
         return true;
     }
@@ -453,3 +430,5 @@ InstructionPointer Compiler::latestInstructionPointer() const
 {
     return mInstructions.size() - 1;
 }
+
+} // namespace ct

@@ -9,6 +9,9 @@
 #include <unordered_map>
 
 
+namespace ct {
+
+
 class Compiler: public ast::Visitor
 {
 
@@ -48,22 +51,14 @@ private:
     {
         T dummy;
 
-        // TODO: no need to lookup
-        lookupOrCreate({name, dummy.argumentTypes()});
-        latestObject->type = mTypeCreator.functionType(dummy.returnType(), dummy.argumentTypes());
-        latestObject->returnType = dummy.returnType();
-
-        mInstructions.push_back(
-            std::make_unique<instructions::SetAllocated>(latestObject->id, &std::make_unique<T>)
-        );
+        mLookup.setFunction({name, dummy.argumentTypes()}, std::make_unique<T>());
     }
 
-    void lookup(const ast::Name & name);
-    void lookup(const ast::Name & name, const std::vector<Type> & argumentTypes);
+    void lookupObject(const ast::Name & name);
 
     void lookupType(const ast::TypeName & typeName);
 
-    bool lookupOrCreate(const LookupKey & key);
+    bool lookupOrCreate(const std::string & key);
     InstructionPointer latestInstructionPointer() const;
 
     template<typename T, typename ... Args>
@@ -79,3 +74,5 @@ private:
     Lookup mLookup;
     TypeCreator & mTypeCreator = typeCreator(); // TODO: no globals
 };
+
+} // namespace ct
