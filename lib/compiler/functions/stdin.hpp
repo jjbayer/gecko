@@ -17,6 +17,8 @@ private:
 
 public:
     std::vector<Type> argumentTypes() const override;
+
+    Type returnType() const override;
 };
 
 } // namespace ct

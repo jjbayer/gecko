@@ -21,6 +21,8 @@ public:
     {
         return { BasicType::INT };
     }
+
+    Type returnType() const override { return BasicType::NONE; }
 };
 
 
@@ -38,6 +40,8 @@ public:
     {
         return { BasicType::STRING };
     }
+
+    Type returnType() const override { return BasicType::NONE; }
 };
 
 

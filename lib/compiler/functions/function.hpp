@@ -17,8 +17,8 @@ public:
         std::shared_ptr<CompileTimeObject> returnValue
     ) const;
 
-
     virtual std::vector<Type> argumentTypes() const = 0;
+    virtual Type returnType() const = 0;
 
 private:
     virtual void _generateInstructions(
