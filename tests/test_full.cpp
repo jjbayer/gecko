@@ -98,3 +98,21 @@ function foo()
 )###";
     BOOST_CHECK_THROW(eval(code), FunctionExists);
 }
+
+BOOST_AUTO_TEST_CASE(garbage_collection_barrier)
+{
+    // 'free' in user function should not be allowed to free objects
+    // just because they are invisible to the function
+
+    const auto code = R"###(
+function my_free()
+    free
+
+x = "This is a string which should stay intact"
+my_free()
+print(x)
+)###";
+
+    BOOST_CHECK_EQUAL(eval(code), "This is a string which should stay intact\n");
+
+}
