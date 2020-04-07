@@ -66,10 +66,10 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
         argumentTypes.push_back(latestObject->type);
     }
 
-    const auto & function = mLookup.lookupFunction({functionCall.mName->mName, argumentTypes});
+    auto function = lookupFunction(functionCall.mName->mName, argumentTypes, functionCall.position());
 
     auto returnValue = mObjectProvider.createObject(BasicType::NONE);
-    function.generateInstructions(arguments, mInstructions, returnValue);
+    function->generateInstructions(arguments, mInstructions, returnValue);
     latestObject = returnValue;
 }
 
@@ -126,12 +126,7 @@ void Compiler::visitFor(const ast::For &loop)
     loop.mRange->acceptVisitor(*this);
     const auto range = latestObject;
 
-    const ct::Function * nextFn;
-    try {
-        nextFn = &mLookup.lookupFunction({"next", {range->type}});
-    } catch(const LookupError &) {
-        throw UnknownFunction(loop.mRange->position(), "next");
-    }
+    auto nextFn = lookupFunction("next", {range->type}, loop.mRange->position());
 
     auto optional = mObjectProvider.createObject(nextFn->returnType());
     auto itemType = getOptionalType(mTypeCreator, optional->type);
@@ -423,6 +418,14 @@ void Compiler::lookupType(const ast::TypeName & typeName)
     }
 
     latestType = type;
+}
+
+const Function * Compiler::lookupFunction(const std::string & functionName, const std::vector<Type> & argumentTypes, const Position & position)
+{
+    auto * function = mLookup.lookupFunction({functionName, argumentTypes});
+    if( ! function ) throw UnknownFunction(position, functionName); // TODO: include argument types in exception text
+
+    return function;
 }
 
 

@@ -57,6 +57,7 @@ private:
     void lookupObject(const ast::Name & name);
 
     void lookupType(const ast::TypeName & typeName);
+    const Function * lookupFunction(const std::string & functionName, const std::vector<Type> & argumentTypes, const Position & position);
 
     bool lookupOrCreate(const std::string & key);
     InstructionPointer latestInstructionPointer() const;

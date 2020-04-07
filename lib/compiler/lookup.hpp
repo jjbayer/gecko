@@ -36,7 +36,7 @@ public:
     void pop();
 
     std::shared_ptr<CompileTimeObject> lookupObject(const std::string & key) const;
-    const Function & lookupFunction(const FunctionKey & key) const;
+    const Function * lookupFunction(const FunctionKey & key) const;
     Type lookupType(const std::string & typeName) const;
 
     void setObject(const std::string & key, std::shared_ptr<CompileTimeObject> object);

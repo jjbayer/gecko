@@ -58,18 +58,18 @@ std::shared_ptr<CompileTimeObject> Lookup::lookupObject(const std::string &key) 
 }
 
 
-const Function & Lookup::lookupFunction(const FunctionKey &key) const
+const Function * Lookup::lookupFunction(const FunctionKey &key) const
 {
     for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
         const auto & scope = *it;
         const auto found = scope.mFunctions.find(key);
         if( found != scope.mFunctions.end() ) {
 
-            return *(found->second);
+            return found->second.get();
         }
     }
 
-    throw LookupError {};
+    return nullptr;
 }
 
 Type Lookup::lookupType(const std::string & typeName) const
