@@ -8,7 +8,7 @@
 #include <sstream>
 
 
-namespace instructions {
+namespace ins {
 
 SetInt::SetInt(ObjectId target, int64_t value)
     : mTarget(target)
@@ -361,4 +361,4 @@ void ReadFromStdin::call(std::vector<Object> &data, InstructionPointer &ip) cons
 
 
 
-} // namespace instructions
+} // namespace ins

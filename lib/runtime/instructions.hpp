@@ -28,7 +28,7 @@ public:
 using InstructionVector = std::vector<std::shared_ptr<const Instruction> >;
 
 
-namespace instructions {
+namespace ins {
 
 
 // TODO: set literals only once
@@ -464,4 +464,4 @@ private:
     const ObjectId mTarget;
 };
 
-} // namespace instructions
+} // namespace ins

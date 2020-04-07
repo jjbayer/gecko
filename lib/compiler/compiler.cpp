@@ -34,7 +34,7 @@ void Compiler::visitAddition(const ast::Addition & addition)
 
     latestObject = mObjectProvider.createObject(lhs->type);
 
-    appendInstruction<instructions::AddInt>(lhs->id, rhs->id, latestObject->id);
+    appendInstruction<ins::AddInt>(lhs->id, rhs->id, latestObject->id);
 }
 
 void Compiler::visitAssignment(const ast::Assignment &assignment)
@@ -52,7 +52,7 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
     }
     destination->type = source->type;
 
-    appendInstruction<instructions::Copy>(source->id, destination->id);
+    appendInstruction<ins::Copy>(source->id, destination->id);
 }
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
@@ -112,13 +112,13 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
 void Compiler::visitIntLiteral(const ast::IntLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<instructions::SetInt>(latestObject->id, literal.mValue);
+    appendInstruction<ins::SetInt>(latestObject->id, literal.mValue);
 }
 
 void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::FLOAT);
-    appendInstruction<instructions::SetFloat>(latestObject->id, literal.mValue);
+    appendInstruction<ins::SetFloat>(latestObject->id, literal.mValue);
 }
 
 void Compiler::visitFor(const ast::For &loop)
@@ -137,7 +137,7 @@ void Compiler::visitFor(const ast::For &loop)
     mLookup.setObject(loop.mLoopVariable->mName, loopVar);
 
     auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<instructions::SetInt>(expectedEnumKey->id, 1);
+    appendInstruction<ins::SetInt>(expectedEnumKey->id, 1);
 
     // nextFn
     const auto ipNext = latestInstructionPointer() + 1;
@@ -145,22 +145,22 @@ void Compiler::visitFor(const ast::For &loop)
 
     // // TODO: Visit enum
     auto enumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<instructions::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
+    appendInstruction<ins::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
     auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
-    appendInstruction<instructions::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
+    appendInstruction<ins::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
 
-    appendInstruction<instructions::Noop>(); // placeholder for jump_if
+    appendInstruction<ins::Noop>(); // placeholder for jump_if
     const auto ipJumpIfNot = latestInstructionPointer();
 
     // Now we are in the section where optional has value
-    appendInstruction<instructions::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
+    appendInstruction<ins::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
 
     loop.mBody->acceptVisitor(*this);
-    appendInstruction<instructions::Jump>(ipNext);
+    appendInstruction<ins::Jump>(ipNext);
 
-    appendInstruction<instructions::Noop>(); // Make sure there is something to jump to
+    appendInstruction<ins::Noop>(); // Make sure there is something to jump to
     const auto afterLoop = latestInstructionPointer();
-    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
+    mInstructions[ipJumpIfNot] = std::make_unique<ins::JumpIfNot>(condition->id, afterLoop);
 
     mLookup.pop();
 }
@@ -177,13 +177,13 @@ void Compiler::visitFree()
         }
     }
 
-    appendInstruction<instructions::CollectGarbage>(objectsInUse);
+    appendInstruction<ins::CollectGarbage>(objectsInUse);
 }
 
 void Compiler::visitBooleanLiteral(const ast::BooleanLiteral &literal)
 {
     latestObject = mObjectProvider.createObject(BasicType::BOOLEAN);
-    appendInstruction<instructions::SetBoolean>(latestObject->id, literal.mValue);
+    appendInstruction<ins::SetBoolean>(latestObject->id, literal.mValue);
 }
 
 void Compiler::visitComparison(const ast::Comparison &visitable)
@@ -216,29 +216,29 @@ void Compiler::visitComparison(const ast::Comparison &visitable)
         const auto & op = visitable.mOperators.at(i);
         switch (op) {
         case Token::LessThan:
-            appendInstruction<instructions::IntLessThan>(lhs->id, rhs->id, testResult->id);
+            appendInstruction<ins::IntLessThan>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::LTE:
-            appendInstruction<instructions::IntLTE>(lhs->id, rhs->id, testResult->id);
+            appendInstruction<ins::IntLTE>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::Equal:
-            appendInstruction<instructions::IsEqual>(lhs->id, rhs->id, testResult->id);
+            appendInstruction<ins::IsEqual>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::NotEqual:
-            appendInstruction<instructions::IsNotEqual>(lhs->id, rhs->id, testResult->id);
+            appendInstruction<ins::IsNotEqual>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::GTE:
-            appendInstruction<instructions::IntGTE>(lhs->id, rhs->id, testResult->id);
+            appendInstruction<ins::IntGTE>(lhs->id, rhs->id, testResult->id);
             break;
         case Token::GreaterThan:
-            appendInstruction<instructions::IntGreaterThan>(lhs->id, rhs->id, testResult->id);
+            appendInstruction<ins::IntGreaterThan>(lhs->id, rhs->id, testResult->id);
             break;
         default:
             throw std::runtime_error("Unexpected comparison operator");
         }
 
         if( lastTestResult ) {
-            appendInstruction<instructions::AndTest>(testResult->id, lastTestResult->id, lastTestResult->id);
+            appendInstruction<ins::AndTest>(testResult->id, lastTestResult->id, lastTestResult->id);
         } else {
             lastTestResult = testResult;
         }
@@ -271,7 +271,7 @@ void Compiler::visitScope(const ast::Scope &scope)
 void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
 {
     latestObject = mObjectProvider.createObject(BasicType::STRING);
-    appendInstruction<instructions::SetString>(latestObject->id, visitable.mValue);
+    appendInstruction<ins::SetString>(latestObject->id, visitable.mValue);
 }
 
 
@@ -285,15 +285,15 @@ void Compiler::visitWhile(const ast::While &loop)
         throw TypeMismatch(loop.position(), "While condition must be boolean"); // TODO: mPosition, text
     }
 
-    appendInstruction<instructions::Noop>(); // placeholder for jump_if
+    appendInstruction<ins::Noop>(); // placeholder for jump_if
     const auto ipJumpIfNot = latestInstructionPointer();
 
     loop.mBody->acceptVisitor(*this);
-    appendInstruction<instructions::Jump>(ipStartOfCondition);
+    appendInstruction<ins::Jump>(ipStartOfCondition);
 
-    appendInstruction<instructions::Noop>(); // Make sure there is something to jump to
+    appendInstruction<ins::Noop>(); // Make sure there is something to jump to
     const auto afterLoop = latestInstructionPointer();
-    mInstructions[ipJumpIfNot] = std::make_unique<instructions::JumpIfNot>(condition->id, afterLoop);
+    mInstructions[ipJumpIfNot] = std::make_unique<ins::JumpIfNot>(condition->id, afterLoop);
 }
 
 
@@ -306,15 +306,15 @@ void Compiler::visitIfThen(const ast::IfThen &ifThen)
         throw TypeMismatch(ifThen.mCondition->position(), "If-condition must be boolean");
     }
 
-    appendInstruction<instructions::Noop>();
+    appendInstruction<ins::Noop>();
     const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
 
     ifThen.mIfBlock->acceptVisitor(*this);
 
-    appendInstruction<instructions::Noop>(); // This is the end
+    appendInstruction<ins::Noop>(); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
-    mInstructions[ipJumpToEnd] = std::make_unique<instructions::JumpIfNot>(condition->id, ipEnd);
+    mInstructions[ipJumpToEnd] = std::make_unique<ins::JumpIfNot>(condition->id, ipEnd);
 }
 
 void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
@@ -325,24 +325,24 @@ void Compiler::visitIfThenElse(const ast::IfThenElse &ifThenElse)
         throw TypeMismatch(ifThenElse.mCondition->position(), "If-Else condition must be boolean");
     }
 
-    appendInstruction<instructions::Noop>();
+    appendInstruction<ins::Noop>();
     const auto ipJumpToIf = latestInstructionPointer();  // Will hold instruction to jump to if block
 
     ifThenElse.mElseBlock->acceptVisitor(*this);
-    appendInstruction<instructions::Noop>();
+    appendInstruction<ins::Noop>();
     const auto ipJumpToEnd = latestInstructionPointer();  // Will hold instruction to jump to end
 
-    appendInstruction<instructions::Noop>();
+    appendInstruction<ins::Noop>();
     const auto ipStartIfBlock = latestInstructionPointer();
 
     ifThenElse.mIfBlock->acceptVisitor(*this);
 
     // TODO: wrap push_back in method which returns instruction pointer
-    appendInstruction<instructions::Noop>(); // This is the end
+    appendInstruction<ins::Noop>(); // This is the end
     const auto ipEnd = latestInstructionPointer();
 
-    mInstructions[ipJumpToIf] = std::make_unique<instructions::JumpIf>(condition->id, ipStartIfBlock);
-    mInstructions[ipJumpToEnd] = std::make_unique<instructions::Jump>(ipEnd);
+    mInstructions[ipJumpToIf] = std::make_unique<ins::JumpIf>(condition->id, ipStartIfBlock);
+    mInstructions[ipJumpToEnd] = std::make_unique<ins::Jump>(ipEnd);
 }
 
 void Compiler::visitOr(const ast::Or &test)
@@ -359,7 +359,7 @@ void Compiler::visitOr(const ast::Or &test)
 
     latestObject = mObjectProvider.createObject(lhs->type);
 
-    appendInstruction<instructions::OrTest>(lhs->id, rhs->id, latestObject->id);
+    appendInstruction<ins::OrTest>(lhs->id, rhs->id, latestObject->id);
 }
 
 void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
@@ -376,7 +376,7 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
 
     latestObject = mObjectProvider.createObject(lhs->type);
 
-    appendInstruction<instructions::AndTest>(lhs->id, rhs->id, latestObject->id);
+    appendInstruction<ins::AndTest>(lhs->id, rhs->id, latestObject->id);
 }
 
 void Compiler::loadPrelude()

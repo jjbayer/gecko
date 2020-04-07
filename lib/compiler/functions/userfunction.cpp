@@ -2,9 +2,6 @@
 #include "runtime/instructions.hpp"
 
 
-namespace ins = instructions;
-
-
 namespace ct {
 
 void UserFunction::_generateInstructions(

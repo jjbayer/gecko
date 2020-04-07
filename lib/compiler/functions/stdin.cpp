@@ -15,13 +15,13 @@ void NextStdin::_generateInstructions(
     const TypeKey typeKey {MetaType::ENUM, {BasicType::NONE, BasicType::STRING}};
     returnValue->type = typeCreator().getType(typeKey);
     instructions.push_back(
-        std::make_shared<instructions::SetAllocated>(
+        std::make_shared<ins::SetAllocated>(
             returnValue->id, &std::make_unique<obj::Tuple<2> >
         )
     );
 
     // TODO: actually read from given object
-    instructions.push_back(std::make_unique<instructions::ReadFromStdin>(returnValue->id));
+    instructions.push_back(std::make_unique<ins::ReadFromStdin>(returnValue->id));
 }
 
 std::vector<Type> NextStdin::argumentTypes() const { return {typeCreator().structType("Stdin")}; }

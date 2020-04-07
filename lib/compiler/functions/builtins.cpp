@@ -10,7 +10,7 @@ void PrintInt::_generateInstructions(
     std::shared_ptr<CompileTimeObject> returnValue
 ) const
 {
-    instructions.push_back(std::make_unique<instructions::PrintInt>(arguments.at(0)->id));
+    instructions.push_back(std::make_unique<ins::PrintInt>(arguments.at(0)->id));
     returnValue->type = BasicType::NONE;
 }
 
@@ -21,7 +21,7 @@ void PrintString::_generateInstructions(
     std::shared_ptr<CompileTimeObject> returnValue
 ) const
 {
-    instructions.push_back(std::make_unique<instructions::PrintString>(arguments.at(0)->id));
+    instructions.push_back(std::make_unique<ins::PrintString>(arguments.at(0)->id));
     returnValue->type = BasicType::NONE;
 }
 
