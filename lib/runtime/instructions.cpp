@@ -316,7 +316,7 @@ std::string CollectGarbage::toString() const
 void CollectGarbage::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
     std::set<obj::Allocated*> toBeKept;
-    for(auto id : mKeepObjects ) toBeKept.insert( data[id].as_ptr );
+    for(const auto id : mKeepObjects ) toBeKept.insert( data[id].as_ptr );
     memory().collectGarbage(toBeKept);
 }
 
@@ -351,7 +351,24 @@ void ReadFromStdin::call(std::vector<Object> &data, InstructionPointer &ip) cons
 }
 
 
+MemPush::MemPush() {}
 
+std::string MemPush::toString() const { return "MemPush"; }
+
+void MemPush::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    memory().push();
+}
+
+
+MemPop::MemPop() {}
+
+std::string MemPop::toString() const { return "MemPop"; }
+
+void MemPop::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    memory().pop();
+}
 
 
 

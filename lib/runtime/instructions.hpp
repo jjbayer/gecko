@@ -464,4 +464,27 @@ private:
     const ObjectId mTarget;
 };
 
+
+/// Create a barrier in garbage collector s.t. user functions can call free
+class MemPush: public Instruction
+{
+public:
+    MemPush();
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+    ~MemPush() override {}
+};
+
+
+/// See MemPush
+class MemPop: public Instruction
+{
+public:
+    MemPop();
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+    ~MemPop() override {}
+};
+
+
 } // namespace ins

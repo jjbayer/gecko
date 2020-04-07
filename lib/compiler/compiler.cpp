@@ -90,11 +90,16 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
         argumentSlots.push_back(latestObject);
     }
 
-    // Compile body, but store instructions in a dedicated vector
     InstructionVector instructions;
+    instructions.push_back(std::make_shared<ins::MemPush>());
+
+    // Compile body, but store instructions in a dedicated vector
     std::swap(instructions, mInstructions);
     def.mBody->acceptVisitor(*this);
     std::swap(instructions, mInstructions);
+
+    instructions.push_back(std::make_shared<ins::MemPop>());
+
 
     mLookup.pop();
 
