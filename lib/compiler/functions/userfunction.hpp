@@ -11,9 +11,9 @@ class UserFunction: public Function
 {
 public:
 
-    UserFunction(std::vector<std::shared_ptr<CompileTimeObject> > argumentSlots, Type returnType, InstructionVector instructions)
+    UserFunction(std::vector<std::shared_ptr<CompileTimeObject> > argumentSlots, std::shared_ptr<const CompileTimeObject> returnObject, InstructionVector instructions)
         : mArgumentSlots(std::move(argumentSlots))
-        , mReturnType(returnType)
+        , mReturnObject(returnObject)
         , mInstructions(std::move(instructions))
     {
         for(const auto slot : mArgumentSlots) mArgumentTypes.push_back(slot->type);
@@ -21,7 +21,7 @@ public:
 
     virtual std::vector<Type> argumentTypes() const override { return mArgumentTypes; }
 
-    virtual Type returnType() const override { return mReturnType; }
+    virtual Type returnType() const override { return mReturnObject->type; }
 
     virtual ~UserFunction() {}
 
@@ -35,7 +35,7 @@ private:
 
     std::vector<std::shared_ptr<CompileTimeObject> > mArgumentSlots;
     std::vector<Type> mArgumentTypes;
-    Type mReturnType;
+    std::shared_ptr<const CompileTimeObject> mReturnObject;
     InstructionVector mInstructions;
 
 };

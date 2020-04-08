@@ -96,6 +96,7 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
     // Compile body, but store instructions in a dedicated vector
     std::swap(instructions, mInstructions);
     def.mBody->acceptVisitor(*this);
+    const auto returnObject = latestObject; // Last object touched by function is return value
     std::swap(instructions, mInstructions);
 
     instructions.push_back(std::make_shared<ins::MemPop>());
@@ -106,7 +107,7 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
     const auto lookupKey = FunctionKey { def.mName->mName, argumentTypes };
     const auto created = mLookup.setFunction(lookupKey, std::make_unique<ct::UserFunction>(
         std::move(argumentSlots),
-        BasicType::NONE, // FIXME: return type not always NONE
+        returnObject,
         std::move(instructions)
     ));
 

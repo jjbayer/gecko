@@ -116,3 +116,19 @@ print(x)
     BOOST_CHECK_EQUAL(eval(code), "This is a string which should stay intact\n");
 
 }
+
+
+BOOST_AUTO_TEST_CASE(returning_function)
+{
+    const auto code = R"###(
+function life()
+    42
+
+x = life()
+y = foo
+print(x)
+)###";
+
+    BOOST_CHECK_EQUAL(eval(code), "42\n");
+
+}

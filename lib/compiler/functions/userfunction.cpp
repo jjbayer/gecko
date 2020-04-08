@@ -19,15 +19,12 @@ void UserFunction::_generateInstructions(
         instructions.emplace_back(std::make_shared<ins::Copy>(arg->id, slot->id));
     }
 
-    // FIXME: memory manager push
-
     for(const auto & instruction : mInstructions) {
         instructions.emplace_back(instruction);
     }
 
-    // FIXME: memory manager pop
-
-    returnValue->type = BasicType::NONE; // FIXME: from return type
+    // Target object is same as latest object
+    *returnValue = *mReturnObject;
 }
 
 } // namespace ct
