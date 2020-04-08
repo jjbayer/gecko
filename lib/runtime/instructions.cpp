@@ -315,9 +315,21 @@ std::string CollectGarbage::toString() const
 
 void CollectGarbage::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
-    std::set<obj::Allocated*> toBeKept;
-    for(const auto id : mKeepObjects ) toBeKept.insert( data[id].as_ptr );
+    std::set<ConstPtr> toBeKept;
+    for(const auto id : mKeepObjects ) {
+        walk(data[id].as_ptr, toBeKept);
+    }
+
     memory().collectGarbage(toBeKept);
+}
+
+void CollectGarbage::walk(ConstPtr ptr, std::set<ConstPtr> & toBeKept) const
+{
+    if( toBeKept.count(ptr) ) return;
+    toBeKept.insert(ptr);
+    for(auto child : ptr->children()) {
+        walk(child, toBeKept);
+    }
 }
 
 

@@ -30,7 +30,7 @@ void MemoryManager::pop()
     mBarriers.pop_back();
 }
 
-void MemoryManager::collectGarbage(const std::set<obj::Allocated *> &toBeKept)
+void MemoryManager::collectGarbage(const std::set<const obj::Allocated *> &toBeKept)
 {
     if( mBarriers.empty() ) {
 

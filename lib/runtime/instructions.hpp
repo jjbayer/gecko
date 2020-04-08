@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <sstream>
 #include <vector>
 
@@ -349,6 +350,11 @@ public:
     ~CollectGarbage() override {}
 
 private:
+
+    using ConstPtr = const obj::Allocated *;
+
+    void walk(ConstPtr ptr, std::set<ConstPtr> & toBeKept) const;
+
     const std::vector<ObjectId> mKeepObjects;
 };
 

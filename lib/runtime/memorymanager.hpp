@@ -17,7 +17,7 @@ public:
     void pop();
 
     /// Will delete anything which is not in the 'keep' list
-    void collectGarbage(const std::set<obj::Allocated *> &toBeKept);
+    void collectGarbage(const std::set<const obj::Allocated *> &toBeKept);
 
 private:
     std::vector<std::unique_ptr<obj::Allocated> > mAllocatedObjects;
