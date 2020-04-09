@@ -67,12 +67,14 @@ BOOST_AUTO_TEST_CASE(void_function)
 {
     const auto code = R"###(
 function greet(name: String)
-    print("Hello, " + name + "!")
+    print("Hello")
+    print(name)
+    print("!")
 
 greet("Joris")
 )###";
 
-    BOOST_CHECK_EQUAL(eval(code), "Hello, Joris!\n");
+    BOOST_CHECK_EQUAL(eval(code), "Hello\nJoris\n!\n");
 }
 
 
@@ -125,7 +127,7 @@ function life()
     42
 
 x = life()
-y = foo
+y = 3
 print(x)
 )###";
 
