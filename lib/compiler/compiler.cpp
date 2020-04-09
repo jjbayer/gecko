@@ -391,6 +391,7 @@ void Compiler::loadPrelude()
     registerBuiltinFunction<PrintString>("print");
 
     lookupOrCreate({"stdin"}); // TODO: no need to lookup
+    appendInstruction<ins::SetAllocated>(latestObject->id, &std::make_unique<obj::Allocated>); // Dummy
     latestObject->type = mTypeCreator.structType("Stdin");
     registerBuiltinFunction<ct::NextStdin>("next");
 
