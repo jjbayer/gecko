@@ -32,6 +32,10 @@ std::unique_ptr<ast::Expression> parseFactor(TokenIterator & it, const TokenIter
 
 std::unique_ptr<ast::Singular> parseSingular(TokenIterator & it, const TokenIterator & end, int indent);
 
+std::unique_ptr<ast::Type> parseType(TokenIterator & it, const TokenIterator & end, int indent);
+
+std::unique_ptr<ast::TypeParameterList> parseTypeParameters(TokenIterator & it, const TokenIterator & end, int indent);
+
 std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator & it, const TokenIterator & end, int indent);
 
 std::unique_ptr<ast::While> parseWhile(TokenIterator & it, const TokenIterator & end, int indent);
@@ -41,6 +45,7 @@ std::unique_ptr<ast::Statement> parseIfThenElse(TokenIterator & it, const TokenI
 std::unique_ptr<ast::For> parseFor(TokenIterator & it, const TokenIterator & end, int indent);
 
 std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator & it, const TokenIterator & end, int indent);
+
 
 
 // TODO: multiline nested expressions

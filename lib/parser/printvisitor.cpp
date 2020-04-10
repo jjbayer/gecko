@@ -31,6 +31,9 @@ void PrintVisitor::visitAssignment(const Assignment &assignment)
 void PrintVisitor::visitFunctionCall(const FunctionCall &functionCall)
 {
     functionCall.mName->acceptVisitor(*this);
+
+    functionCall.mTypeParameters->acceptVisitor(*this);
+
     std::cout << "(";
     auto tail = false;
     for(const auto & argument : functionCall.mArguments) {
@@ -130,6 +133,16 @@ void PrintVisitor::visitTypeName(const TypeName &name)
     std::cout << name.mName;
 }
 
+
+void PrintVisitor::visitType(const Type &type)
+{
+    type.mTypeName->acceptVisitor(*this);
+    if( auto & params = type.mTypeParameters) {
+        params->acceptVisitor(*this);
+    }
+}
+
+
 void PrintVisitor::visitOr(const Or &visitable)
 {
     visitable.mLeft->acceptVisitor(*this);
@@ -185,6 +198,19 @@ void PrintVisitor::visitIfThenElse(const IfThenElse &ifThenElse)
     mIndent++;
     ifThenElse.mElseBlock->acceptVisitor(*this);
     mIndent--;
+}
+
+
+void PrintVisitor::visitTypeParameterList(const TypeParameterList & typeParameters)
+{
+    std::cout << "<";
+    auto tail = false;
+    for(const auto & param : typeParameters.mTypeParameters) {
+        if( tail ) std::cout << ", ";
+        tail = true;
+        param->acceptVisitor(*this);
+    }
+    std::cout << ">";
 }
 
 

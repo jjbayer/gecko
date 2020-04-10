@@ -31,6 +31,34 @@ void TypeName::acceptVisitor(Visitor &visitor)
 }
 
 
+Type::Type(std::unique_ptr<TypeName> typeName, std::unique_ptr<TypeParameterList> typeParameters, const Position & position)
+    : Node(position)
+    , mTypeName(std::move(typeName))
+    , mTypeParameters(std::move(typeParameters))
+{
+
+}
+
+void Type::acceptVisitor(Visitor & visitor)
+{
+    visitor.visitType(*this);
+}
+
+
+TypeParameterList::TypeParameterList(const Position & position)
+    : Node(position) {}
+
+void TypeParameterList::acceptVisitor(Visitor & visitor)
+{
+    visitor.visitTypeParameterList(*this);
+}
+
+void TypeParameterList::addTypeParameter(std::unique_ptr<Type> type)
+{
+    mTypeParameters.push_back(std::move(type));
+}
+
+
 IntLiteral::IntLiteral(int64_t value, const Position & position)
     : Singular(position)
     , mValue(value)
@@ -65,9 +93,10 @@ void Scope::acceptVisitor(Visitor &visitor)
     visitor.visitScope(*this); // TODO: indent
 }
 
-FunctionCall::FunctionCall(std::unique_ptr<Name> &&name, const Position &position)
+FunctionCall::FunctionCall(std::unique_ptr<Name> name, std::unique_ptr<TypeParameterList> typeParameters, const Position &position)
     : Singular(position)
     , mName(std::move(name))
+    , mTypeParameters(std::move(typeParameters))
 {
 
 }

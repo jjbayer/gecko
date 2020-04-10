@@ -19,7 +19,9 @@ class Name;
 class Or;
 class Scope;
 class StringLiteral;
+class Type;
 class TypeName;
+class TypeParameterList;
 class While;
 
 
@@ -44,7 +46,9 @@ public:
     virtual void visitOr(const Or & test) = 0;
     virtual void visitScope(const Scope & scope) = 0;
     virtual void visitStringLiteral(const StringLiteral & visitable) = 0;
+    virtual void visitType(const Type & visitable) = 0;
     virtual void visitTypeName(const TypeName & visitable) = 0;
+    virtual void visitTypeParameterList(const TypeParameterList & typeParameters) = 0;
     virtual void visitWhile(const While & loop) = 0;
 };
 

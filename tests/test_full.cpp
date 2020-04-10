@@ -123,14 +123,30 @@ print(x)
 BOOST_AUTO_TEST_CASE(returning_function)
 {
     const auto code = R"###(
-function life()
-    42
+function mul(a: Int, b: Int)
+    a * b
 
-x = life()
+x = mul(3, 5)
 y = 3
-print(x)
+print(15)
 )###";
 
-    BOOST_CHECK_EQUAL(eval(code), "42\n");
+    BOOST_CHECK_EQUAL(eval(code), "15\n");
 
 }
+
+
+BOOST_AUTO_TEST_CASE(typed_list)
+{
+    const auto code = R"###(
+lst = List<Int>()
+print(length(lst))
+append(x, 123)
+print(length(lst))
+)###";
+
+    BOOST_CHECK_EQUAL(eval(code), "0\n1\n");
+
+}
+
+

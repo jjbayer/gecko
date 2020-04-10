@@ -25,6 +25,8 @@ public:
     void visitScope(const Scope &scope) override;
     void visitStringLiteral(const StringLiteral & visitable) override;
     void visitTypeName(const TypeName & visitable) override;
+    void visitType(const Type & visitable) override;
+    void visitTypeParameterList(const TypeParameterList & typeParameters) override;
     void visitWhile(const While &loop) override;
 
 private:

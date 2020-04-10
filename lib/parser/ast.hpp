@@ -83,6 +83,34 @@ public:
 };
 
 
+class TypeParameterList;
+
+
+class Type: public Node
+{
+public:
+    Type(std::unique_ptr<TypeName> name, std::unique_ptr<TypeParameterList> typeParameters, const Position &);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    std::unique_ptr<TypeName> mTypeName;
+    std::unique_ptr<TypeParameterList> mTypeParameters;
+};
+
+
+class TypeParameterList: public Node
+{
+public:
+    TypeParameterList(const Position &);
+
+    void acceptVisitor(Visitor & visitor) override;
+
+    void addTypeParameter(std::unique_ptr<Type>);
+
+    std::vector<std::unique_ptr<Type> > mTypeParameters;
+};
+
+
 class IntLiteral: public Singular
 {
 public:
@@ -130,13 +158,14 @@ public:
 class FunctionCall: public Singular
 {
 public:
-    FunctionCall(std::unique_ptr<Name> && name, const Position & position);
+    FunctionCall(std::unique_ptr<Name> name, std::unique_ptr<TypeParameterList> typeParameters, const Position & position);
 
     void addArgument(std::unique_ptr<Expression> && expression);
 
     void acceptVisitor(Visitor & visitor) override;
 
     std::unique_ptr<Name> mName;
+    std::unique_ptr<TypeParameterList> mTypeParameters;
     std::vector<std::unique_ptr<Expression> > mArguments;
 };
 

@@ -1,6 +1,8 @@
 #pragma once
-#include <stdexcept>
 #include "tokenizer/tokenizer.hpp"
+
+#include <set>
+#include <stdexcept>
 
 
 class CompilerBug: public std::runtime_error
@@ -62,6 +64,8 @@ public:
         : SyntaxError(token.position, "Expected " +  tokenName(expected) + " , got '" + token.value + "'")
     {}
 
+    UnexpectedToken(const Token & token, const std::set<Token::Type> & expected);
+
     const char * name() const override { return "UnexpectedToken"; }
 };
 
@@ -81,6 +85,8 @@ public:
     UnexpectedEndOfFile(Token::Type expected)
         : SyntaxError({}, "Expected " +  tokenName(expected))
     {}
+
+    UnexpectedEndOfFile(const std::set<Token::Type> & expected);
 
     UnexpectedEndOfFile(const std::string & expected)
         : SyntaxError({}, "Expected " +  expected)

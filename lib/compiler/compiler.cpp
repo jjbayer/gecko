@@ -264,6 +264,11 @@ void Compiler::visitTypeName(const ast::TypeName &name)
     lookupType(name);
 }
 
+void Compiler::visitTypeParameterList(const ast::TypeParameterList &typeParameters)
+{
+    throw MissingFeature("TypeParameterList");
+}
+
 
 void Compiler::visitScope(const ast::Scope &scope)
 {
@@ -278,6 +283,11 @@ void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
 {
     latestObject = mObjectProvider.createObject(BasicType::STRING);
     appendInstruction<ins::SetString>(latestObject->id, visitable.mValue);
+}
+
+void Compiler::visitType(const ast::Type &visitable)
+{
+    throw MissingFeature("Type");
 }
 
 

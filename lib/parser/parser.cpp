@@ -1,7 +1,7 @@
 #include "parser.hpp"
 #include "common/exceptions.hpp"
 
-#include <unordered_set>
+#include <set>
 #include <sstream>
 
 
@@ -11,6 +11,12 @@ void expect(Token::Type expectedType, const TokenIterator & it, const TokenItera
 {
     if( it == end ) throw UnexpectedEndOfFile(expectedType);
     if( it->type != expectedType ) throw UnexpectedToken(*it, expectedType);
+}
+
+void expect(const std::set<Token::Type> & expectedTypes, const TokenIterator & it, const TokenIterator & end)
+{
+    if( it == end ) throw UnexpectedEndOfFile(expectedTypes);
+    if( ! expectedTypes.count(it->type) ) throw UnexpectedToken(*it, expectedTypes);
 }
 
 } // anonymous namespace
@@ -181,7 +187,7 @@ std::unique_ptr<ast::Expression> parseAnd(TokenIterator &it, const TokenIterator
 
 std::unique_ptr<ast::Expression> parseComparison(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    const std::unordered_set<Token::Type> operatorTypes {
+    const std::set<Token::Type> operatorTypes {
         Token::LessThan,
         Token::LTE,
         Token::Equal,
@@ -320,23 +326,38 @@ std::unique_ptr<ast::Singular> parseSingular(TokenIterator &it, const TokenItera
 
 std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenIterator &end, int indent)
 {
-    expect(Token::Name, it, end);
+    expect({Token::Name, Token::TypeName}, it, end);
 
     auto name = std::make_unique<ast::Name>(it->value, it->position);
 
     it++;
 
-    if( it == end || it->type != Token::ParenLeft) {
+    if( it == end || (it->type != Token::ParenLeft && it->type != Token::LessThan) ) {
+
+        return std::move(name);
+    }
+
+    const auto pos = name->position();
+
+    const auto itAfterName = it;
+    std::unique_ptr<ast::TypeParameterList> typeParameters = nullptr;
+    try {
+        typeParameters = parseTypeParameters(it, end, indent);
+    } catch(const SyntaxError &) {
+        // Try again without type parameters
+        it = itAfterName;
+    }
+
+    if( it == end || it->type != Token::ParenLeft ) {
 
         return std::move(name);
     }
 
     it++; // Consume opening parenthesis
 
-    const auto pos = name->position();
-    auto functionCall = std::make_unique<ast::FunctionCall>(std::move(name), pos);
-
     if( it == end ) throw UnexpectedEndOfFile("function arguments");
+
+    auto functionCall = std::make_unique<ast::FunctionCall>(std::move(name), std::move(typeParameters), pos);
 
     if( it->type == Token::ParenRight) { // Empty argument list
 
@@ -501,4 +522,44 @@ std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &
     auto body = parseScope(it, end, indent + 1);
 
     return std::make_unique<ast::FunctionDefinition>(std::move(functionName), std::move(arguments), std::move(body), position);
+}
+
+
+std::unique_ptr<ast::TypeParameterList> parseTypeParameters(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    expect(Token::LessThan, it, end);
+
+    auto list = std::make_unique<ast::TypeParameterList>(it->position);
+
+    it++; // Consume '<'
+
+    while( it != end && it->type != Token::GreaterThan ) {
+        list->addTypeParameter(parseType(it, end, indent));
+    }
+
+    expect(Token::GreaterThan, it, end);
+
+    it++; // Consume '>'
+
+    return list;
+}
+
+std::unique_ptr<ast::Type> parseType(TokenIterator &it, const TokenIterator &end, int indent)
+{
+    expect(Token::TypeName, it, end);
+
+    const auto pos = it->position;
+
+    auto typeName = std::make_unique<ast::TypeName>(it->value, pos);
+
+    it++; // consume type name
+
+    if(it == end || it->type != Token::LessThan) {
+
+        return std::make_unique<ast::Type>(std::move(typeName), nullptr, pos);
+    }
+
+    auto params = parseTypeParameters(it, end, indent);
+
+    return std::make_unique<ast::Type>(std::move(typeName), std::move(params), pos);
 }

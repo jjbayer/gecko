@@ -39,7 +39,9 @@ public:
     void visitOr(const ast::Or & test) override;
     void visitScope(const ast::Scope &scope) override;
     void visitStringLiteral(const ast::StringLiteral & visitable) override;
+    void visitType(const ast::Type & visitable) override;
     void visitTypeName(const ast::TypeName & visitable) override;
+    void visitTypeParameterList(const ast::TypeParameterList & typeParameters) override;
     void visitWhile(const ast::While &loop) override;
 
 private:
