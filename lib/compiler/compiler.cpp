@@ -62,9 +62,11 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 {
     std::vector<Type> typeParameters, argumentTypes;
 
-    for(  const auto & param : functionCall.mTypeParameters->mTypeParameters ) {
-        param->acceptVisitor(*this);
-        typeParameters.push_back(latestType);
+    if( functionCall.mTypeParameters ) {
+        for(  const auto & param : functionCall.mTypeParameters->mTypeParameters ) {
+            param->acceptVisitor(*this);
+            typeParameters.push_back(latestType);
+        }
     }
 
     std::vector<std::shared_ptr<const CompileTimeObject> > arguments;
