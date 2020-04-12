@@ -7,27 +7,18 @@ class Instruction;
 
 namespace ct {
 
-class UserFunction: public Function
+class UserFunction: public PlainFunction // TODO: allow template user  functions
 {
 public:
 
-    UserFunction(std::vector<std::shared_ptr<CompileTimeObject> > argumentSlots, std::shared_ptr<const CompileTimeObject> returnObject, InstructionVector instructions)
-        : mArgumentSlots(std::move(argumentSlots))
-        , mReturnObject(returnObject)
-        , mInstructions(std::move(instructions))
-    {
-        for(const auto slot : mArgumentSlots) mArgumentTypes.push_back(slot->type);
-    }
-
-    virtual std::vector<Type> argumentTypes() const override { return mArgumentTypes; }
-
-    virtual Type returnType() const override { return mReturnObject->type; }
-
-    virtual ~UserFunction() {}
+    UserFunction(
+        const FunctionKey & key,
+        std::vector<std::shared_ptr<CompileTimeObject> > argumentSlots, std::shared_ptr<const CompileTimeObject> returnObject, InstructionVector instructions);
 
 private:
 
     void _generateInstructions(
+        const std::vector<Type> &,
         const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
         InstructionVector & instructions,
         std::shared_ptr<CompileTimeObject> returnValue

@@ -3,6 +3,8 @@
 #include "typecreator.hpp"
 
 
+namespace ct {
+
 struct CompileTimeObject
 {
     ObjectId id;
@@ -11,3 +13,5 @@ struct CompileTimeObject
 
     bool isAllocated() const { return type >= BasicType::STRING; }
 };
+
+} // namespace ct

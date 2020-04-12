@@ -1,10 +1,13 @@
 #include "compiler.hpp"
 #include "parser/ast.hpp"
 #include "common/exceptions.hpp"
+#include "functionkey.hpp"
 #include "functions/builtins.hpp"
 #include "functions/stdin.hpp"
 #include "functions/userfunction.hpp"
+#include "compiletimeobject.hpp"
 
+#include<memory>
 #include <sstream>
 
 
@@ -57,7 +60,12 @@ void Compiler::visitAssignment(const ast::Assignment &assignment)
 
 void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
 {
-    std::vector<Type> argumentTypes;
+    std::vector<Type> typeParameters, argumentTypes;
+
+    for(  const auto & param : functionCall.mTypeParameters->mTypeParameters ) {
+        param->acceptVisitor(*this);
+        typeParameters.push_back(latestType);
+    }
 
     std::vector<std::shared_ptr<const CompileTimeObject> > arguments;
     for( const auto & arg : functionCall.mArguments ) {
@@ -66,10 +74,10 @@ void Compiler::visitFunctionCall(const ast::FunctionCall &functionCall)
         argumentTypes.push_back(latestObject->type);
     }
 
-    auto function = lookupFunction(functionCall.mName->mName, argumentTypes, functionCall.position());
+    auto function = lookupFunction(functionCall.mName->mName, typeParameters, argumentTypes, functionCall.position());
 
     auto returnValue = mObjectProvider.createObject(BasicType::NONE);
-    function->generateInstructions(arguments, mInstructions, returnValue);
+    function->generateInstructions(typeParameters, arguments, mInstructions, returnValue);
     latestObject = returnValue;
 }
 
@@ -104,8 +112,11 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
 
     mLookup.pop();
 
-    const auto lookupKey = FunctionKey { def.mName->mName, argumentTypes };
-    const auto created = mLookup.setFunction(lookupKey, std::make_unique<ct::UserFunction>(
+    const auto mTypeParameters = std::vector<Type> {}; // TODO: user functions with type parameters
+
+    const auto lookupKey = FunctionKey { def.mName->mName, {}, argumentTypes };
+    const auto created = mLookup.setFunction(std::make_unique<ct::UserFunction>(
+        lookupKey,
         std::move(argumentSlots),
         returnObject,
         std::move(instructions)
@@ -129,46 +140,49 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 
 void Compiler::visitFor(const ast::For &loop)
 {
-    loop.mRange->acceptVisitor(*this);
-    const auto range = latestObject;
+    // FIXME: functions no longer declare return type
+    throw MissingFeature {"visitFor"};
 
-    auto nextFn = lookupFunction("next", {range->type}, loop.mRange->position());
+//    loop.mRange->acceptVisitor(*this);
+//    const auto range = latestObject;
 
-    auto optional = mObjectProvider.createObject(nextFn->returnType());
-    auto itemType = getOptionalType(mTypeCreator, optional->type);
+//    auto nextFn = lookupFunction("next", {range->type}, loop.mRange->position());
 
-    // // Create new address & special scope for loop var:
-    auto loopVar = mObjectProvider.createObject(itemType);
-    mLookup.push();
-    mLookup.setObject(loop.mLoopVariable->mName, loopVar);
+//    auto optional = mObjectProvider.createObject(nextFn->returnType());
+//    auto itemType = getOptionalType(mTypeCreator, optional->type);
 
-    auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<ins::SetInt>(expectedEnumKey->id, 1);
+//    // // Create new address & special scope for loop var:
+//    auto loopVar = mObjectProvider.createObject(itemType);
+//    mLookup.push();
+//    mLookup.setObject(loop.mLoopVariable->mName, loopVar);
 
-    // nextFn
-    const auto ipNext = latestInstructionPointer() + 1;
-    nextFn->generateInstructions({range}, mInstructions, optional);
+//    auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
+//    appendInstruction<ins::SetInt>(expectedEnumKey->id, 1);
 
-    // // TODO: Visit enum
-    auto enumKey = mObjectProvider.createObject(BasicType::INT);
-    appendInstruction<ins::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
-    auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
-    appendInstruction<ins::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
+//    // nextFn
+//    const auto ipNext = latestInstructionPointer() + 1;
+//    nextFn->generateInstructions({range}, mInstructions, optional);
 
-    appendInstruction<ins::Noop>(); // placeholder for jump_if
-    const auto ipJumpIfNot = latestInstructionPointer();
+//    // // TODO: Visit enum
+//    auto enumKey = mObjectProvider.createObject(BasicType::INT);
+//    appendInstruction<ins::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
+//    auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
+//    appendInstruction<ins::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
 
-    // Now we are in the section where optional has value
-    appendInstruction<ins::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
+//    appendInstruction<ins::Noop>(); // placeholder for jump_if
+//    const auto ipJumpIfNot = latestInstructionPointer();
 
-    loop.mBody->acceptVisitor(*this);
-    appendInstruction<ins::Jump>(ipNext);
+//    // Now we are in the section where optional has value
+//    appendInstruction<ins::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
 
-    appendInstruction<ins::Noop>(); // Make sure there is something to jump to
-    const auto afterLoop = latestInstructionPointer();
-    mInstructions[ipJumpIfNot] = std::make_unique<ins::JumpIfNot>(condition->id, afterLoop);
+//    loop.mBody->acceptVisitor(*this);
+//    appendInstruction<ins::Jump>(ipNext);
 
-    mLookup.pop();
+//    appendInstruction<ins::Noop>(); // Make sure there is something to jump to
+//    const auto afterLoop = latestInstructionPointer();
+//    mInstructions[ipJumpIfNot] = std::make_unique<ins::JumpIfNot>(condition->id, afterLoop);
+
+//    mLookup.pop();
 }
 
 void Compiler::visitFree()
@@ -397,13 +411,13 @@ void Compiler::visitAnd(const ast::And &test) // TODO: unify operators
 
 void Compiler::loadPrelude()
 {
-    registerBuiltinFunction<PrintInt>("print");
-    registerBuiltinFunction<PrintString>("print");
+    registerBuiltinFunction<PrintInt>({"print", {}, {BasicType::INT}});
+    registerBuiltinFunction<PrintString>({"print", {}, {BasicType::STRING}});
 
     lookupOrCreate({"stdin"}); // TODO: no need to lookup
     appendInstruction<ins::SetAllocated>(latestObject->id, &std::make_unique<obj::Allocated>); // Dummy
-    latestObject->type = mTypeCreator.structType("Stdin");
-    registerBuiltinFunction<ct::NextStdin>("next");
+    const auto type = latestObject->type = mTypeCreator.structType("Stdin");
+    registerBuiltinFunction<NextStdin>({"next", {}, {type}});
 
     // Register type names
     mLookup.setType("None", BasicType::NONE);
@@ -437,9 +451,11 @@ void Compiler::lookupType(const ast::TypeName & typeName)
     latestType = type;
 }
 
-const Function * Compiler::lookupFunction(const std::string & functionName, const std::vector<Type> & argumentTypes, const Position & position)
+const Function * Compiler::lookupFunction(const std::string & functionName,
+                                          const std::vector<Type> & typeParameters,
+                                          const std::vector<Type> & argumentTypes, const Position & position)
 {
-    auto * function = mLookup.lookupFunction({functionName, argumentTypes});
+    auto * function = mLookup.lookupFunction({functionName, typeParameters, argumentTypes});
     if( ! function ) throw UnknownFunction(position, functionName); // TODO: include argument types in exception text
 
     return function;

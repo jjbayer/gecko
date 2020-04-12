@@ -1,5 +1,7 @@
 #include "objectprovider.hpp"
 
+namespace ct {
+
 std::shared_ptr<CompileTimeObject> ObjectProvider::createObject(Type type)
 {
     auto object = std::make_shared<CompileTimeObject>();
@@ -8,3 +10,5 @@ std::shared_ptr<CompileTimeObject> ObjectProvider::createObject(Type type)
 
     return object;
 }
+
+} // namespace ct

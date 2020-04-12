@@ -49,17 +49,15 @@ private:
     void loadPrelude();
 
     template<typename T>
-    void registerBuiltinFunction(const std::string & name)
+    void registerBuiltinFunction(const FunctionKey & key)
     {
-        T dummy;
-
-        mLookup.setFunction({name, dummy.argumentTypes()}, std::make_unique<T>());
+        mLookup.setFunction(std::make_unique<T>(key));
     }
 
     void lookupObject(const ast::Name & name);
 
     void lookupType(const ast::TypeName & typeName);
-    const Function * lookupFunction(const std::string & functionName, const std::vector<Type> & argumentTypes, const Position & position);
+    const Function * lookupFunction(const std::string & functionName, const std::vector<Type> &typeParameters, const std::vector<Type> & argumentTypes, const Position & position);
 
     bool lookupOrCreate(const std::string & key);
     InstructionPointer latestInstructionPointer() const;

@@ -7,6 +7,7 @@
 #include <vector>
 
 
+namespace ct {
 
 class FunctionKey
 {
@@ -15,29 +16,15 @@ public:
     FunctionKey(const std::string & name);
 
     /// Lookup function types
-    FunctionKey(const std::string & name, const std::vector<Type> & argumentTypes);
+    FunctionKey(const std::string & name, const std::vector<Type> & typeParameters, const std::vector<Type> & argumentTypes);
 
     bool operator==(const FunctionKey & other) const;
 
     const std::string mName;
+    const std::vector<Type> mTypeParameters;
     const std::vector<Type> mArgumentTypes;
 
 };
 
+} // namespace ct
 
-namespace std {
-
-  template <>
-  struct hash<FunctionKey>
-  {
-      size_t operator()(const FunctionKey &key) const
-      {
-          size_t seed {0};
-          hash_combine(seed, key.mName);
-          for(auto arg : key.mArgumentTypes) hash_combine(seed, arg);
-
-          return seed;
-      }
-  };
-
-}

@@ -8,13 +8,15 @@ add_library(gecko
 
     compiler/compiler.cpp
     compiler/compiletimeobject.cpp
+    compiler/functiongroup.cpp
+    compiler/functionkey.cpp
     compiler/functions/function.cpp
     compiler/functions/builtins.cpp
     compiler/functions/userfunction.cpp
     compiler/functions/stdin.cpp
     compiler/lookup.cpp
-    compiler/lookupkey.cpp
     compiler/objectprovider.cpp
+    compiler/scope.cpp
     compiler/typecreator.cpp
 
     parser/ast.cpp

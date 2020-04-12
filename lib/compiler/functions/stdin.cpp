@@ -5,7 +5,7 @@
 namespace ct {
 
 
-void NextStdin::_generateInstructions(
+void NextStdin::_generateInstructions(const std::vector<Type> &typeParameters,
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
     InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
@@ -22,15 +22,6 @@ void NextStdin::_generateInstructions(
 
     // TODO: actually read from given object
     instructions.push_back(std::make_unique<ins::ReadFromStdin>(returnValue->id));
-}
-
-std::vector<Type> NextStdin::argumentTypes() const { return {typeCreator().structType("Stdin")}; }
-
-
-Type NextStdin::returnType() const
-{
-    const TypeKey typeKey {MetaType::ENUM, {BasicType::NONE, BasicType::STRING}};
-    return typeCreator().getType(typeKey);
 }
 
 

@@ -143,9 +143,12 @@ lst = List<Int>()
 print(length(lst))
 append(x, 123)
 print(length(lst))
+
+lst2 = List<List<Int> >
+print(length(lst2))
 )###";
 
-    BOOST_CHECK_EQUAL(eval(code), "0\n1\n");
+    BOOST_CHECK_EQUAL(eval(code), "0\n1\n0\n");
 
 }
 

@@ -1,4 +1,5 @@
 #include "lookup.hpp"
+#include "functionkey.hpp"
 #include "common/utils.hpp"
 
 
@@ -30,11 +31,9 @@ void Lookup::setObject(const std::string &key, std::shared_ptr<CompileTimeObject
     currentScope().mObjects[key] = object;
 }
 
-bool Lookup::setFunction(const FunctionKey & key, std::unique_ptr<Function> function)
+bool Lookup::setFunction(std::unique_ptr<Function> function)
 {
-    const auto pair = currentScope().mFunctions.emplace(key, std::move(function));
-
-    return pair.second;
+    return currentScope().setFunction(std::move(function));
 }
 
 void Lookup::setType(const std::string & typeName, Type type)
@@ -62,10 +61,10 @@ const Function * Lookup::lookupFunction(const FunctionKey &key) const
 {
     for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
         const auto & scope = *it;
-        const auto found = scope.mFunctions.find(key);
-        if( found != scope.mFunctions.end() ) {
+        const auto functionPtr = scope.findFunction(key);
+        if( functionPtr ) {
 
-            return found->second.get();
+            return functionPtr;
         }
     }
 

@@ -3,6 +3,8 @@
 #include <memory>
 
 
+namespace ct {
+
 class ObjectProvider
 {
 public:
@@ -13,3 +15,5 @@ public:
 private:
     size_t mNextObjectId = 0;
 };
+
+} // namespace ct

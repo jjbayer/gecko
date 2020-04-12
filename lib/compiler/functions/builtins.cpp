@@ -5,6 +5,7 @@
 namespace ct {
 
 void PrintInt::_generateInstructions(
+    const std::vector<Type> & typeParameters,
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
     InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
@@ -16,6 +17,7 @@ void PrintInt::_generateInstructions(
 
 
 void PrintString::_generateInstructions(
+    const std::vector<Type> &typeParameters,
     const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
     InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
