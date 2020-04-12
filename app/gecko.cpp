@@ -50,7 +50,7 @@ int main(int argc, char ** argv)
 
 
         std::cout << "*** Parsed code ***\n";
-        ast::PrintVisitor printer;
+        ast::PrintVisitor printer { std::cout };
         tree->acceptVisitor(printer);
         std::cout << "*******************\n\n";
 

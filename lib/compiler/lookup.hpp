@@ -30,11 +30,11 @@ public:
 
     std::shared_ptr<CompileTimeObject> lookupObject(const std::string & key) const;
     const Function * lookupFunction(const FunctionKey & key) const;
-    Type lookupType(const std::string & typeName) const;
+    Type lookupType(const std::string & typeString) const;
 
     void setObject(const std::string & key, std::shared_ptr<CompileTimeObject> object);
     bool setFunction(std::unique_ptr<Function> function);
-    void setType(const std::string & typeName, Type type);
+    void setType(const std::string & typeString, Type typeId);
 
     // TODO: iterator
     const std::vector<Scope> & scopes() const { return mScopes; }

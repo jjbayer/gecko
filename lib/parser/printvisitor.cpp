@@ -1,7 +1,6 @@
 #include "printvisitor.hpp"
 #include "ast.hpp"
 
-#include <iostream>
 #include <unordered_map>
 
 
@@ -10,21 +9,21 @@ namespace ast {
 void PrintVisitor::visitAddition(const Addition & addition)
 {
     addition.mLeft->acceptVisitor(*this);
-    std::cout << " + ";
+    mOut << " + ";
     addition.mRight->acceptVisitor(*this);
 }
 
 void PrintVisitor::visitAnd(const And &visitable)
 {
     visitable.mLeft->acceptVisitor(*this);
-    std::cout << " and ";
+    mOut << " and ";
     visitable.mRight->acceptVisitor(*this);
 }
 
 void PrintVisitor::visitAssignment(const Assignment &assignment)
 {
     assignment.mAssignee->acceptVisitor(*this);
-    std::cout << " = ";
+    mOut << " = ";
     assignment.mValue->acceptVisitor(*this);
 }
 
@@ -34,32 +33,32 @@ void PrintVisitor::visitFunctionCall(const FunctionCall &functionCall)
 
     functionCall.mTypeParameters->acceptVisitor(*this);
 
-    std::cout << "(";
+    mOut << "(";
     auto tail = false;
     for(const auto & argument : functionCall.mArguments) {
-        if( tail ) std::cout << ", ";
+        if( tail ) mOut << ", ";
         tail = true;
         argument->acceptVisitor(*this);
     }
-    std::cout << ")";
+    mOut << ")";
 }
 
 
 void PrintVisitor::visitFunctionDefinition(const FunctionDefinition & functionDefinition)
 {
-    std::cout << "function ";
+    mOut << "function ";
     functionDefinition.mName->acceptVisitor(*this);
-    std::cout << "(";
+    mOut << "(";
     auto tail = false;
     for(const auto & argument : functionDefinition.mArguments) {
-        if( tail ) std::cout << ", ";
+        if( tail ) mOut << ", ";
         tail = true;
         argument.first->acceptVisitor(*this);
-        std::cout << ": ";
+        mOut << ": ";
         argument.second->acceptVisitor(*this);
     }
-    std::cout << ")";
-    std::cout << "\n";
+    mOut << ")";
+    mOut << "\n";
     mIndent++;
     functionDefinition.mBody->acceptVisitor(*this);
     mIndent--;
@@ -69,23 +68,23 @@ void PrintVisitor::visitFunctionDefinition(const FunctionDefinition & functionDe
 
 void PrintVisitor::visitIntLiteral(const IntLiteral &literal)
 {
-    std::cout << literal.mValue;
+    mOut << literal.mValue;
 }
 
 void PrintVisitor::visitFloatLiteral(const FloatLiteral &literal)
 {
-    std::showpoint(std::cout);
-    std::cout << literal.mValue;
+    std::showpoint(mOut);
+    mOut << literal.mValue;
 }
 
 void PrintVisitor::visitFor(const For &loop)
 {
-    std::cout << "for ";
+    mOut << "for ";
     loop.mLoopVariable->acceptVisitor(*this);
-    std::cout << " in ";
+    mOut << " in ";
     loop.mRange->acceptVisitor(*this);
 
-    std::cout << "\n";
+    mOut << "\n";
     mIndent++;
     loop.mBody->acceptVisitor(*this);
     mIndent--;
@@ -94,12 +93,12 @@ void PrintVisitor::visitFor(const For &loop)
 
 void PrintVisitor::visitFree()
 {
-    std::cout << "free";
+    mOut << "free";
 }
 
 void PrintVisitor::visitBooleanLiteral(const BooleanLiteral &literal)
 {
-    std::cout << (literal.mValue ? "true" : "false");
+    mOut << (literal.mValue ? "true" : "false");
 }
 
 void PrintVisitor::visitComparison(const Comparison &visitable)
@@ -116,7 +115,7 @@ void PrintVisitor::visitComparison(const Comparison &visitable)
 
     for(size_t i = 0; i < visitable.mOperators.size(); i++) {
         visitable.mOperands.at(i)->acceptVisitor(*this);
-        std::cout << tokenMap.at(visitable.mOperators.at(i));
+        mOut << tokenMap.at(visitable.mOperators.at(i));
     }
 
     // Last element
@@ -125,12 +124,12 @@ void PrintVisitor::visitComparison(const Comparison &visitable)
 
 void PrintVisitor::visitName(const Name &name)
 {
-    std::cout << name.mName;
+    mOut << name.mName;
 }
 
 void PrintVisitor::visitTypeName(const TypeName &name)
 {
-    std::cout << name.mName;
+    mOut << name.mName;
 }
 
 
@@ -146,29 +145,29 @@ void PrintVisitor::visitType(const Type &type)
 void PrintVisitor::visitOr(const Or &visitable)
 {
     visitable.mLeft->acceptVisitor(*this);
-    std::cout << " or ";
+    mOut << " or ";
     visitable.mRight->acceptVisitor(*this);
 }
 
 void PrintVisitor::visitScope(const Scope &scope)
 {
     for(const auto & statement : scope.mStatements) {
-        for(int i = 0; i < mIndent; i++) std::cout << "    ";
+        for(int i = 0; i < mIndent; i++) mOut << "    ";
         statement->acceptVisitor(*this);
-        std::cout << "\n";
+        mOut << "\n";
     }
 }
 
 void PrintVisitor::visitStringLiteral(const StringLiteral &visitable)
 {
-    std::cout << '"' << visitable.mValue << '"';
+    mOut << '"' << visitable.mValue << '"';
 }
 
 void PrintVisitor::visitWhile(const While &loop)
 {
-    std::cout << "while ";
+    mOut << "while ";
     loop.mCondition->acceptVisitor(*this);
-    std::cout << "\n";
+    mOut << "\n";
     mIndent++;
     loop.mBody->acceptVisitor(*this);
     mIndent--;
@@ -177,9 +176,9 @@ void PrintVisitor::visitWhile(const While &loop)
 
 void PrintVisitor::visitIfThen(const IfThen &ifThen)
 {
-    std::cout << "if ";
+    mOut << "if ";
     ifThen.mCondition->acceptVisitor(*this);
-    std::cout << "\n";
+    mOut << "\n";
     mIndent++;
     ifThen.mIfBlock->acceptVisitor(*this);
     mIndent--;
@@ -187,14 +186,14 @@ void PrintVisitor::visitIfThen(const IfThen &ifThen)
 
 void PrintVisitor::visitIfThenElse(const IfThenElse &ifThenElse)
 {
-    std::cout << "if ";
+    mOut << "if ";
     ifThenElse.mCondition->acceptVisitor(*this);
-    std::cout << "\n";
+    mOut << "\n";
     mIndent++;
     ifThenElse.mIfBlock->acceptVisitor(*this);
     mIndent--;
-    for(int i = 0; i < mIndent; i++) std::cout << "    ";
-    std::cout << "else\n";
+    for(int i = 0; i < mIndent; i++) mOut << "    ";
+    mOut << "else\n";
     mIndent++;
     ifThenElse.mElseBlock->acceptVisitor(*this);
     mIndent--;
@@ -203,14 +202,14 @@ void PrintVisitor::visitIfThenElse(const IfThenElse &ifThenElse)
 
 void PrintVisitor::visitTypeParameterList(const TypeParameterList & typeParameters)
 {
-    std::cout << "<";
+    mOut << "<";
     auto tail = false;
     for(const auto & param : typeParameters.mTypeParameters) {
-        if( tail ) std::cout << ", ";
+        if( tail ) mOut << ", ";
         tail = true;
         param->acceptVisitor(*this);
     }
-    std::cout << ">";
+    mOut << ">";
 }
 
 

@@ -40,7 +40,7 @@ public:
     void visitScope(const ast::Scope &scope) override;
     void visitStringLiteral(const ast::StringLiteral & visitable) override;
     void visitType(const ast::Type & visitable) override;
-    void visitTypeName(const ast::TypeName & visitable) override;
+    void visitTypeName(const ast::TypeName &) override;
     void visitTypeParameterList(const ast::TypeParameterList & typeParameters) override;
     void visitWhile(const ast::While &loop) override;
 
@@ -56,7 +56,7 @@ private:
 
     void lookupObject(const ast::Name & name);
 
-    void lookupType(const ast::TypeName & typeName);
+    void lookupType(const ast::Type &typeTree);
     const Function * lookupFunction(const std::string & functionName, const std::vector<Type> &typeParameters, const std::vector<Type> & argumentTypes, const Position & position);
 
     bool lookupOrCreate(const std::string & key);

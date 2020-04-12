@@ -9,7 +9,6 @@
 #include "compiler/compiler.hpp"
 #include "parser/ast.hpp"
 #include "parser/parser.hpp"
-#include "parser/printvisitor.hpp"
 #include "runtime/executor.hpp"
 #include "runtime/output.hpp"
 
@@ -88,7 +87,7 @@ function foo()
     BOOST_CHECK_THROW(eval(code), UnknownFunction);
 }
 
-BOOST_AUTO_TEST_CASE(function_exist)
+BOOST_AUTO_TEST_CASE(function_exists)
 {
     // Recursive functions are not supported.
     const auto code = R"###(

@@ -1,12 +1,15 @@
 #pragma once
 #include "visitor.hpp"
-
+#include <ostream>
 
 namespace ast { // TODO: does not belong in this namespace
 
 class PrintVisitor: public Visitor
 {
 public:
+
+    PrintVisitor(std::ostream & output): mOut(output) {}
+
     void visitAddition(const Addition &visitable) override;
     void visitAnd(const And &visitable) override;
     void visitAssignment(const Assignment &assignment) override;
@@ -30,8 +33,8 @@ public:
     void visitWhile(const While &loop) override;
 
 private:
+    std::ostream & mOut;
     int mIndent = 0;
-
 
     // Visitor interface
 public:

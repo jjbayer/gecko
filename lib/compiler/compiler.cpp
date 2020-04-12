@@ -275,9 +275,9 @@ void Compiler::visitName(const ast::Name &name)
 }
 
 
-void Compiler::visitTypeName(const ast::TypeName &name)
+void Compiler::visitTypeName(const ast::TypeName &)
 {
-    lookupType(name);
+    throw CompilerBug { "Compiler must not visit type name" };
 }
 
 void Compiler::visitTypeParameterList(const ast::TypeParameterList &typeParameters)
@@ -303,7 +303,7 @@ void Compiler::visitStringLiteral(const ast::StringLiteral &visitable)
 
 void Compiler::visitType(const ast::Type &visitable)
 {
-    throw MissingFeature("Type");
+    lookupType(visitable);
 }
 
 
@@ -440,17 +440,19 @@ void Compiler::lookupObject(const ast::Name &variable)
 }
 
 
-void Compiler::lookupType(const ast::TypeName & typeName)
+void Compiler::lookupType(const ast::Type & typeTree)
 {
-    Type type;
+    const auto typeString = typeTree.toString();
+
+    Type typeId;
     try {
-        type = mLookup.lookupType(typeName.mName);
+        typeId = mLookup.lookupType(typeString);
     } catch(const LookupError &) {
 
-        throw UnknownType(typeName.position(), typeName.mName);
+        throw UnknownType(typeTree.position(), typeString);
     }
 
-    latestType = type;
+    latestType = typeId;
 }
 
 const Function * Compiler::lookupFunction(const std::string & functionName,

@@ -1,6 +1,7 @@
 #include "lookup.hpp"
 #include "functionkey.hpp"
 #include "common/utils.hpp"
+#include "parser/ast.hpp"
 
 
 namespace ct {
@@ -36,9 +37,9 @@ bool Lookup::setFunction(std::unique_ptr<Function> function)
     return currentScope().setFunction(std::move(function));
 }
 
-void Lookup::setType(const std::string & typeName, Type type)
+void Lookup::setType(const std::string &typeString, Type type)
 {
-    currentScope().mTypes[typeName] = type;
+    currentScope().mTypes[typeString] = type;
 }
 
 
@@ -71,11 +72,11 @@ const Function * Lookup::lookupFunction(const FunctionKey &key) const
     return nullptr;
 }
 
-Type Lookup::lookupType(const std::string & typeName) const
+Type Lookup::lookupType(const std::string &typeString) const
 {
     for(auto it = mScopes.crbegin(); it != mScopes.crend(); it++) {
         const auto & scope = *it;
-        const auto found = scope.mTypes.find(typeName);
+        const auto found = scope.mTypes.find(typeString);
         if( found != scope.mTypes.end() ) {
 
             return found->second;

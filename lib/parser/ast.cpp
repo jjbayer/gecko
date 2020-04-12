@@ -1,5 +1,9 @@
 #include "ast.hpp"
 #include "visitor.hpp"
+#include "common/utils.hpp"
+#include "printvisitor.hpp"
+
+#include <sstream>
 
 
 namespace ast
@@ -12,7 +16,7 @@ Name::Name(const std::string &name, const Position &position)
 
 }
 
-void Name::acceptVisitor(Visitor &visitor)
+void Name::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitName(*this);
 }
@@ -25,7 +29,7 @@ TypeName::TypeName(const std::string &name, const Position &position)
 
 }
 
-void TypeName::acceptVisitor(Visitor &visitor)
+void TypeName::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitTypeName(*this);
 }
@@ -39,16 +43,25 @@ Type::Type(std::unique_ptr<TypeName> typeName, std::unique_ptr<TypeParameterList
 
 }
 
-void Type::acceptVisitor(Visitor & visitor)
+void Type::acceptVisitor(Visitor & visitor) const
 {
     visitor.visitType(*this);
+}
+
+std::string Type::toString() const
+{
+    std::stringstream stream;
+    auto visitor = PrintVisitor { stream };
+    acceptVisitor(visitor);
+
+    return stream.str();
 }
 
 
 TypeParameterList::TypeParameterList(const Position & position)
     : Node(position) {}
 
-void TypeParameterList::acceptVisitor(Visitor & visitor)
+void TypeParameterList::acceptVisitor(Visitor & visitor) const
 {
     visitor.visitTypeParameterList(*this);
 }
@@ -66,7 +79,7 @@ IntLiteral::IntLiteral(int64_t value, const Position & position)
 
 }
 
-void IntLiteral::acceptVisitor(Visitor &visitor)
+void IntLiteral::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitIntLiteral(*this);
 }
@@ -78,7 +91,7 @@ Assignment::Assignment(std::unique_ptr<Assignee> &&name, std::unique_ptr<Express
 {
 }
 
-void Assignment::acceptVisitor(Visitor &visitor)
+void Assignment::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitAssignment(*this);
 }
@@ -88,7 +101,7 @@ void Scope::addStatement(std::unique_ptr<Statement> &&statement)
     mStatements.push_back(std::move(statement));
 }
 
-void Scope::acceptVisitor(Visitor &visitor)
+void Scope::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitScope(*this); // TODO: indent
 }
@@ -106,7 +119,7 @@ void FunctionCall::addArgument(std::unique_ptr<Expression> &&expression)
     mArguments.push_back(std::move(expression));
 }
 
-void FunctionCall::acceptVisitor(Visitor &visitor)
+void FunctionCall::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitFunctionCall(*this);
 }
@@ -119,7 +132,7 @@ Addition::Addition(std::unique_ptr<Expression> &&left, std::unique_ptr<Expressio
 
 }
 
-void Addition::acceptVisitor(Visitor &visitor)
+void Addition::acceptVisitor(Visitor &visitor) const
 {
 
     visitor.visitAddition(*this);
@@ -133,7 +146,7 @@ While::While(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &&b
 
 }
 
-void While::acceptVisitor(Visitor &visitor)
+void While::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitWhile(*this);
 }
@@ -148,7 +161,7 @@ IfThenElse::IfThenElse(std::unique_ptr<Expression> &&condition, std::unique_ptr<
 
 }
 
-void IfThenElse::acceptVisitor(Visitor &visitor)
+void IfThenElse::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitIfThenElse(*this);
 }
@@ -161,7 +174,7 @@ IfThen::IfThen(std::unique_ptr<Expression> &&condition, std::unique_ptr<Scope> &
 
 }
 
-void IfThen::acceptVisitor(Visitor &visitor)
+void IfThen::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitIfThen(*this);
 }
@@ -171,7 +184,7 @@ FloatLiteral::FloatLiteral(double value, const Position &position)
     , mValue(value)
 {}
 
-void FloatLiteral::acceptVisitor(Visitor &visitor)
+void FloatLiteral::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitFloatLiteral(*this);
 }
@@ -186,7 +199,7 @@ BooleanLiteral::BooleanLiteral(bool value, const Position &position)
 
 }
 
-void BooleanLiteral::acceptVisitor(Visitor &visitor)
+void BooleanLiteral::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitBooleanLiteral(*this);
 }
@@ -198,7 +211,7 @@ StringLiteral::StringLiteral(const std::string &value, const Position &position)
 
 }
 
-void StringLiteral::acceptVisitor(Visitor &visitor)
+void StringLiteral::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitStringLiteral(*this);
 }
@@ -211,7 +224,7 @@ Or::Or(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, 
 
 }
 
-void Or::acceptVisitor(Visitor &visitor)
+void Or::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitOr(*this);
 }
@@ -224,7 +237,7 @@ And::And(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right
 
 }
 
-void And::acceptVisitor(Visitor &visitor)
+void And::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitAnd(*this);
 }
@@ -237,7 +250,7 @@ Comparison::Comparison(std::unique_ptr<Expression> &&left, Token::Type op, std::
     mOperands.push_back(std::move(right));
 }
 
-void Comparison::acceptVisitor(Visitor &visitor)
+void Comparison::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitComparison(*this);
 }
@@ -248,7 +261,7 @@ void Comparison::addTest(Token::Type operator_, std::unique_ptr<Expression> &&op
     mOperands.push_back(std::move(operand));
 }
 
-void Free::acceptVisitor(Visitor &visitor)
+void Free::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitFree();
 }
@@ -262,7 +275,7 @@ For::For(std::unique_ptr<Name> loopVariable, std::unique_ptr<Expression> range, 
 
 }
 
-void For::acceptVisitor(Visitor &visitor)
+void For::acceptVisitor(Visitor &visitor) const
 {
     visitor.visitFor(*this);
 }
@@ -270,7 +283,7 @@ void For::acceptVisitor(Visitor &visitor)
 
 FunctionDefinition::FunctionDefinition(
     std::unique_ptr<Name> functionName,
-    std::vector<std::pair<std::unique_ptr<Name>, std::unique_ptr<TypeName> > > arguments,
+    std::vector<std::pair<std::unique_ptr<Name>, std::unique_ptr<Type> > > arguments,
     std::unique_ptr<Scope> body,
     const Position & position
 )
@@ -282,7 +295,7 @@ FunctionDefinition::FunctionDefinition(
 
 }
 
-void FunctionDefinition::acceptVisitor(Visitor & visitor)
+void FunctionDefinition::acceptVisitor(Visitor & visitor) const
 {
     visitor.visitFunctionDefinition(*this);
 }
@@ -290,3 +303,18 @@ void FunctionDefinition::acceptVisitor(Visitor & visitor)
 
 
 } // namespace ast
+
+
+std::size_t std::hash<ast::Type>::operator()(const ast::Type & type) const
+{
+    size_t seed {0};
+    hash_combine(seed, type.mTypeName);
+
+    if( type.mTypeParameters ) {
+        for(const auto & type : type.mTypeParameters->mTypeParameters) {
+            hash_combine(seed, *type);
+        }
+    }
+
+    return seed;
+}

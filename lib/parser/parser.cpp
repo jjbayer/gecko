@@ -483,7 +483,7 @@ std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &
 
     it++; // Consume "("
 
-    std::vector<std::pair<std::unique_ptr<ast::Name>, std::unique_ptr<ast::TypeName> > > arguments;
+    std::vector<std::pair<std::unique_ptr<ast::Name>, std::unique_ptr<ast::Type> > > arguments;
     while( it != end && it->type != Token::ParenRight) {
 
         expect(Token::Name, it, end);
@@ -496,11 +496,9 @@ std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &
 
         it++; // Consume colon
 
-        expect(Token::TypeName, it, end);
+        auto type = parseType(it, end, indent);
 
-        auto typeName = std::make_unique<ast::TypeName>(it->value, it->position);
-
-        arguments.push_back({std::move(name), std::move(typeName)});
+        arguments.push_back({std::move(name), std::move(type)});
 
         it++; // consume type name
 
@@ -552,14 +550,20 @@ std::unique_ptr<ast::Type> parseType(TokenIterator &it, const TokenIterator &end
 
     auto typeName = std::make_unique<ast::TypeName>(it->value, pos);
 
-    it++; // consume type name
-
     if(it == end || it->type != Token::LessThan) {
 
         return std::make_unique<ast::Type>(std::move(typeName), nullptr, pos);
     }
 
-    auto params = parseTypeParameters(it, end, indent);
+    const auto backup = it;
+
+    // TODO: catching should not be necessary
+    std::unique_ptr<ast::TypeParameterList> params = nullptr;
+    try {
+        auto params = parseTypeParameters(it, end, indent);
+    } catch(const UnexpectedToken &) {
+        it = backup;
+    }
 
     return std::make_unique<ast::Type>(std::move(typeName), std::move(params), pos);
 }
