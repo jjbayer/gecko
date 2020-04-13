@@ -35,8 +35,8 @@ void TypeName::acceptVisitor(Visitor &visitor) const
 }
 
 
-Type::Type(std::unique_ptr<TypeName> typeName, std::unique_ptr<TypeParameterList> typeParameters, const Position & position)
-    : Node(position)
+Type::Type(std::unique_ptr<TypeName> typeName, std::unique_ptr<TypeParameterList> typeParameters)
+    : Node(typeName->position())
     , mTypeName(std::move(typeName))
     , mTypeParameters(std::move(typeParameters))
 {
@@ -84,8 +84,8 @@ void IntLiteral::acceptVisitor(Visitor &visitor) const
     visitor.visitIntLiteral(*this);
 }
 
-Assignment::Assignment(std::unique_ptr<Assignee> &&name, std::unique_ptr<Expression> &&value, const Position &position)
-    : Statement(position)
+Assignment::Assignment(std::unique_ptr<Assignee> &&name, std::unique_ptr<Expression> &&value)
+    : Statement(name->position())
     , mAssignee(std::move(name))
     , mValue(std::move(value))
 {
@@ -106,8 +106,8 @@ void Scope::acceptVisitor(Visitor &visitor) const
     visitor.visitScope(*this); // TODO: indent
 }
 
-FunctionCall::FunctionCall(std::unique_ptr<Name> name, std::unique_ptr<TypeParameterList> typeParameters, const Position &position)
-    : Singular(position)
+FunctionCall::FunctionCall(std::unique_ptr<Name> name, std::unique_ptr<TypeParameterList> typeParameters)
+    : Singular(name->position())
     , mName(std::move(name))
     , mTypeParameters(std::move(typeParameters))
 {
@@ -124,8 +124,8 @@ void FunctionCall::acceptVisitor(Visitor &visitor) const
     visitor.visitFunctionCall(*this);
 }
 
-Addition::Addition(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
-    : Expression(position)
+Addition::Addition(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
+    : Expression(left->position())
     , mLeft(std::move(left))
     , mRight(std::move(right))
 {
@@ -216,8 +216,8 @@ void StringLiteral::acceptVisitor(Visitor &visitor) const
     visitor.visitStringLiteral(*this);
 }
 
-Or::Or(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
-    : Expression(position)
+Or::Or(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
+    : Expression(left->position())
     , mLeft(std::move(left))
     , mRight(std::move(right))
 {
@@ -229,8 +229,8 @@ void Or::acceptVisitor(Visitor &visitor) const
     visitor.visitOr(*this);
 }
 
-And::And(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right, const Position &position)
-    : Expression(position)
+And::And(std::unique_ptr<Expression> &&left, std::unique_ptr<Expression> &&right)
+    : Expression(left->position())
     , mLeft(std::move(left))
     , mRight(std::move(right))
 {
@@ -242,8 +242,8 @@ void And::acceptVisitor(Visitor &visitor) const
     visitor.visitAnd(*this);
 }
 
-Comparison::Comparison(std::unique_ptr<Expression> &&left, Token::Type op, std::unique_ptr<Expression> &&right, const Position & position)
-    : Expression(position)
+Comparison::Comparison(std::unique_ptr<Expression> &&left, Token::Type op, std::unique_ptr<Expression> &&right)
+    : Expression(left->position())
     , mOperators({op})
 {
     mOperands.push_back(std::move(left));
@@ -281,12 +281,10 @@ void For::acceptVisitor(Visitor &visitor) const
 }
 
 
-FunctionDefinition::FunctionDefinition(
-    std::unique_ptr<Name> functionName,
+FunctionDefinition::FunctionDefinition(std::unique_ptr<Name> functionName,
     std::vector<std::pair<std::unique_ptr<Name>, std::unique_ptr<Type> > > arguments,
     std::unique_ptr<Scope> body,
-    const Position & position
-)
+    const Position & position)
     : Statement(position)
     , mName(std::move(functionName))
     , mArguments(std::move(arguments))

@@ -89,7 +89,7 @@ class TypeParameterList;
 class Type: public Node
 {
 public:
-    Type(std::unique_ptr<TypeName> name, std::unique_ptr<TypeParameterList> typeParameters, const Position &);
+    Type(std::unique_ptr<TypeName> name, std::unique_ptr<TypeParameterList> typeParameters);
 
     void acceptVisitor(Visitor & visitor) const override;
 
@@ -160,7 +160,7 @@ public:
 class FunctionCall: public Singular
 {
 public:
-    FunctionCall(std::unique_ptr<Name> name, std::unique_ptr<TypeParameterList> typeParameters, const Position & position);
+    FunctionCall(std::unique_ptr<Name> name, std::unique_ptr<TypeParameterList> typeParameters);
 
     void addArgument(std::unique_ptr<Expression> && expression);
 
@@ -175,7 +175,7 @@ public:
 class Or: public Expression
 {
 public:
-    Or(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
+    Or(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) const override;
 
@@ -187,7 +187,7 @@ public:
 class And: public Expression
 {
 public:
-    And(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
+    And(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) const override;
 
@@ -199,7 +199,7 @@ public:
 class Addition: public Expression
 {
 public:
-    Addition(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right, const Position & position);
+    Addition(std::unique_ptr<Expression> && left, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) const override;
 
@@ -211,7 +211,7 @@ public:
 class Assignment: public Statement
 {
 public:
-    Assignment(std::unique_ptr<Assignee> && name, std::unique_ptr<Expression> && value, const Position & position);
+    Assignment(std::unique_ptr<Assignee> && name, std::unique_ptr<Expression> && value);
 
     void acceptVisitor(Visitor & visitor) const override;
 
@@ -226,7 +226,7 @@ public:
 
     Scope(const Position & position): Node(position) {}
 
-    void addStatement(std::unique_ptr<Statement> && statementn);
+    void addStatement(std::unique_ptr<Statement> && statement);
 
     void acceptVisitor(Visitor & visitor) const override;
 
@@ -279,7 +279,7 @@ class Comparison: public Expression
 public:
 
     /// Comparison needs at least 2 operands, but more can be added later
-    Comparison(std::unique_ptr<Expression> && left, Token::Type op, std::unique_ptr<Expression> && right, const Position &position);
+    Comparison(std::unique_ptr<Expression> && left, Token::Type op, std::unique_ptr<Expression> && right);
 
     void acceptVisitor(Visitor & visitor) const override;
 

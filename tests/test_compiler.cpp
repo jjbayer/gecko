@@ -24,32 +24,31 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     program.addStatement(
         std::make_unique<Assignment>(
             std::make_unique<Name>("x", dummyPosition),
-            std::make_unique<IntLiteral>(666, dummyPosition),
-            dummyPosition
+            std::make_unique<IntLiteral>(666, dummyPosition)
         )
     );
 
     auto funCall = std::make_unique<FunctionCall>(
-        std::make_unique<Name>("print", dummyPosition), nullptr, dummyPosition
+        std::make_unique<Name>("print", dummyPosition), nullptr
     );
     funCall->addArgument(std::make_unique<Addition>(
                             std::make_unique<Name>("x", dummyPosition),
-                            std::make_unique<IntLiteral>(123, dummyPosition),
-                            dummyPosition
+                            std::make_unique<IntLiteral>(123, dummyPosition)
+
                         ));
     program.addStatement(std::move(funCall));
 
     program.addStatement(
         std::make_unique<Assignment>(
             std::make_unique<Name>("x", dummyPosition),
-            std::make_unique<IntLiteral>(0, dummyPosition), dummyPosition
+            std::make_unique<IntLiteral>(0, dummyPosition)
         )
     );
 
     auto loopBody = std::make_unique<Scope>(dummyPosition);
     {
         auto funCall = std::make_unique<FunctionCall>(
-            std::make_unique<Name>("print", dummyPosition), nullptr, dummyPosition
+            std::make_unique<Name>("print", dummyPosition), nullptr
         );
         funCall->addArgument(std::make_unique<Name>("x", dummyPosition));
         loopBody->addStatement(std::move(funCall));
@@ -59,8 +58,8 @@ BOOST_AUTO_TEST_CASE(test_compiler)
             std::make_unique<Name>("x", dummyPosition),
             std::make_unique<Addition>(
                 std::make_unique<Name>("x", dummyPosition),
-                std::make_unique<IntLiteral>(1, dummyPosition), dummyPosition
-            ), dummyPosition
+                std::make_unique<IntLiteral>(1, dummyPosition)
+            )
         )
     );
 
@@ -68,8 +67,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
         std::make_unique<Comparison>(
             std::make_unique<Name>("x", dummyPosition),
             Token::LessThan,
-            std::make_unique<IntLiteral>(10, dummyPosition),
-            dummyPosition
+            std::make_unique<IntLiteral>(10, dummyPosition)
         ),
         std::move(loopBody), dummyPosition
     );
@@ -77,7 +75,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
 
     {
         auto funCall = std::make_unique<FunctionCall>(
-            std::make_unique<Name>("print", dummyPosition), nullptr, dummyPosition
+            std::make_unique<Name>("print", dummyPosition), nullptr
         );
         funCall->addArgument(std::make_unique<Name>("x", dummyPosition));
         program.addStatement(std::move(funCall));
@@ -86,7 +84,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     auto ifBody = std::make_unique<Scope>(dummyPosition);
     {
         auto funCall = std::make_unique<FunctionCall>(
-            std::make_unique<Name>("print", dummyPosition), nullptr, dummyPosition
+            std::make_unique<Name>("print", dummyPosition), nullptr
         );
         funCall->addArgument(std::make_unique<IntLiteral>(100, dummyPosition));
         ifBody->addStatement(std::move(funCall));
@@ -94,7 +92,7 @@ BOOST_AUTO_TEST_CASE(test_compiler)
     auto elseBody = std::make_unique<Scope>(dummyPosition);
     {
         auto funCall = std::make_unique<FunctionCall>(
-            std::make_unique<Name>("print", dummyPosition), nullptr, dummyPosition
+            std::make_unique<Name>("print", dummyPosition), nullptr
         );
         funCall->addArgument(std::make_unique<IntLiteral>(200, dummyPosition));
         elseBody->addStatement(std::move(funCall));
@@ -127,7 +125,7 @@ BOOST_AUTO_TEST_CASE(test_out_of_scope)
     auto loopBody = std::make_unique<Scope>(dummyPosition);
     loopBody->addStatement(std::make_unique<Assignment>(
                                std::make_unique<Name>("x", dummyPosition),
-                               std::make_unique<IntLiteral>(1, dummyPosition), dummyPosition)
+                               std::make_unique<IntLiteral>(1, dummyPosition))
                           );
     auto program = std::make_unique<Scope>(dummyPosition);
     program->addStatement(std::make_unique<While>(
