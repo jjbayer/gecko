@@ -22,7 +22,7 @@ public:
 
     virtual void acceptVisitor(Visitor &) const = 0;
 
-    const Position & position() const {  return mPosition; }
+    const Position & position() const { return mPosition; }
 
 private:
     Position mPosition;

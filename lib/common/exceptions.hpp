@@ -26,7 +26,7 @@ class ProgammingError: public std::runtime_error
 public:
     ProgammingError(const Position & position, const std::string & text)
         : std::runtime_error(
-            "Line " + std::to_string(mPosition.lineNumber) + ", column " + std::to_string(position.column) + ": "
+            "Line " + std::to_string(position.lineNumber) + ", column " + std::to_string(position.column) + ": "
             + text)
         , mPosition(position)
     {}
