@@ -147,49 +147,46 @@ void Compiler::visitFloatLiteral(const ast::FloatLiteral &literal)
 
 void Compiler::visitFor(const ast::For &loop)
 {
-    // FIXME: functions no longer declare return type
-    throw MissingFeature {"visitFor"};
+    loop.mRange->acceptVisitor(*this);
+    const auto range = latestObject;
 
-//    loop.mRange->acceptVisitor(*this);
-//    const auto range = latestObject;
+    auto nextFn = lookupFunction("next", {}, {range->type}, loop.mRange->position());
 
-//    auto nextFn = lookupFunction("next", {range->type}, loop.mRange->position());
+    auto optional = mObjectProvider.createObject();
 
-//    auto optional = mObjectProvider.createObject(nextFn->returnType());
-//    auto itemType = getOptionalType(mTypeCreator, optional->type);
+    // // Create new address & special scope for loop var:
+    auto loopVar = mObjectProvider.createObject();
+    mLookup.push();
+    mLookup.setObject(loop.mLoopVariable->mName, loopVar);
 
-//    // // Create new address & special scope for loop var:
-//    auto loopVar = mObjectProvider.createObject(itemType);
-//    mLookup.push();
-//    mLookup.setObject(loop.mLoopVariable->mName, loopVar);
+    auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
+    appendInstruction<ins::SetInt>(expectedEnumKey->id, 1);
 
-//    auto expectedEnumKey = mObjectProvider.createObject(BasicType::INT);
-//    appendInstruction<ins::SetInt>(expectedEnumKey->id, 1);
+    // nextFn
+    const auto ipNext = latestInstructionPointer() + 1;
+    nextFn->generateInstructions({}, {range}, mInstructions, optional);
+    loopVar->type = getOptionalType(mTypeCreator, optional->type);
 
-//    // nextFn
-//    const auto ipNext = latestInstructionPointer() + 1;
-//    nextFn->generateInstructions({range}, mInstructions, optional);
+    // // TODO: Visit enum
+    auto enumKey = mObjectProvider.createObject(BasicType::INT);
+    appendInstruction<ins::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
+    auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
+    appendInstruction<ins::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
 
-//    // // TODO: Visit enum
-//    auto enumKey = mObjectProvider.createObject(BasicType::INT);
-//    appendInstruction<ins::ReadFromTuple<0, 2> >(optional->id, enumKey->id);
-//    auto condition = mObjectProvider.createObject(BasicType::BOOLEAN);
-//    appendInstruction<ins::IsEqual>(enumKey->id, expectedEnumKey->id, condition->id);
+    appendInstruction<ins::Noop>(); // placeholder for jump_if
+    const auto ipJumpIfNot = latestInstructionPointer();
 
-//    appendInstruction<ins::Noop>(); // placeholder for jump_if
-//    const auto ipJumpIfNot = latestInstructionPointer();
+    // Now we are in the section where optional has value
+    appendInstruction<ins::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
 
-//    // Now we are in the section where optional has value
-//    appendInstruction<ins::ReadFromTuple<1, 2> >(optional->id, loopVar->id);
+    loop.mBody->acceptVisitor(*this);
+    appendInstruction<ins::Jump>(ipNext);
 
-//    loop.mBody->acceptVisitor(*this);
-//    appendInstruction<ins::Jump>(ipNext);
+    appendInstruction<ins::Noop>(); // Make sure there is something to jump to
+    const auto afterLoop = latestInstructionPointer();
+    mInstructions[ipJumpIfNot] = std::make_unique<ins::JumpIfNot>(condition->id, afterLoop);
 
-//    appendInstruction<ins::Noop>(); // Make sure there is something to jump to
-//    const auto afterLoop = latestInstructionPointer();
-//    mInstructions[ipJumpIfNot] = std::make_unique<ins::JumpIfNot>(condition->id, afterLoop);
-
-//    mLookup.pop();
+    mLookup.pop();
 }
 
 void Compiler::visitFree()

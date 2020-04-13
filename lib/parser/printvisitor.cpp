@@ -31,7 +31,9 @@ void PrintVisitor::visitFunctionCall(const FunctionCall &functionCall)
 {
     functionCall.mName->acceptVisitor(*this);
 
-    functionCall.mTypeParameters->acceptVisitor(*this);
+    if( functionCall.mTypeParameters ) {
+        functionCall.mTypeParameters->acceptVisitor(*this);
+    }
 
     mOut << "(";
     auto tail = false;
