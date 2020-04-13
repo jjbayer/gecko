@@ -6,7 +6,7 @@
 namespace ct {
 
 
-bool Scope::setFunction(std::unique_ptr<Function> function)
+void Scope::setFunction(std::unique_ptr<Function> function)
 {
     const auto key = FunctionGroupKey {
             function->name(),
@@ -14,7 +14,7 @@ bool Scope::setFunction(std::unique_ptr<Function> function)
             function->numArguments()
     };
 
-    return mFunctionGroups[key].setFunction(std::move(function));
+    mFunctionGroups[key].setFunction(std::move(function));
 }
 
 Function * Scope::findFunction(const FunctionKey &key) const

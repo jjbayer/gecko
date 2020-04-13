@@ -32,9 +32,9 @@ void Lookup::setObject(const std::string &key, std::shared_ptr<CompileTimeObject
     currentScope().mObjects[key] = object;
 }
 
-bool Lookup::setFunction(std::unique_ptr<Function> function)
+void Lookup::setFunction(std::unique_ptr<Function> function)
 {
-    return currentScope().setFunction(std::move(function));
+    currentScope().setFunction(std::move(function));
 }
 
 void Lookup::setType(const std::string &typeString, Type type)

@@ -116,15 +116,20 @@ void Compiler::visitFunctionDefinition(const ast::FunctionDefinition & def)
 
     const auto mTypeParameters = std::vector<Type> {}; // TODO: user functions with type parameters
 
-    const auto lookupKey = FunctionKey { def.mName->mName, {}, argumentTypes };
-    const auto created = mLookup.setFunction(std::make_unique<ct::UserFunction>(
-        lookupKey,
+    const auto functionKey = FunctionKey { def.mName->mName, {}, argumentTypes };
+
+    // Check if exists
+    if( mLookup.lookupFunction(functionKey) ) {
+        // NOTE: if we ever want template specialization etc., this check might be to strict
+        throw FunctionExists(def.position(), def.mName->mName); // TODO: general toString method
+    }
+
+    mLookup.setFunction(std::make_unique<ct::UserFunction>(
+        functionKey,
         std::move(argumentSlots),
         returnObject,
         std::move(instructions)
     ));
-
-    if( ! created ) throw FunctionExists(def.position(), def.mName->mName);
 }
 
 

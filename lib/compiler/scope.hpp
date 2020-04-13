@@ -19,7 +19,7 @@ class Scope
 public:
 
     /// @return false if function already exists
-    bool setFunction(std::unique_ptr<Function> function);
+    void setFunction(std::unique_ptr<Function> function);
 
     /// @return nullptr if no matching function was found
     Function * findFunction(const FunctionKey & key) const;

@@ -33,7 +33,7 @@ public:
     Type lookupType(const std::string & typeString) const;
 
     void setObject(const std::string & key, std::shared_ptr<CompileTimeObject> object);
-    bool setFunction(std::unique_ptr<Function> function);
+    void setFunction(std::unique_ptr<Function> function);
     void setType(const std::string & typeString, Type typeId);
 
     // TODO: iterator

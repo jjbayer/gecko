@@ -31,7 +31,7 @@ public:
 class FunctionGroup
 {
 public:
-    bool setFunction(std::unique_ptr<Function> function);
+    void setFunction(std::unique_ptr<Function> function);
 
     /// @returns nullptr if no match is found
     Function * find(const FunctionKey & key) const;

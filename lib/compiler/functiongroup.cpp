@@ -24,11 +24,9 @@ bool FunctionGroupKey::operator==(const FunctionGroupKey &other) const
     return mName == other.mName && mNumTypeParameters == other.mNumTypeParameters && mNumArguments == other.mNumArguments;
 }
 
-bool FunctionGroup::setFunction(std::unique_ptr<Function> function)
+void FunctionGroup::setFunction(std::unique_ptr<Function> function)
 {
     mFunctions.push_back(std::move(function));
-
-    return true; // FIXME: should check if function already exists
 }
 
 
