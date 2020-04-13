@@ -20,6 +20,8 @@ public:
 
     bool operator==(const FunctionKey & other) const;
 
+    std::string toString() const;
+
     const std::string mName;
     const std::vector<Type> mTypeParameters;
     const std::vector<Type> mArgumentTypes;

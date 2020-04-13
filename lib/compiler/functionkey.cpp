@@ -35,5 +35,29 @@ bool FunctionKey::operator==(const FunctionKey &other) const
     return true;
 }
 
+std::string FunctionKey::toString() const {
+    auto ret = mName;
+    if( ! mTypeParameters.empty() ) {
+        ret += "<";
+        auto tail = false;
+        for(auto type : mTypeParameters) {
+            if(tail) ret += ", ";
+            ret += std::to_string(type); // TODO: TypeKey instead
+            tail = true;
+        }
+        ret += ">";
+    }
+    ret += "(";
+    auto tail = false;
+    for(auto type : mArgumentTypes) {
+        if(tail) ret += ", ";
+        ret += std::to_string(type); // TODO: TypeKey instead
+        tail = true;
+    }
+    ret += ")";
+
+    return ret;
+}
+
 } // namespace ct
 

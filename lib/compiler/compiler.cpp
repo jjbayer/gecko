@@ -461,24 +461,12 @@ const Function * Compiler::lookupFunction(const std::string & functionName,
                                           const std::vector<Type> & typeParameters,
                                           const std::vector<Type> & argumentTypes, const Position & position)
 {
-    auto * function = mLookup.lookupFunction({functionName, typeParameters, argumentTypes});
+    const auto key = FunctionKey {functionName, typeParameters, argumentTypes};
+    auto * function = mLookup.lookupFunction(key);
 
     if( ! function ) {
 
-        // TODO: toString function
-        auto fullName = functionName;
-        if( ! typeParameters.empty() ) {
-            fullName += "<";
-            auto tail = false;
-            for(auto type : typeParameters) {
-                if(tail) fullName += ", ";
-                fullName += "type=" + std::to_string(type); // TODO: get unique name from typeCreator
-                tail = true;
-            }
-            fullName += ">";
-        }
-
-        throw UnknownFunction(position, fullName);
+        throw UnknownFunction(position, key.toString());
     }
 
     return function;
