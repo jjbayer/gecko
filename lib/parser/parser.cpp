@@ -324,14 +324,12 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
 
     auto name = std::make_unique<ast::Name>(it->value, it->position);
 
-    it++;
+    it++; // Consume name
 
     if( it == end || (it->type != Token::ParenLeft && it->type != Token::LessThan) ) {
 
         return std::move(name);
     }
-
-    const auto pos = name->position();
 
     const auto itAfterName = it;
     std::unique_ptr<ast::TypeParameterList> typeParameters = nullptr;
@@ -342,7 +340,13 @@ std::unique_ptr<ast::Singular> parseFunctionCall(TokenIterator &it, const TokenI
         it = itAfterName;
     }
 
+
     if( it == end || it->type != Token::ParenLeft ) {
+
+        if( typeParameters ) {
+            // Cannot have type parameters if it is not a function call
+            expect(Token::ParenLeft, it, end);
+        }
 
         return std::move(name);
     }
@@ -494,8 +498,6 @@ std::unique_ptr<ast::FunctionDefinition> parseFunctionDefinition(TokenIterator &
 
         arguments.push_back({std::move(name), std::move(type)});
 
-        it++; // consume type name
-
         if( it != end && it->type == Token::Comma ) {
             it++; // consume comma
         } else {
@@ -543,6 +545,8 @@ std::unique_ptr<ast::Type> parseType(TokenIterator &it, const TokenIterator &end
     const auto pos = it->position;
 
     auto typeName = std::make_unique<ast::TypeName>(it->value, pos);
+
+    it++; // Consume name
 
     if(it == end || it->type != Token::LessThan) {
 

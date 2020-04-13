@@ -143,7 +143,7 @@ print(length(lst))
 append(x, 123)
 print(length(lst))
 
-lst2 = List<List<Int> >
+lst2 = List<List<Int> >()
 print(length(lst2))
 )###";
 

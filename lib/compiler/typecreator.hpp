@@ -29,6 +29,7 @@ enum MetaType
 struct TypeKey
 {
     MetaType metaType;
+    // FIXME: Must include type parameters
     std::vector<Type> arguments;
     std::string fullName = "";
 
