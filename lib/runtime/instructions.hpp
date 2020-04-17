@@ -22,7 +22,7 @@ public:
     virtual std::string toString() const = 0;
     /// call() can be const because it does not alter internal state of instruction
     virtual void call(std::vector<Object> & data, InstructionPointer & ip) const = 0;
-    virtual ~Instruction() {}
+    virtual ~Instruction() = default;
 };
 
 
@@ -377,7 +377,7 @@ public:
 
         return stream.str();
     }
-    void call(std::vector<Object> & data, InstructionPointer & ip) const override
+    void call(std::vector<Object> & data, InstructionPointer &) const override
     {
         auto tuple = static_cast<obj::Tuple<TupleSize> *>(data[mTuple].as_ptr);
         data[mTarget] = std::get<Index>(tuple->data);
@@ -409,7 +409,7 @@ public:
         return stream.str();
     }
 
-    void call(std::vector<Object> & data, InstructionPointer & ip) const override
+    void call(std::vector<Object> & data, InstructionPointer &) const override
     {
         auto tuple = static_cast<obj::Tuple<TupleSize> *>(data[mTuple].as_ptr);
         std::get<Index>(tuple->data[mIndex]) = data[mSource];

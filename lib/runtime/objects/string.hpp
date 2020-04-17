@@ -6,7 +6,7 @@
 namespace obj {
 
 // TODO: single pointer
-class String: public Allocated
+class String: public Childless
 {
 public:
     String(std::string value);

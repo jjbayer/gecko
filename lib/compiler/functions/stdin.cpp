@@ -5,8 +5,8 @@
 namespace ct {
 
 
-void NextStdin::_generateInstructions(const std::vector<Type> &typeParameters,
-    const std::vector<std::shared_ptr<const CompileTimeObject> > & arguments,
+void NextStdin::_generateInstructions(const std::vector<Type> &,
+    const std::vector<std::shared_ptr<const CompileTimeObject> > &,
     InstructionVector & instructions,
     std::shared_ptr<CompileTimeObject> returnValue
 ) const
@@ -16,7 +16,8 @@ void NextStdin::_generateInstructions(const std::vector<Type> &typeParameters,
     returnValue->type = typeCreator().getType(typeKey);
     instructions.push_back(
         std::make_shared<ins::SetAllocated>(
-            returnValue->id, &std::make_unique<obj::Tuple<2> >
+            returnValue->id, []{
+                return std::make_unique<obj::Tuple<2> >(); }
         )
     );
 

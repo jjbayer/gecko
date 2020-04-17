@@ -9,15 +9,17 @@ class Allocated
 {
 public:
 
-    virtual const std::vector<const Allocated *> & children() const
-    {
-        return mChildren;
-    }
+    // TODO: return iterator, not vector
+    virtual std::vector<const Allocated *> children() const = 0;
 
     virtual ~Allocated() {}
+};
 
-private:
-    std::vector<const Allocated *> mChildren;
+
+class Childless: public Allocated
+{
+public:
+    std::vector<const Allocated *> children() const override { return {}; }
 };
 
 } // namespace obj

@@ -31,4 +31,24 @@ private:
 };
 
 
+class ListCtor: public Function
+{
+    const std::string &name() const override { static const std::string name {"List"}; return name; }
+    size_t numTypeParameters() const override { return 1; }
+    size_t numArguments() const override { return 0; }
+    bool matches(const FunctionKey & key) const override
+    {
+        return ( key.mTypeParameters.size() == 1 && key.mArgumentTypes.empty() );
+    }
+
+private:
+    void _generateInstructions(
+        const std::vector<Type> &typeParameters,
+        const std::vector<std::shared_ptr<const CompileTimeObject> > &arguments,
+        InstructionVector &instructions,
+        std::shared_ptr<CompileTimeObject> returnValue
+    ) const override;
+};
+
+
 } // namespace ct

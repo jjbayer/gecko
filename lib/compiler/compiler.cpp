@@ -419,7 +419,7 @@ void Compiler::loadPrelude()
     registerBuiltinFunction<PrintString>({"print", {}, {BasicType::STRING}});
 
     lookupOrCreate({"stdin"}); // TODO: no need to lookup
-    appendInstruction<ins::SetAllocated>(latestObject->id, &std::make_unique<obj::Allocated>); // Dummy
+    appendInstruction<ins::SetAllocated>(latestObject->id, &std::make_unique<obj::Childless>);
     const auto type = latestObject->type = mTypeCreator.structType("Stdin");
     registerBuiltinFunction<NextStdin>({"next", {}, {type}});
 
@@ -429,6 +429,10 @@ void Compiler::loadPrelude()
     mLookup.setType("Int", BasicType::INT);
     mLookup.setType("Float", BasicType::FLOAT);
     mLookup.setType("String", BasicType::STRING);
+
+    // TODO: use type generator
+    mLookup.setType("List<String>", typeCreator().structType("List<String>"));
+    mLookup.setFunction(std::make_unique<ListCtor>());
 }
 
 
