@@ -3,6 +3,7 @@
 #include <runtime/memorymanager.hpp>
 #include "runtime/objects/string.hpp"
 #include "runtime/objects/tuple.hpp"
+#include "runtime/objects/list.hpp"
 #include "runtime/output.hpp"
 
 #include <sstream>
@@ -380,6 +381,42 @@ std::string MemPop::toString() const { return "MemPop"; }
 void MemPop::call(std::vector<Object> &data, InstructionPointer &ip) const
 {
     memory().pop();
+}
+
+GetListLength::GetListLength(ObjectId source, ObjectId target)
+    : mSource(source)
+    , mTarget(target)
+{
+
+}
+
+std::string GetListLength::toString() const
+{
+    return "GetListLength " + std::to_string(mSource) +  " " + std::to_string(mTarget);
+}
+
+void GetListLength::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    auto ptr = static_cast<obj::List*>(data[mSource].as_ptr);
+    data[mTarget].as_int = ptr->mItems.size(); // TODO: casting from size_t to signed int
+}
+
+AppendToList::AppendToList(ObjectId list, ObjectId item)
+    :mList(list)
+    ,mItem(item)
+{
+
+}
+
+std::string AppendToList::toString() const
+{
+    return "AppendToList " + std::to_string(mList) +  " " + std::to_string(mItem);
+}
+
+void AppendToList::call(std::vector<Object> &data, InstructionPointer &ip) const
+{
+    auto ptr = static_cast<obj::List*>(data[mList].as_ptr);
+    ptr->mItems.push_back(data[mItem]);
 }
 
 

@@ -430,9 +430,10 @@ void Compiler::loadPrelude()
     mLookup.setType("Float", BasicType::FLOAT);
     mLookup.setType("String", BasicType::STRING);
 
-    // TODO: use type generator
-    mLookup.setType("List<String>", typeCreator().getType({"List", {BasicType::STRING}}));
+    // Lists
     mLookup.setFunction(std::make_unique<ListCtor>());
+    mLookup.setFunction(std::make_unique<ListLength>());
+    mLookup.setFunction(std::make_unique<ListAppend>());
 }
 
 

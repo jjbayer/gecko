@@ -138,16 +138,13 @@ print(15)
 BOOST_AUTO_TEST_CASE(typed_list)
 {
     const auto code = R"###(
-lst = List<Int>()
-print(length(lst))
-append(x, 123)
-print(length(lst))
-
-lst2 = List<List<Int> >()
-print(length(lst2))
+list = List<Int>()
+print(length(list))
+append(list, 123)
+print(length(list))
 )###";
 
-    BOOST_CHECK_EQUAL(eval(code), "0\n1\n0\n");
+    BOOST_CHECK_EQUAL(eval(code), "0\n1\n");
 }
 
 

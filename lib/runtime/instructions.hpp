@@ -493,4 +493,31 @@ public:
 };
 
 
+class GetListLength: public Instruction
+{
+public:
+    GetListLength(ObjectId source, ObjectId target);
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+
+private:
+    const ObjectId mSource;
+    const ObjectId mTarget;
+};
+
+
+class AppendToList: public Instruction
+{
+public:
+    AppendToList(ObjectId list, ObjectId item);
+    std::string toString() const override;
+    void call(std::vector<Object> & data, InstructionPointer & ip) const override;
+
+private:
+    const ObjectId mList;
+    const ObjectId mItem;
+};
+
+
+
 } // namespace ins
