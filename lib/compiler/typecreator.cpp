@@ -4,31 +4,17 @@
 
 bool TypeKey::operator==(const TypeKey &other) const
 {
-    if( metaType != other.metaType ) return false;
+    if( typeParameters.size() != other.typeParameters.size() ) return false;
 
-    if( arguments.size() != other.arguments.size() ) return false;
-
-    for(size_t i = 0; i < arguments.size(); i++) {
-        if( arguments[i] != other.arguments[i] ) return false;
+    for(size_t i = 0; i < typeParameters.size(); i++) {
+        if( typeParameters[i] != other.typeParameters[i] ) return false;
     }
 
-    if( fullName != other.fullName) return false;
+    if( name != other.name) return false;
 
     return true;
 }
 
-Type TypeCreator::functionType(Type returnType, std::vector<Type> argumentTypes)
-{
-    argumentTypes.push_back(returnType);
-    TypeKey key { MetaType::FUNCTION, argumentTypes };
-
-    return getType(key);
-}
-
-Type TypeCreator::structType(const std::string &name)
-{
-    return getType({ MetaType::STRUCT, {}, name});
-}
 
 const TypeKey &TypeCreator::getTypeKey(Type type) const
 {
@@ -48,15 +34,15 @@ Type TypeCreator::getType(const TypeKey &key)
 Type getOptionalType(const TypeCreator &typeCreator, Type type)
 {
     const auto & typeKey = typeCreator.getTypeKey(type);
-    if( typeKey.metaType != MetaType::ENUM
-            || typeKey.arguments.size() != 2
-            || typeKey.arguments[0] != BasicType::NONE
+    if( typeKey.name != "Optional"
+            || typeKey.typeParameters.size() != 2
+            || typeKey.typeParameters[0] != BasicType::NONE
     ) {
 
         throw TypeMismatch({}, "Optional must be Enum with 2 elements. Type of first element must be None");
     }
 
-    return typeKey.arguments[1];
+    return typeKey.typeParameters[1];
 }
 
 TypeCreator & typeCreator()

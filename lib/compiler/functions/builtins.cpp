@@ -31,7 +31,7 @@ void PrintString::_generateInstructions(
 void ListCtor::_generateInstructions(const std::vector<Type> &typeParameters, const std::vector<std::shared_ptr<const CompileTimeObject> > &, InstructionVector &instructions, std::shared_ptr<CompileTimeObject> returnValue)
     const
 {
-    returnValue->type = typeParameters.at(0);
+    returnValue->type = typeCreator().getType({ "List", typeParameters });
     const auto isAllocated = returnValue->isAllocated();
     instructions.push_back(
         std::make_unique<ins::SetAllocated>(

@@ -17,21 +17,10 @@ enum BasicType {
 };
 
 
-enum MetaType
-{
-    VALUE,
-    FUNCTION,
-    STRUCT,
-    ENUM
-};
-
-
 struct TypeKey
 {
-    MetaType metaType;
-    // FIXME: Must include type parameters
-    std::vector<Type> arguments;
-    std::string fullName = "";
+    std::string name;
+    std::vector<Type> typeParameters = {};
 
     bool operator==(const TypeKey & other) const;
 };
@@ -45,8 +34,7 @@ namespace std {
     std::size_t operator()(const TypeKey &key) const
     {
         std::size_t seed {0};
-        hash_combine(seed, key.metaType);
-        for( auto type : key.arguments ) {
+        for( auto type : key.typeParameters ) {
             hash_combine(seed, type);
         }
 
@@ -60,11 +48,6 @@ namespace std {
 class TypeCreator
 {
 public:
-    // TODO: only one getType() function
-    Type functionType(Type returnType, std::vector<Type> argumentTypes);
-
-    Type structType(const std::string & name);
-
     Type getType(const TypeKey & key);
 
     const TypeKey & getTypeKey(Type type) const;

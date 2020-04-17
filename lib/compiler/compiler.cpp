@@ -282,7 +282,7 @@ void Compiler::visitTypeName(const ast::TypeName &)
     throw CompilerBug { "Compiler must not visit type name" };
 }
 
-void Compiler::visitTypeParameterList(const ast::TypeParameterList &typeParameters)
+void Compiler::visitTypeParameterList(const ast::TypeParameterList &)
 {
     throw MissingFeature("TypeParameterList");
 }
@@ -420,7 +420,7 @@ void Compiler::loadPrelude()
 
     lookupOrCreate({"stdin"}); // TODO: no need to lookup
     appendInstruction<ins::SetAllocated>(latestObject->id, &std::make_unique<obj::Childless>);
-    const auto type = latestObject->type = mTypeCreator.structType("Stdin");
+    const auto type = latestObject->type = mTypeCreator.getType({"Stdin"});
     registerBuiltinFunction<NextStdin>({"next", {}, {type}});
 
     // Register type names
@@ -431,7 +431,7 @@ void Compiler::loadPrelude()
     mLookup.setType("String", BasicType::STRING);
 
     // TODO: use type generator
-    mLookup.setType("List<String>", typeCreator().structType("List<String>"));
+    mLookup.setType("List<String>", typeCreator().getType({"List", {BasicType::STRING}}));
     mLookup.setFunction(std::make_unique<ListCtor>());
 }
 

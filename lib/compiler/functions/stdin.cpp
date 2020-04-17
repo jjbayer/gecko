@@ -12,7 +12,7 @@ void NextStdin::_generateInstructions(const std::vector<Type> &,
 ) const
 {
     // Prepare output variable
-    const TypeKey typeKey {MetaType::ENUM, {BasicType::NONE, BasicType::STRING}};
+    const TypeKey typeKey {"Optional", {BasicType::NONE, BasicType::STRING}};
     returnValue->type = typeCreator().getType(typeKey);
     instructions.push_back(
         std::make_shared<ins::SetAllocated>(

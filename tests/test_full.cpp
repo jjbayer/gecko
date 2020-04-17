@@ -148,7 +148,6 @@ print(length(lst2))
 )###";
 
     BOOST_CHECK_EQUAL(eval(code), "0\n1\n0\n");
-
 }
 
 
