@@ -23,6 +23,8 @@ struct TypeKey
     std::vector<Type> typeParameters = {};
 
     bool operator==(const TypeKey & other) const;
+
+    std::string toString() const;
 };
 
 
@@ -48,6 +50,9 @@ namespace std {
 class TypeCreator
 {
 public:
+
+    TypeCreator();
+
     Type getType(const TypeKey & key);
 
     const TypeKey & getTypeKey(Type type) const;
@@ -58,7 +63,13 @@ private:
     Type mNextType = 11;
 
     std::unordered_map<TypeKey, Type> mTypes;
-    std::unordered_map<Type, TypeKey> mReverse;
+    std::unordered_map<Type, TypeKey> mReverse {
+        {NONE, {"None"}},
+        {BOOLEAN, {"Bool"}},
+        {INT, {"Int"}},
+        {FLOAT, {"Float"}},
+        {STRING, {"String"}},
+    };
 };
 
 

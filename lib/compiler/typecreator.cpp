@@ -15,10 +15,34 @@ bool TypeKey::operator==(const TypeKey &other) const
     return true;
 }
 
+std::string TypeKey::toString() const
+{
+    auto ret = name;
+    if( ! typeParameters.empty() ) {
+        ret += "<";
+        auto tail = false;
+        for(auto type : typeParameters) {
+            if(tail) ret += ", ";
+            ret += typeCreator().getTypeKey(type).toString();
+            tail = true;
+        }
+        ret += ">";
+    }
+
+    return ret;
+}
+
 
 const TypeKey &TypeCreator::getTypeKey(Type type) const
 {
     return mReverse.at(type);
+}
+
+TypeCreator::TypeCreator()
+{
+    for(const auto & [type, typeKey] : mReverse) {
+        mTypes.emplace(typeKey, type);
+    }
 }
 
 Type TypeCreator::getType(const TypeKey &key)

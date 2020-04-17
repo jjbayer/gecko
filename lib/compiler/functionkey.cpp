@@ -42,7 +42,7 @@ std::string FunctionKey::toString() const {
         auto tail = false;
         for(auto type : mTypeParameters) {
             if(tail) ret += ", ";
-            ret += std::to_string(type); // TODO: TypeKey instead
+            ret += typeCreator().getTypeKey(type).toString();
             tail = true;
         }
         ret += ">";
@@ -51,7 +51,7 @@ std::string FunctionKey::toString() const {
     auto tail = false;
     for(auto type : mArgumentTypes) {
         if(tail) ret += ", ";
-        ret += std::to_string(type); // TODO: TypeKey instead
+        ret += typeCreator().getTypeKey(type).toString();
         tail = true;
     }
     ret += ")";
