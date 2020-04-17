@@ -51,4 +51,10 @@ class StateIndent: public State
     std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens, Position & position) override;
 };
 
+class StateComment: public State
+{
+    const char * name() const override { return "comment"; }
+    std::shared_ptr<State> handle(Iterator & it, std::vector<Token> & tokens, Position & position) override;
+};
+
 

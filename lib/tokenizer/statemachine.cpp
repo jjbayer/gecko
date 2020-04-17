@@ -80,28 +80,28 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         return std::make_shared<StateInitial>();
     }
     if( c == ']' ) {
-        *tokens.rbegin() = {Token::BraceRight, &c};
+        *tokens.rbegin() = {Token::BraceRight, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '{' ) {
-        *tokens.rbegin() = {Token::BraceLeft, &c};
+        *tokens.rbegin() = {Token::BraceLeft, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == '}' ) {
-        *tokens.rbegin() = {Token::BraceRight, &c};
+        *tokens.rbegin() = {Token::BraceRight, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
     if( c == ':' ) {
-        *tokens.rbegin() = {Token::Colon, &c};
+        *tokens.rbegin() = {Token::Colon, &c, position};
         advance(it, position);
         return std::make_shared<StateInitial>();
     }
 
     if( c == '\n' ) {
-        *tokens.rbegin() = {Token::LineBreak, "<linebreak>"};
+        *tokens.rbegin() = {Token::LineBreak, "<linebreak>", position};
         tokens.emplace_back(); // S.t. state indent starts with fresh
         advance(it, position);
         tokens.rbegin()->position = position;
@@ -134,6 +134,11 @@ std::shared_ptr<State> StateInitial::handle(Iterator &it, std::vector<Token> & t
         tokens.rbegin()->type = Token::StringLiteral;
 
         return std::make_shared<StateStringLiteral>(); // FIXME: what if string literal not closed?
+    }
+
+    if( c == '#' ) {
+        advance(it, position);
+        return std::make_shared<StateComment>();
     }
 
     throw UnexpectedCharacter(position, c);
@@ -199,7 +204,7 @@ std::shared_ptr<State> StateIndent::handle(State::Iterator &it, std::vector<Toke
 
     const auto & token = tokens.rbegin();
     if( token->type == Token::Indent && token->value == "    " ) {
-        tokens.push_back({Token::Undefined, ""});
+        tokens.push_back({Token::Undefined, "", position});
     }
 
     if( c == ' ' ) {
@@ -212,6 +217,17 @@ std::shared_ptr<State> StateIndent::handle(State::Iterator &it, std::vector<Toke
 
     return std::make_shared<StateInitial>();
 }
+
+std::shared_ptr<State> StateComment::handle(State::Iterator &it, std::vector<Token> &tokens, Position &position)
+{
+    if( *it == '\n') {
+        return std::make_shared<StateInitial>();
+    } else {
+        advance(it, position);
+        return std::make_shared<StateComment>();
+    }
+}
+
 
 void State::advance(State::Iterator &it, Position &position)
 {
