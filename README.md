@@ -1,4 +1,4 @@
-# Codename Gecko
+# Gecko Programming Language
 
 I'm writing a programming language from scratch. It's a work in progress.
 
@@ -6,17 +6,36 @@ I'm writing a programming language from scratch. It's a work in progress.
 
 * Minimal syntax (like Python),
 * as fast as any compiled programming language,
-* explicit garbage collection *or* static cycle checks (not sure if the latter is even possible),
+* explicit garbage collection (runs when the user calls it),
 * high-level tools for parallelization and async jobs instead of threads and mutexes,
 * static read/write checker (s.t. threads cannot read and write to the same variable at the same time),
-* safe by default, fast if needed (e.g. bounds checks, arithmetic overflow).
+* safe by default, fast if needed (e.g. bounds checks, overflow errors).
+
+## Roadmap
+
+* ✔ Integer literals
+* ✔ Float literals
+* ✔ Arithmetic expressions
+* ✔ Assignments
+* ✔ If-Then-Else
+* ✔ "while"-loops
+* ✔ Range-based "for"-loops
+* ✔ User functions
+* "visit" construct
+* List literals
+* Map literals
+* ◑ Garbage collection
+* ✔ Template parameters for system types
+* Template parameters for user functions
+* Template parameters for user types
+* Translate instructions to llvm
+* Multithreading constructs
 
 ## Parser
 
 Expression parsing
 
-
-    expr := or_
+    expr := or
     or := and [ "or" or ]
     and := comparison [ "and" and ]
     comparison = sum [ comparator sum ]*
@@ -30,8 +49,6 @@ Expression parsing
     function_args = expression [ "," function_args ]
 
 ## Examples
-
-### Simple
 
 ```
 
@@ -53,10 +70,10 @@ I also want Rust-style error handling, i.e. every outcome of an operation must b
 explicitly. However, it would be annoying to have to re-write the statement above as
 
 ```
-switch c[1]
-    Success(el)
-        switch b + el
-            Success(sum)
+visit c[1]
+    Integer c1
+        visit b + c1
+            Integer sum
                 a = sum
             Overflow
                 ...
@@ -76,19 +93,17 @@ I hope I will come up with a variant to make this safe and convenient at the sam
 
 ## Future Work
 
-### Enum
+### Variant / visit
 
-The enum concept was borrowed shamelessly from Rust.
+Used for error handling and optionals, similar to ``enum`` in Rust.
+
+Example:
 
 ```
-enum Result
-    Some: String
-    None
-
 result = do_something()
 
-switch result
-    Some(text)
+visit result
+    String text
         print("Received text: %s", text)
     None
         print("Received nothing :(")
